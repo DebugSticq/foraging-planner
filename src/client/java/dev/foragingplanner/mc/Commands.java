@@ -78,6 +78,12 @@ public final class Commands {
             context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal("§a[FP] §fForaging Planner §e" + ModVersion.get()));
             return SUCCESS;
         }));
+        root.then(ClientCommands.literal("bells")
+                .executes(context -> { Bells.list(context.getSource()::sendFeedback); return SUCCESS; })
+                .then(ClientCommands.literal("reset").executes(context -> { Bells.reset(); say(context.getSource(), "bell.reset_done"); return SUCCESS; }))
+                .then(ClientCommands.literal("toggle").then(ClientCommands.argument("number", StringArgumentType.word())
+                        .executes(context -> { Bells.toggle(StringArgumentType.getString(context, "number"), context.getSource()::sendFeedback); return SUCCESS; }))));
+        root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("help").executes(context -> { Help.show(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("setup").executes(context -> { SettingsScreen.requestSetup(); return SUCCESS; }));
         root.then(ClientCommands.literal("top").executes(context -> { StatsScreen.requestOpen(11); return SUCCESS; }));

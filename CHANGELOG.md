@@ -1,33 +1,41 @@
 # Changelog
 
-Alle Versionen der Foraging-Planner-Mod. Format: [Semantic Versioning](https://semver.org/lang/de/) –
-`MAJOR.MINOR.PATCH`. Die Datei heißt `foraging-planner-<version>+<minecraft>.jar`.
+All versions of the Foraging Planner mod. Versioning follows [Semantic Versioning](https://semver.org/) (`MAJOR.MINOR.PATCH`). Jar files are named `foraging-planner-<version>+<minecraft>.jar`.
 
-- **MAJOR**: große Umbauten, alte Einstellungen oder Daten passen eventuell nicht mehr
-- **MINOR**: neue Funktionen
-- **PATCH**: Fehlerbehebungen
+- **MAJOR**: big reworks; old settings or data may no longer fit
+- **MINOR**: new features
+- **PATCH**: bug fixes
 
-## [1.0.0] – 2026-11-16
+## [1.0.1] - 2026-11-16
 
-Erste vollständige Version.
+### Added
+- Critter Safari run tracker with a low-capsule warning and an end-of-run summary (`/fp safari`)
+- Safari bells: all 7 bells are marked and remembered, with the shortest route through the rest planned for you (`/fp bells`)
+- Shard prices above critters, Sparkling alert, Critterdex helper and biome milestones
+- Ticket counter, floor drop markers, Honeyed Helix markers, Safari Essence per hour and party catches
+- New "Critter Safari" settings page and a "Safari" HUD card
 
-### Planung
-- Heart-of-the-Forest-Planer mit Perkbaum, Budget und Tokens
-- Ausrüstungs-Berater mit Live-Preisen aus Auktionshaus und Bazaar
-- Baum-Rechner (Logs pro Schlag, Sweep-Vorschau)
+## [1.0.0] - 2026-11-16
 
-### Im Spiel
-- Flaches, einstellbares HUD (Ecken, Deckkraft, Farben, Abstand)
-- Session-Karte, Contest-Karte, Level-Prognose, Sammelraten
-- Baum-Markierungen mit Nachwachs-Timern, Baum-Navigator, Minikarte
-- Restliche Logs bis 100 %, Precision-Cutting-Helfer, aufgeräumte Baumansicht
-- Eigene Routen mit Etherwarp-Punkten, Import aus anderen Mods, Ghost-Modus
-- Contest-Tracking mit gezählten Logs, Replay und Bestwerten
-- Galatea-Helfer: Critter, Invisibugs, Stridersurfer, fallende Mobs, Moonglade Beacon
-- Kompakter Chat, Geräusche stummschalten
+First full release.
 
-### Menüs
-- Statistik-Menü mit Zielen, Sessions, Contests, Drops, Sammlungen, Verkauf, Routen, Kapiteln
-- `/fp pv <Spieler>` über den eigenen Server
-- Globale Bestenliste (freiwillig, Account über Mojang bestätigt, Werte über die Hypixel-API geprüft)
-- Einrichtung beim ersten Start (Minimal / Normal / Alles), `/fp help`, `/fp version`
+### Planning
+- Heart of the Forest planner with perk tree, budget and tokens
+- Gear advisor with live Auction House and Bazaar prices
+- Tree calculator (logs per hit, Sweep preview)
+
+### In game
+- Flat, configurable HUD (corner radius, opacity, colours, padding)
+- Session card, contest card, level forecast and gather rates
+- Tree markers with regrow timers, tree navigator and minimap
+- Logs left until 100 %, Precision Cutting helper and a cleaner tree view
+- Custom routes with Etherwarp points, import from other mods and ghost mode
+- Contest tracking with counted logs, replay and personal bests
+- Galatea helpers: critters, Invisibugs, Stridersurfers, falling mobs, Moonglade Beacon
+- Compact chat and sound muting
+
+### Menus
+- Stats menu with goals, sessions, contests, drops, collections, selling, routes and chapters
+- `/fp pv <player>` through the mod's own server
+- Global leaderboard (opt-in, account verified through Mojang, values checked through the Hypixel API)
+- First-start setup (Minimal / Normal / Everything), `/fp help`, `/fp version`

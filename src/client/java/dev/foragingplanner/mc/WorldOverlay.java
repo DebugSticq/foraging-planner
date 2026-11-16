@@ -28,7 +28,7 @@ public final class WorldOverlay {
 	private WorldOverlay() {}
 
 	/** Screen position of a world point, or null when it is behind the camera. */
-	private static float[] project(Minecraft client, Vec3 point) {
+	static float[] project(Minecraft client, Vec3 point) {
 		var camera = client.gameRenderer.mainCamera();
 		if (camera == null || !camera.isInitialized()) return null;
 
@@ -78,6 +78,8 @@ public final class WorldOverlay {
 		drawGhost(client, g, now);
 		drawPrecision(client, g);
 		drawExtras(client, g, player, now);
+		TreeWarnings.draw(client, g, now);
+		drawVendors(client, g, player);
 		Combo.draw(g);
 	}
 
@@ -114,6 +116,7 @@ public final class WorldOverlay {
 		round(g, x - 2, y - 2, 4, 4, 2, alpha(0xFFFFFFFF, a * 0.9));
 
 		String size = Planner.config.treeSizeLabel ? sizeLabel(spot) : "";
+		if (Planner.config.protectedTrees && TreeTracker.isProtected(spot)) size = "§c" + Planner.tr("protected.label") + "§r";
 		String text = label + (size.isEmpty() ? "" : " · " + size) + " · " + Math.round(distance) + "m";
 		int tw = font.width(text);
 		round(g, x - tw / 2 - 4, y - dot - 14, tw + 8, 11, 4, alpha(UI_PANEL, a * 0.75));
@@ -183,6 +186,22 @@ public final class WorldOverlay {
 				int x = Math.round(at[0]), y = Math.round(at[1]);
 				round(g, x - 3, y - 3, 6, 6, 3, 0xFFFF66FF);
 			}
+		}
+	}
+
+	/** Last known places of the Safari shard vendors. */
+	private static void drawVendors(Minecraft client, GuiGraphicsExtractor g, Vec3 player) {
+		if (!Planner.config.vendorTracker) return;
+		long now = System.currentTimeMillis();
+		for (Vendors.Vendor v : Vendors.known()) {
+			float[] at = project(client, v.pos().add(0, 2.4, 0));
+			if (at == null) continue;
+			int x = Math.round(at[0]), y = Math.round(at[1]);
+			long min = (now - v.seenMs()) / 60_000;
+			String text = "◆ " + v.name() + " · " + Math.round(v.pos().distanceTo(player)) + "m" + (min > 0 ? " · " + Planner.tr("vendor.ago", min) : "");
+			int tw = client.font.width(text);
+			round(g, x - tw / 2 - 3, y - 6, tw + 6, 11, 4, alpha(UI_PANEL, 0.78));
+			g.text(client.font, text, x - tw / 2, y - 4, 0xFFFFD34D, false);
 		}
 	}
 
@@ -323,7 +342,7 @@ public final class WorldOverlay {
 	}
 
 	/** A line on the ground drawn as dots, sampled in the world so that it follows perspective. */
-	private static void dottedLine(Minecraft client, GuiGraphicsExtractor g, Vec3 from, Vec3 to, int color) {
+	static void dottedLine(Minecraft client, GuiGraphicsExtractor g, Vec3 from, Vec3 to, int color) {
 		double length = from.distanceTo(to);
 		int steps = (int) Math.min(80, Math.max(2, length * 1.5));
 
@@ -341,7 +360,7 @@ public final class WorldOverlay {
 		double best = Double.MAX_VALUE;
 
 		for (TreeTracker.Spot spot : TreeTracker.spots()) {
-			if (spot.state != TreeTracker.State.READY) continue;
+			if (!TreeTracker.usable(spot)) continue;
 			double d = spot.center().distanceToSqr(player);
 			if (d > 6 * 6 && d < best) { best = d; target = spot; }
 		}
@@ -350,7 +369,7 @@ public final class WorldOverlay {
 		arrowTo(client, g, player, target.cx, target.cz, Math.sqrt(best), READY);
 	}
 
-	private static void arrowTo(Minecraft client, GuiGraphicsExtractor g, Vec3 player, double tx, double tz, double distance, int color) {
+	static void arrowTo(Minecraft client, GuiGraphicsExtractor g, Vec3 player, double tx, double tz, double distance, int color) {
 		double dx = tx - player.x;
 		double dz = tz - player.z;
 		double targetYaw = Math.toDegrees(Math.atan2(-dx, dz));

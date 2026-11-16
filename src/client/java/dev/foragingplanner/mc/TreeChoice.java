@@ -34,7 +34,7 @@ public final class TreeChoice {
 		double bestScore = 0;
 		List<TreeTracker.Spot> spots = TreeTracker.spots();
 		for (TreeTracker.Spot spot : spots) {
-			if (spot.state != TreeTracker.State.READY) continue;
+			if (!TreeTracker.usable(spot)) continue;
 			double distance = spot.center().distanceTo(from);
 			if (distance > 80) continue;
 			GameData.Tree data = TreeTracker.data(spot);

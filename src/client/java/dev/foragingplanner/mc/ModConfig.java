@@ -62,6 +62,37 @@ public final class ModConfig {
     public boolean sweepPreview = true;
     public boolean treeProgress = true;
     public boolean comboCounter = true;
+    public boolean protectedTrees = true;
+    public boolean regrowWarning = true;
+    public boolean milestones = true;
+    public boolean bigTreesOnly = false;
+    public boolean dropProtection = true;
+    public java.util.List<String> protectedItems = new java.util.ArrayList<>(java.util.List.of("Shining Coin"));
+    public boolean huntrapProtection = true;
+    public boolean attributeOverlay = true;
+    public boolean vendorTracker = true;
+    // Critter Safari
+    public boolean safariTracker = true;
+    public int capsuleWarnAt = 5;
+    public boolean safariPrices = true;
+    public boolean sparklingAlert = true;
+    public boolean critterdexHelper = true;
+    public boolean safariMilestones = true;
+    public boolean ticketReminder = true;
+    public boolean safariGroundItems = true;
+    public java.util.List<String> safariRareItems = new java.util.ArrayList<>(java.util.List.of("Icebreaker", "Shining Coin", "Lush Lily Pad"));
+    public boolean honeyHelix = true;
+    public java.util.List<String> honeyNames = new java.util.ArrayList<>(java.util.List.of("Honeyed Helix", "Honeyed"));
+    public boolean partyProgress = true;
+    public boolean safariBells = true;
+    public boolean bellRoute = true;
+    public boolean safariDebug = true;
+    public java.util.List<String> vendorNames = new java.util.ArrayList<>(java.util.List.of("Shard Vendor", "Shard Trader", "Shard Merchant", "Vendor"));
+    /** Asks Modrinth once per start whether a newer version exists. */
+    public boolean updateCheck = true;
+    /** Mutes sounds of mobs with these names (e.g. the Drybark). */
+    public boolean muteMobs = true;
+    public java.util.List<String> mutedMobs = new java.util.ArrayList<>(java.util.List.of("Drybark"));
     /** Pop-up cards for drops, goals, alarms and helpers. */
     public boolean toasts = true;
     /** Tree navigation: off, arrow, star, arrow_star, route or all. */

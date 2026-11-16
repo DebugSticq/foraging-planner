@@ -29,11 +29,12 @@ public final class Sounds {
 	public static boolean onPlay(SoundInstance sound) {
 		try {
 			String id = sound.getIdentifier().getPath();
+			if (Planner.config.safariBells && id.contains("bell")) Bells.sound(id, sound.getX(), sound.getY(), sound.getZ());
 			if (id.startsWith("block.note_block.") && Beacon.menuOpen()) {
 				lastNotePitch = sound.getPitch();
 				lastNoteMs = System.currentTimeMillis();
 			}
-			boolean mute = SkyBlockReader.inForagingArea() && muted(id);
+			boolean mute = SkyBlockReader.inForagingArea() && (muted(id) || fromMutedMob(sound, id));
 			remember(id, mute);
 			return mute;
 		} catch (RuntimeException ignored) {
@@ -47,6 +48,24 @@ public final class Sounds {
 		if (Planner.config.mutePhantoms && id.startsWith("entity.phantom.")) return true;
 		if (Planner.config.muteTreeBreak) {
 			if (TREE_BREAK.contains(id) || id.startsWith("entity.creaking.") || id.startsWith("block.creaking_heart.")) return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Mutes sounds that come from a mob with one of the muted names, like the Drybark. Hypixel's
+	 * mobs carry their name on a nearby armor stand, so the entities around the sound are checked.
+	 */
+	private static boolean fromMutedMob(SoundInstance sound, String id) {
+		if (!Planner.config.muteMobs || Planner.config.mutedMobs.isEmpty() || !id.startsWith("entity.")) return false;
+		var level = net.minecraft.client.Minecraft.getInstance().level;
+		if (level == null) return false;
+		var box = new net.minecraft.world.phys.AABB(sound.getX() - 2.5, sound.getY() - 3, sound.getZ() - 2.5, sound.getX() + 2.5, sound.getY() + 3, sound.getZ() + 2.5);
+		for (var entity : level.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, box)) {
+			var name = entity.getCustomName();
+			if (name == null) continue;
+			String text = Planner.strip(name.getString()).toLowerCase(java.util.Locale.ROOT);
+			for (String mob : Planner.config.mutedMobs) if (!mob.isBlank() && text.contains(mob.toLowerCase(java.util.Locale.ROOT))) return true;
 		}
 		return false;
 	}

@@ -32,7 +32,7 @@ public final class MiniMap {
 
 	public static void extract(GuiGraphicsExtractor g) {
 		var client = Minecraft.getInstance();
-		if (!Planner.config.minimap || client.player == null || client.gui.hud.isHidden() || client.gui.screen() != null || !SkyBlockReader.inForagingArea()) return;
+		if (!Planner.config.minimap || client.player == null || client.gui.hud.isHidden() || client.gui.screen() != null || !SkyBlockReader.inForagingArea() && !Safari.inside()) return;
 		grow = Planner.config.animations ? grow + ((big ? 1 : 0) - grow) * 0.2 : (big ? 1 : 0);
 
 		int size = (int) Math.round(Math.clamp(Planner.config.mapSize, 60, 200) * (1 + grow));
@@ -85,6 +85,10 @@ public final class MiniMap {
 
 		// Marked mobs and critters
 		for (Extras.Mark mark : Extras.marks()) dot(g, cx + (mark.pos().x - me.x) * scale, cy + (mark.pos().z - me.z) * scale, 2, mark.color());
+		if (Safari.inside()) {
+			for (Safari.Mark mark : Safari.marks()) dot(g, cx + (mark.pos().x - me.x) * scale, cy + (mark.pos().z - me.z) * scale, mark.alert() ? 3 : 1, mark.color());
+			Bells.drawMap(g, cx, cy, scale, me);
+		}
 
 		// The player: an arrow pointing where they look.
 		var pose = g.pose();
@@ -98,12 +102,12 @@ public final class MiniMap {
 		g.text(client.font, "N", cx - 2, y + 3, 0xAAFFFFFF, true);
 	}
 
-	private static void dot(GuiGraphicsExtractor g, double px, double pz, int r, int color) {
+	static void dot(GuiGraphicsExtractor g, double px, double pz, int r, int color) {
 		int ix = (int) Math.round(px), iz = (int) Math.round(pz);
 		g.fill(ix - r, iz - r, ix + r, iz + r, color);
 	}
 
-	private static void line(GuiGraphicsExtractor g, double x1, double y1, double x2, double y2, int color) {
+	static void line(GuiGraphicsExtractor g, double x1, double y1, double x2, double y2, int color) {
 		int steps = (int) Math.max(1, Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / 2);
 		for (int i = 0; i <= steps; i += 2) {
 			int px = (int) Math.round(x1 + (x2 - x1) * i / steps), py = (int) Math.round(y1 + (y2 - y1) * i / steps);

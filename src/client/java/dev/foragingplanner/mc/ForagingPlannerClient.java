@@ -43,10 +43,12 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		SweepChatListener.register();
 		Commands.register();
 		Beacon.register();
+		TreeWarnings.register();
 		MiniMap.register();
 		Extras.register();
 		HotfTooltip.register();
 		LogStripGuard.register();
+		Safari.register();
 		// Must be last: it can hide messages, and Fabric stops at the first listener that hides one.
 		CompactChat.register();
 
@@ -58,6 +60,8 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "toasts"), (graphics, delta) -> Toasts.extract(graphics));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
 				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "minimap"), (graphics, delta) -> MiniMap.extract(graphics));
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
+				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "safari"), (graphics, delta) -> Safari.draw(graphics));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			SettingsScreen.tick(client);
@@ -69,6 +73,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
             TreeProgress.tick(client);
             TreeChoice.tick(client);
             if (ticks % 10 == 5) Extras.tick(client);
+            if (ticks % 10 == 7) { Safari.tick(client); Bells.tick(client); }
 			if (++ticks % REFRESH_INTERVAL_TICKS != 0) return;
 
 			try {
@@ -83,6 +88,10 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				Levels.tick();
 				Afk.tick(client);
 				Leaderboard.tick();
+				Milestones.tick(client);
+				Vendors.tick(client);
+				TreeWarnings.scanNametags(client);
+				UpdateChecker.tick(client);
 				if (!Planner.config.setupDone && SkyBlockReader.inSkyBlock() && client.gui.screen() == null) client.gui.setScreen(new SetupScreen(null));
 				HudPresets.tick();
                 JournalStore.tick(SkyBlockReader.inForagingArea() && client.player != null && !Afk.idle());

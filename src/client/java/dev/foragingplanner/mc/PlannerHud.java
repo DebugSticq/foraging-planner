@@ -64,7 +64,7 @@ public final class PlannerHud {
 	private static final int ESSENCE = 0xFF6FD6A6;
 	private static final int HOTF = 0xFFB7E07A;
 
-	private static final List<String> ORDER = List.of("trees", "upgrades", "contest", "session", "targets", "guide", "hunting", "reel", "progress", "gather", "levels");
+	private static final List<String> ORDER = List.of("trees", "upgrades", "contest", "session", "targets", "guide", "hunting", "reel", "progress", "gather", "levels", "safari");
 
 	private static List<String> lines = List.of();
 	private static final Map<String, List<String>> modules = new LinkedHashMap<>();
@@ -132,8 +132,13 @@ public final class PlannerHud {
 		}
 
 		if (SkyBlockReader.inSkyBlock()) modules.put("hunting", HuntingTracker.hudLines());
-		modules.put("levels", SkyBlockReader.inSkyBlock() ? Levels.lines() : List.of());
-		modules.put("gather", SkyBlockReader.inForagingArea() ? Extras.gatherLines() : List.of());
+		List<String> levels = new ArrayList<>(SkyBlockReader.inSkyBlock() ? Levels.lines() : List.of());
+		if (SkyBlockReader.inForagingArea()) levels.addAll(Milestones.lines());
+		modules.put("levels", levels);
+		List<String> gather = new ArrayList<>(SkyBlockReader.inForagingArea() ? Extras.gatherLines() : List.of());
+		gather.addAll(Vendors.lines());
+		modules.put("gather", gather);
+		modules.put("safari", SkyBlockReader.inSkyBlock() ? Safari.lines() : List.of());
 
 		List<String> targets = new ArrayList<>();
 

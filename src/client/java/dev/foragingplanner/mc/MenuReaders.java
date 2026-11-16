@@ -81,6 +81,9 @@ public final class MenuReaders {
 			});
 
 			if (shop) ScreenEvents.afterExtract(screen).register((current, g, mouseX, mouseY, delta) -> drawShop(g, current.width));
+			if (attributes && Planner.config.attributeOverlay) {
+				ScreenEvents.afterExtract(screen).register((current, g, mouseX, mouseY, delta) -> drawAttributes(g, menu));
+			}
 			if (fusion) {
 				fusionShards = List.of();
 				ScreenEvents.afterExtract(screen).register((current, g, mouseX, mouseY, delta) -> drawFusion(g));
@@ -213,6 +216,76 @@ public final class MenuReaders {
 			}
 		}
 		if (changed) Progress.changed();
+	}
+
+	// Attribute overlay (/am)
+
+	private static final Pattern SHARD_PROGRESS = Pattern.compile("([\\d,]+)\\s*/\\s*([\\d,]+)");
+
+	/** One attribute in the menu: level, shards still missing for the next level and their price. */
+	private record Attr(Slot slot, String name, int level, int missing, Double cost) {}
+
+	private static void drawAttributes(net.minecraft.client.gui.GuiGraphicsExtractor g, AbstractContainerScreen<?> menu) {
+		var font = net.minecraft.client.Minecraft.getInstance().font;
+		List<Attr> attrs = new ArrayList<>();
+		for (Slot slot : menu.getMenu().slots) {
+			if (slot.container instanceof net.minecraft.world.entity.player.Inventory) continue;
+			ItemStack stack = slot.getItem();
+			if (stack.isEmpty()) continue;
+			String name = name(stack);
+			int level = -1;
+			Matcher roman = ROMAN_END.matcher(name);
+			if (roman.matches()) { level = roman(roman.group(2)); name = roman.group(1); }
+			int missing = -1;
+			String shard = null;
+			for (String line : lore(stack)) {
+				Matcher lv = LEVEL.matcher(line);
+				if (lv.find()) level = Integer.parseInt(lv.group(1));
+				Matcher pr = SHARD_PROGRESS.matcher(line);
+				if (missing < 0 && pr.find() && !line.contains("%")) {
+					int have = Integer.parseInt(pr.group(1).replace(",", ""));
+					int need = Integer.parseInt(pr.group(2).replace(",", ""));
+					if (need > have && need < 100_000) missing = need - have;
+				}
+				if (shard == null && line.toLowerCase(Locale.ROOT).contains("shard")) {
+					Matcher m = Pattern.compile("([A-Z][A-Za-z' ]+ Shard)").matcher(line);
+					if (m.find()) shard = m.group(1);
+				}
+			}
+			if (level < 0 || name.isBlank()) continue;
+			Double price = shard == null ? null : BazaarPrices.BUY.get(Hunting.shardId(shard));
+			attrs.add(new Attr(slot, name, level, missing, price == null || missing < 0 ? null : price * missing));
+		}
+		if (attrs.isEmpty()) return;
+
+		int rows = Math.max(1, (menu.getMenu().slots.size() - 36) / 9);
+		int left = (menu.width - 176) / 2, top = (menu.height - (114 + rows * 18)) / 2;
+		var pose = g.pose();
+		for (Attr a : attrs) {
+			String lvl = String.valueOf(a.level());
+			pose.pushMatrix();
+			pose.translate(left + a.slot().x + 1, top + a.slot().y + 1);
+			pose.scale(0.75f, 0.75f);
+			g.text(font, lvl, 0, 0, a.level() >= 10 ? UI_AMBER : 0xFFFFFFFF, true);
+			pose.popMatrix();
+		}
+
+		List<Attr> priced = new ArrayList<>(attrs.stream().filter(a -> a.cost() != null && a.level() < 10).toList());
+		priced.sort((x, y) -> Double.compare(x.cost(), y.cost()));
+		int n = Math.min(8, priced.size());
+		int w = 170, h = 22 + Math.max(1, n) * 11 + 4;
+		int x = Math.max(4, left - w - 6), y = top;
+		round(g, x, y, w, h, 7, alpha(UI_PANEL, 0.94));
+		roundOutline(g, x, y, w, h, 7, alpha(UI_ACCENT, 0.5));
+		g.text(font, Planner.tr("attr.title"), x + 7, y + 6, UI_ACCENT, false);
+		if (n == 0) g.text(font, Planner.tr("attr.none"), x + 7, y + 19, UI_DIM, false);
+		for (int i = 0; i < n; i++) {
+			Attr a = priced.get(i);
+			String cost = GearScreenFormat.coins(a.cost());
+			String label = a.name() + " " + (a.level() + 1);
+			g.text(font, fit(font, label, w - 24 - font.width(cost)), x + 7, y + 19 + i * 11, UI_TEXT, false);
+			g.text(font, cost, x + w - 7 - font.width(cost), y + 19 + i * 11, UI_AMBER, false);
+		}
 	}
 
 	// Fusion machine

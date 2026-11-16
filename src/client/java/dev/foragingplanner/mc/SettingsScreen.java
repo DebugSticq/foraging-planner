@@ -69,13 +69,13 @@ import dev.foragingplanner.core.Goal;
  * and a live preview on wide screens. Every change is saved a moment after it is made.
  */
 public final class SettingsScreen extends Screen {
-	private static final String[] PAGES = {"display", "trees", "galatea", "alerts", "chat", "online", "planner", "stats", "style"};
-	private static final Item[] PAGE_ICONS = {Items.PAINTING, Items.OAK_LOG, Items.SPYGLASS, Items.BELL, Items.PAPER, Items.GOLDEN_HOE, Items.OAK_SAPLING, Items.IRON_AXE, Items.FLOWER_POT};
+	private static final String[] PAGES = {"display", "trees", "galatea", "alerts", "chat", "online", "planner", "stats", "safari", "style"};
+	private static final Item[] PAGE_ICONS = {Items.PAINTING, Items.OAK_LOG, Items.SPYGLASS, Items.BELL, Items.PAPER, Items.GOLDEN_HOE, Items.OAK_SAPLING, Items.IRON_AXE, Items.BELL, Items.FLOWER_POT};
 
 	private static final int ROW_HEIGHT = 36;
 	private static final int ROW_STEP = ROW_HEIGHT + 5;
-	private static final int NAV_HEIGHT = 21;
-	private static final int NAV_STEP = 23;
+	private int NAV_HEIGHT = 21;
+	private int NAV_STEP = 23;
 	private static final int RADIUS = 10;
 	private static final int FIREFLIES = 28;
 	private static final long SAVE_DELAY_NS = 600_000_000L;
@@ -169,6 +169,8 @@ public final class SettingsScreen extends Screen {
 		boolean wide = width >= 600 && height >= 300;
 		panelW = Math.min(wide ? 720 : 540, width - 20);
 		panelH = Math.min(360, height - 20);
+		NAV_STEP = Math.clamp((panelH - 58) / PAGES.length, 15, 23);
+		NAV_HEIGHT = NAV_STEP - 2;
 		panelX = (width - panelW) / 2;
 		panelY = (height - panelH) / 2;
 		sideW = panelW < 430 ? 44 : 128;
@@ -247,6 +249,9 @@ public final class SettingsScreen extends Screen {
 					c.treeChoice = value.contains("star") || value.equals("all");
 					c.treeRoute = value.equals("route") || value.equals("all");
 				}, List.of("off", "arrow", "star", "arrow_star", "route", "all"));
+				new ToggleRow("protected_trees", Items.BARRIER, () -> c.protectedTrees, value -> c.protectedTrees = value);
+				new ToggleRow("regrow_warning", Items.OAK_SAPLING, () -> c.regrowWarning, value -> c.regrowWarning = value);
+				new ToggleRow("big_trees_only", Items.DARK_OAK_LOG, () -> c.bigTreesOnly, value -> c.bigTreesOnly = value);
 				new ToggleRow("tree_markers", Items.SLIME_BALL, () -> c.treeMarkers, value -> c.treeMarkers = value);
 				new ToggleRow("tree_size", Items.OAK_LOG, () -> c.treeSizeLabel, value -> c.treeSizeLabel = value);
 				new ToggleRow("sweep_preview", Items.IRON_AXE, () -> c.sweepPreview, value -> c.sweepPreview = value);
@@ -257,6 +262,11 @@ public final class SettingsScreen extends Screen {
 				new ToggleRow("ghost_routes", Items.PHANTOM_MEMBRANE, () -> c.ghostRoutes, value -> c.ghostRoutes = value);
 			}
 			case "galatea" -> {
+				new ToggleRow("milestones", Items.OAK_SAPLING, () -> c.milestones, value -> c.milestones = value);
+				new ToggleRow("attribute_overlay", Items.PRISMARINE_SHARD, () -> c.attributeOverlay, value -> c.attributeOverlay = value);
+				new ToggleRow("vendor_tracker", Items.EMERALD, () -> c.vendorTracker, value -> c.vendorTracker = value);
+				new ToggleRow("drop_protection", Items.GOLD_NUGGET, () -> c.dropProtection, value -> c.dropProtection = value);
+				new ToggleRow("huntrap_protection", Items.TRIPWIRE_HOOK, () -> c.huntrapProtection, value -> c.huntrapProtection = value);
 				new ToggleRow("critters", Items.SPYGLASS, () -> c.critterHighlight, value -> c.critterHighlight = value);
 				new ToggleRow("invisibug", Items.GLOW_BERRIES, () -> c.invisibugHelper, value -> c.invisibugHelper = value);
 				new ToggleRow("strider", Items.STRING, () -> c.striderCounter, value -> c.striderCounter = value);
@@ -288,6 +298,7 @@ public final class SettingsScreen extends Screen {
 				new ToggleRow("compact_contest", Items.GOLDEN_HOE, () -> c.compactContest, value -> c.compactContest = value);
 				new ToggleRow("hide_lottery", Items.PAPER, () -> c.hideLottery, value -> c.hideLottery = value);
 				new ToggleRow("mute_phantoms", Items.PHANTOM_MEMBRANE, () -> c.mutePhantoms, value -> c.mutePhantoms = value);
+				new ToggleRow("mute_mobs", Items.DEAD_BUSH, () -> c.muteMobs, value -> c.muteMobs = value);
 				new ToggleRow("mute_tree_break", Items.NOTE_BLOCK, () -> c.muteTreeBreak, value -> c.muteTreeBreak = value);
 				new ActionRow("sounds_list", "open", Items.NOTE_BLOCK, () -> {
 					onClose();
@@ -301,6 +312,7 @@ public final class SettingsScreen extends Screen {
 					if (!value) Leaderboard.forget();
 				});
 				new ActionRow("leaderboard_open", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 11)));
+				new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
 				new ActionRow("setup", "open", Items.NETHER_STAR, () -> minecraft.gui.setScreen(new SetupScreen(this)));
 			}
 			case "planner" -> {
@@ -328,6 +340,22 @@ public final class SettingsScreen extends Screen {
 				new NumberRow("wisdom", Items.EXPERIENCE_BOTTLE, c.manualWisdom, 0, 100_000, false, value -> c.manualWisdom = value, manual);
 				new NumberRow("strength", Items.IRON_SWORD, c.manualStrength, 0, 100_000, false, value -> c.manualStrength = value, manual);
 				new NumberRow("speed", Items.SUGAR, c.manualSpeed, 0, 100_000, false, value -> c.manualSpeed = value, manual);
+			}
+			case "safari" -> {
+				new ToggleRow("safari_tracker", Items.CLOCK, () -> c.safariTracker, value -> c.safariTracker = value);
+				new NumberRow("capsule_warn", Items.ENDER_PEARL, c.capsuleWarnAt, 0, 20, true, value -> c.capsuleWarnAt = (int) value, () -> true);
+				new ToggleRow("safari_bells", Items.BELL, () -> c.safariBells, value -> c.safariBells = value);
+				new ToggleRow("bell_route", Items.COMPASS, () -> c.bellRoute, value -> c.bellRoute = value);
+				new ActionRow("bell_reset", "reset", Items.BELL, Bells::reset);
+				new ToggleRow("safari_prices", Items.GOLD_NUGGET, () -> c.safariPrices, value -> c.safariPrices = value);
+				new ToggleRow("sparkling_alert", Items.GLOWSTONE_DUST, () -> c.sparklingAlert, value -> c.sparklingAlert = value);
+				new ToggleRow("critterdex_helper", Items.BOOK, () -> c.critterdexHelper, value -> c.critterdexHelper = value);
+				new ToggleRow("safari_milestones", Items.OAK_SAPLING, () -> c.safariMilestones, value -> c.safariMilestones = value);
+				new ToggleRow("ticket_reminder", Items.PAPER, () -> c.ticketReminder, value -> c.ticketReminder = value);
+				new ToggleRow("safari_ground", Items.HOPPER, () -> c.safariGroundItems, value -> c.safariGroundItems = value);
+				new ToggleRow("honey_helix", Items.HONEYCOMB, () -> c.honeyHelix, value -> c.honeyHelix = value);
+				new ToggleRow("party_progress", Items.PLAYER_HEAD, () -> c.partyProgress, value -> c.partyProgress = value);
+				new ToggleRow("safari_debug", Items.WRITABLE_BOOK, () -> c.safariDebug, value -> c.safariDebug = value);
 			}
 			case "style" -> {
 				new SliderRow("hud_radius", Items.SNOWBALL, 0, 12, 1, "px", () -> c.hudRadius, value -> c.hudRadius = value);

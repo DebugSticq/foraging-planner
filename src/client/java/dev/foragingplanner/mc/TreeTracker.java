@@ -78,6 +78,46 @@ public final class TreeTracker {
 		return null;
 	}
 
+	private static String key(Spot spot) {
+		return SkyBlockReader.area() + "|" + Math.round(spot.cx) + "|" + Math.round(spot.cz);
+	}
+
+	/** True when a fine message was seen for this tree, or a nametag near it says it is protected. */
+	public static boolean isProtected(Spot spot) {
+		return Progress.get().protectedTrees.contains(key(spot));
+	}
+
+	/** Marks a tree as protected; returns true when it was new. */
+	public static boolean markProtected(Spot spot) {
+		boolean added = Progress.get().protectedTrees.add(key(spot));
+		if (added) Progress.changed();
+		return added;
+	}
+
+	/** "Big" compared with the other trees of the same kind; unknown sizes count as big. */
+	public static boolean isBig(Spot spot) {
+		return sizeClass(spot) >= 0;
+	}
+
+	/** 1 big, 0 normal, -1 small, compared with the median of the same tree kind. */
+	public static int sizeClass(Spot spot) {
+		if (spot.maxBlocks <= 0) return 0;
+		List<Integer> sizes = new ArrayList<>();
+		for (Spot other : spots()) if (other.tree.equals(spot.tree) && other.maxBlocks > 0) sizes.add(other.maxBlocks);
+		if (sizes.size() < 4) return 0;
+		sizes.sort(null);
+		int median = sizes.get(sizes.size() / 2);
+		if (spot.maxBlocks >= median * 1.3) return 1;
+		if (spot.maxBlocks <= median * 0.75) return -1;
+		return 0;
+	}
+
+	/** Trees worth walking to: ready, not protected and, if wanted, big. */
+	public static boolean usable(Spot spot) {
+		if (spot.state != State.READY || isProtected(spot)) return false;
+		return !Planner.config.bigTreesOnly || sizeClass(spot) > 0 || sizeClass(spot) == 0 && spot.maxBlocks <= 0;
+	}
+
 	public static List<Spot> spots() {
 		load();
 		return SPOTS.computeIfAbsent(SkyBlockReader.area(), k -> new ArrayList<>());
@@ -255,7 +295,7 @@ public final class TreeTracker {
 	/** Ready trees in the order of a short walk: always the nearest next one. */
 	public static List<Spot> route(Vec3 from, int max) {
 		List<Spot> left = new ArrayList<>();
-		for (Spot spot : spots()) if (spot.state == State.READY && spot.center().distanceTo(from) < 80) left.add(spot);
+		for (Spot spot : spots()) if (usable(spot) && spot.center().distanceTo(from) < 80) left.add(spot);
 		List<Spot> path = new ArrayList<>();
 		Vec3 at = from;
 

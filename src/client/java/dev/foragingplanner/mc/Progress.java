@@ -44,6 +44,29 @@ public final class Progress {
 	public int bestCombo;
 	public int miriaPrizes;
 	public int bestTpm;
+	/** Tree gifts per tree type (FIG, MANGROVE, HELIX …). */
+	public Map<String, Integer> giftsByTree = new LinkedHashMap<>();
+	/** Protected trees, as "area|x|z" of their spot. */
+	public java.util.Set<String> protectedTrees = new java.util.LinkedHashSet<>();
+
+	// Critter Safari
+	/** Indices of the built-in bells (and keys "x,y,z" of found ones) already rung. */
+	public java.util.Set<String> safariBellsRung = new java.util.LinkedHashSet<>();
+	/** Bells found in the world that are not in the built-in list, as "x,y,z". */
+	public java.util.Set<String> safariBellsFound = new java.util.LinkedHashSet<>();
+	public java.util.Set<String> critterCaught = new java.util.LinkedHashSet<>();
+	public java.util.Set<String> critterMissing = new java.util.LinkedHashSet<>();
+	/** Biome name to "have/need" from the milestone menu. */
+	public Map<String, String> safariMilestones = new LinkedHashMap<>();
+	public int safariTickets = -1;
+	public int sparklingSeen;
+	public List<SafariRun> safariRuns = new ArrayList<>();
+
+	public static final class SafariRun {
+		public long startMs, durationMs;
+		public int catches, fails, capsulesUsed;
+		public long essence;
+	}
 	/** The running contest, so a restart in the middle does not lose the logs cut before it. */
 	public ContestState contestState;
 
@@ -160,6 +183,8 @@ public final class Progress {
 		if (p.huntingBox == null) p.huntingBox = new LinkedHashMap<>();
 		if (p.treeSizes == null) p.treeSizes = new LinkedHashMap<>();
 		if (p.chapters == null) p.chapters = new LinkedHashMap<>();
+		if (p.giftsByTree == null) p.giftsByTree = new LinkedHashMap<>();
+		if (p.protectedTrees == null) p.protectedTrees = new java.util.LinkedHashSet<>();
 		if (p.treeSizesExact == null) p.treeSizesExact = new LinkedHashMap<>();
 		if (p.dataVersion < 2) {
 			// Before version 2 the contest logs were reset every second, so these learned values are wrong.

@@ -139,7 +139,7 @@ public final class SetupScreen extends Screen {
 		return false;
 	}
 
-	private static final java.util.List<String> MODULES = java.util.List.of("trees", "upgrades", "contest", "session", "targets", "guide", "hunting", "reel", "progress", "gather", "levels");
+	private static final java.util.List<String> MODULES = java.util.List.of("trees", "upgrades", "contest", "session", "targets", "guide", "hunting", "reel", "progress", "gather", "levels", "safari");
 
 	/**
 	 * Sets the switches for one of the three choices. Minimal really is minimal: only the session
@@ -205,5 +205,26 @@ public final class SetupScreen extends Screen {
 		c.hideLottery = normal;
 		c.mutePhantoms = all;
 		c.muteTreeBreak = false;
+		c.muteMobs = normal;
+		c.protectedTrees = normal;
+		c.regrowWarning = normal;
+		c.milestones = normal;
+		c.attributeOverlay = normal;
+		c.vendorTracker = normal;
+
+		// Critter Safari
+		c.safariTracker = normal;
+		c.safariPrices = normal;
+		c.sparklingAlert = normal;
+		c.critterdexHelper = normal;
+		c.safariMilestones = all;
+		c.ticketReminder = normal;
+		c.safariGroundItems = normal;
+		c.honeyHelix = normal;
+		c.partyProgress = all;
+		c.safariBells = normal;
+		c.bellRoute = normal;
+		c.dropProtection = true;
+		c.huntrapProtection = true;
 	}
 }

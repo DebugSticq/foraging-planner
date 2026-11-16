@@ -43,7 +43,10 @@ public final class LootTracker {
                 JournalStore.journal.dailyWish = true;
             }
             var contribution = ObservationParser.CONTRIBUTION.matcher(text);
-            if (contribution.matches()) TreeProgress.contribution(contribution.group(2), Double.parseDouble(contribution.group(1)));
+            if (contribution.matches()) {
+                TreeProgress.contribution(contribution.group(2), Double.parseDouble(contribution.group(1)));
+                Milestones.gift(contribution.group(2));
+            }
             if (now > giftUntil) return;
             if (contribution.matches()) { giftTree = contribution.group(2).toLowerCase(Locale.ROOT); return; }
             if (text.matches("\\+\\d[\\d,]* rewards gained!.*") && giftTree != null && !rewarded) {
