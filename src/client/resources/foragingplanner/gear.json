@@ -1,0 +1,541 @@
+{
+	"_comment": "Base stats and IDs come from the NotEnoughUpdates item repository (Nov 2026). Prices are loaded live. Edit freely; a copy in config/foragingplanner/gear.json wins.",
+	"assumptions": {
+		"mangroveDigits": 6
+	},
+	"items": [
+		{
+			"id": "SERIOUSLY_DAMAGED_AXE",
+			"name": "Seriously Damaged Axe",
+			"sweep": 10.0,
+			"fortune": 5.0,
+			"wisdom": 0,
+			"rarity": "UNCOMMON",
+			"foraging": 12,
+			"slot": "axe",
+			"icon": "wooden_axe"
+		},
+		{
+			"id": "FIG_AXE",
+			"name": "Fig Hew",
+			"sweep": 15.0,
+			"fortune": 20.0,
+			"wisdom": 0,
+			"rarity": "UNCOMMON",
+			"foraging": 12,
+			"slot": "axe",
+			"icon": "wooden_axe"
+		},
+		{
+			"id": "DECENT_AXE",
+			"name": "Decent Axe",
+			"sweep": 24.0,
+			"fortune": 5.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 15,
+			"slot": "axe",
+			"icon": "wooden_axe"
+		},
+		{
+			"id": "TREECAPITATOR_AXE",
+			"name": "Treecapitator",
+			"sweep": 25.0,
+			"fortune": 0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 0,
+			"slot": "axe",
+			"icon": "golden_axe",
+			"note": "Gives its Foraging Fortune only in The Park."
+		},
+		{
+			"id": "FIGSTONE_AXE",
+			"name": "Figstone Splitter",
+			"sweep": 25.0,
+			"fortune": 35.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 15,
+			"slot": "axe",
+			"icon": "stone_axe"
+		},
+		{
+			"id": "HELIX_CHOPPER",
+			"name": "Helix Chopper",
+			"sweep": 50.0,
+			"fortune": 50.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 20,
+			"slot": "axe",
+			"icon": "stone_axe"
+		},
+		{
+			"id": "CANOPY_HELMET",
+			"name": "Canopy Mask",
+			"sweep": 6.0,
+			"fortune": 0,
+			"wisdom": 0,
+			"rarity": "UNCOMMON",
+			"foraging": 12,
+			"slot": "helmet",
+			"icon": "leather_helmet"
+		},
+		{
+			"id": "FIG_HELMET",
+			"name": "Fig Cap",
+			"sweep": 10.0,
+			"fortune": 30.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 15,
+			"slot": "helmet",
+			"icon": "leather_helmet"
+		},
+		{
+			"id": "HELIX_ARMOR_HELMET",
+			"name": "Helix Helmet",
+			"sweep": 20.0,
+			"fortune": 45.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 25,
+			"slot": "helmet",
+			"icon": "leather_helmet"
+		},
+		{
+			"id": "CANOPY_CHESTPLATE",
+			"name": "Canopy Shirt",
+			"sweep": 6.0,
+			"fortune": 0,
+			"wisdom": 0,
+			"rarity": "UNCOMMON",
+			"foraging": 12,
+			"slot": "chestplate",
+			"icon": "leather_chestplate"
+		},
+		{
+			"id": "FIG_CHESTPLATE",
+			"name": "Figmail",
+			"sweep": 10.0,
+			"fortune": 30.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 15,
+			"slot": "chestplate",
+			"icon": "leather_chestplate"
+		},
+		{
+			"id": "HELIX_ARMOR_CHESTPLATE",
+			"name": "Helix Chestplate",
+			"sweep": 20.0,
+			"fortune": 45.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 25,
+			"slot": "chestplate",
+			"icon": "leather_chestplate"
+		},
+		{
+			"id": "CANOPY_LEGGINGS",
+			"name": "Canopy Pants",
+			"sweep": 6.0,
+			"fortune": 0,
+			"wisdom": 0,
+			"rarity": "UNCOMMON",
+			"foraging": 12,
+			"slot": "leggings",
+			"icon": "leather_leggings"
+		},
+		{
+			"id": "FIG_LEGGINGS",
+			"name": "Fig Trousers",
+			"sweep": 10.0,
+			"fortune": 30.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 15,
+			"slot": "leggings",
+			"icon": "leather_leggings"
+		},
+		{
+			"id": "HELIX_ARMOR_LEGGINGS",
+			"name": "Helix Leggings",
+			"sweep": 20.0,
+			"fortune": 45.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 25,
+			"slot": "leggings",
+			"icon": "leather_leggings"
+		},
+		{
+			"id": "CANOPY_BOOTS",
+			"name": "Canopy Sandals",
+			"sweep": 6.0,
+			"fortune": 0,
+			"wisdom": 0,
+			"rarity": "UNCOMMON",
+			"foraging": 12,
+			"slot": "boots",
+			"icon": "leather_boots"
+		},
+		{
+			"id": "FIG_BOOTS",
+			"name": "Fig Striders",
+			"sweep": 10.0,
+			"fortune": 30.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 15,
+			"slot": "boots",
+			"icon": "leather_boots"
+		},
+		{
+			"id": "HELIX_ARMOR_BOOTS",
+			"name": "Helix Boots",
+			"sweep": 20.0,
+			"fortune": 45.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 25,
+			"slot": "boots",
+			"icon": "leather_boots"
+		},
+		{
+			"id": "MANGROVE_LOCKET",
+			"name": "Mangrove Locket",
+			"sweep": 1.0,
+			"fortune": 5.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 12,
+			"slot": "necklace",
+			"icon": "string"
+		},
+		{
+			"id": "HONEYCOMB_NECKLACE",
+			"name": "Honeycomb Necklace",
+			"sweep": 5.0,
+			"fortune": 25.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 30,
+			"slot": "necklace",
+			"icon": "string"
+		},
+		{
+			"id": "MANGROVE_VINE",
+			"name": "Moonglade Belt",
+			"sweep": 1.0,
+			"fortune": 5.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 12,
+			"slot": "belt",
+			"icon": "lead"
+		},
+		{
+			"id": "TORRHUS_BELT",
+			"name": "Torrhus Belt",
+			"sweep": 2.0,
+			"fortune": 10.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 24,
+			"slot": "belt",
+			"icon": "lead"
+		},
+		{
+			"id": "MANGROVE_GRIPPERS",
+			"name": "Mangrove Grippers",
+			"sweep": 1.0,
+			"fortune": 5.0,
+			"wisdom": 0,
+			"rarity": "RARE",
+			"foraging": 12,
+			"slot": "gloves",
+			"icon": "rabbit_hide"
+		},
+		{
+			"id": "VEILSHROOM_BRACELET",
+			"name": "Veilshroom Bracelet",
+			"sweep": 5.0,
+			"fortune": 25.0,
+			"wisdom": 0,
+			"rarity": "EPIC",
+			"foraging": 30,
+			"slot": "gloves",
+			"icon": "rabbit_hide"
+		},
+		{
+			"id": "DESTRUCTION_CLOAK",
+			"name": "Destruction Cloak",
+			"sweep": 0,
+			"fortune": 0,
+			"wisdom": 1.0,
+			"rarity": "EPIC",
+			"foraging": 0,
+			"slot": "cloak",
+			"icon": "phantom_membrane",
+			"note": "Needs Blaze Slayer 5."
+		},
+		{
+			"id": "ANNIHILATION_CLOAK",
+			"name": "Annihilation Cloak",
+			"sweep": 0,
+			"fortune": 0,
+			"wisdom": 2.0,
+			"rarity": "LEGENDARY",
+			"foraging": 0,
+			"slot": "cloak",
+			"icon": "phantom_membrane",
+			"note": "Needs Blaze Slayer 7."
+		},
+		{
+			"id": "MONKEY;3",
+			"name": "Monkey",
+			"rarity": "EPIC",
+			"slot": "pet",
+			"icon": "cocoa_beans",
+			"sweep": 0,
+			"fortune": 60,
+			"wisdom": 0,
+			"foraging": 0,
+			"note": "Treeborn at level 100."
+		},
+		{
+			"id": "MONKEY;4",
+			"name": "Monkey",
+			"rarity": "LEGENDARY",
+			"slot": "pet",
+			"icon": "cocoa_beans",
+			"sweep": 0,
+			"fortune": 60,
+			"wisdom": 0,
+			"foraging": 0,
+			"note": "Treeborn at level 100."
+		},
+		{
+			"id": "FROG;3",
+			"name": "Frog",
+			"rarity": "EPIC",
+			"slot": "pet",
+			"icon": "lily_pad",
+			"sweep": 10,
+			"fortune": 80,
+			"wisdom": 0,
+			"foraging": 0,
+			"note": "Fortune lasts 20 s after each jump."
+		},
+		{
+			"id": "FROG;4",
+			"name": "Frog",
+			"rarity": "LEGENDARY",
+			"slot": "pet",
+			"icon": "lily_pad",
+			"sweep": 10,
+			"fortune": 80,
+			"wisdom": 0,
+			"foraging": 0,
+			"note": "Fortune lasts 20 s after each jump."
+		},
+		{
+			"id": "JADE_DRAGON;4",
+			"name": "Jade Dragon",
+			"rarity": "LEGENDARY",
+			"slot": "pet",
+			"icon": "emerald",
+			"sweep": 0,
+			"fortune": 50,
+			"wisdom": 0,
+			"foraging": 0,
+			"fortunePerDigit": 15,
+			"sweepPerDigit": 4,
+			"fortunePerSweep": 0.2,
+			"note": "Scales with the digits of your Mangrove collection and with your Sweep."
+		}
+	],
+	"shards": [
+		{
+			"id": "SHARD_FIREFOX",
+			"name": "Firefox",
+			"ability": "Torrhus Mastery",
+			"effect": "+10–100 Helix Fortune",
+			"rarity": "COMMON",
+			"toMax": 96,
+			"priority": "high"
+		},
+		{
+			"id": "SHARD_EMBER",
+			"name": "Ember",
+			"ability": "Galatea Training",
+			"effect": "+10% Heart of the Forest XP",
+			"rarity": "UNCOMMON",
+			"toMax": 64,
+			"priority": "high"
+		},
+		{
+			"id": "SHARD_VULTURE",
+			"name": "Vulture",
+			"ability": "Helix Sharpening",
+			"effect": "+15 Sweep per level on Helix trees",
+			"rarity": "RARE",
+			"toMax": 48,
+			"priority": "high"
+		},
+		{
+			"id": "SHARD_HAWK",
+			"name": "Hawk",
+			"ability": "Helix Collector",
+			"effect": "+1 Helix Fortune per collection digit per level",
+			"rarity": "UNCOMMON",
+			"toMax": 64,
+			"priority": "high"
+		},
+		{
+			"id": "SHARD_MOCHIBEAR",
+			"name": "Mochibear",
+			"ability": "Strong Legs",
+			"effect": "+3 Sweep per level on all trees",
+			"rarity": "UNCOMMON",
+			"toMax": 64,
+			"priority": "high"
+		},
+		{
+			"id": "SHARD_PHANFLARE",
+			"name": "Phanflare",
+			"ability": "Moonglade Mastery",
+			"effect": "+10–100 Fig and Mangrove Fortune",
+			"rarity": "COMMON",
+			"toMax": 96,
+			"priority": "high"
+		},
+		{
+			"id": "SHARD_CROW",
+			"name": "Crow",
+			"ability": "Fig Sharpening",
+			"effect": "+5–50 Sweep on Fig trees",
+			"rarity": "COMMON",
+			"toMax": 96,
+			"priority": "medium"
+		},
+		{
+			"id": "SHARD_GRIZZLY_BEAR",
+			"name": "Grizzly Bear",
+			"ability": "Tough Claws",
+			"effect": "Lower tree toughness",
+			"rarity": "LEGENDARY",
+			"toMax": 24,
+			"priority": "medium"
+		},
+		{
+			"id": "SHARD_PANGOLIN",
+			"name": "Pangolin",
+			"ability": "Atomized Whispers",
+			"effect": "+1% Forest Whispers per level",
+			"rarity": "RARE",
+			"toMax": 48,
+			"priority": "medium"
+		},
+		{
+			"id": "SHARD_SOLAR",
+			"name": "Solar",
+			"ability": "Starlyn Training",
+			"effect": "More Starlyn contest points",
+			"rarity": "UNCOMMON",
+			"toMax": 64,
+			"priority": "medium"
+		},
+		{
+			"id": "SHARD_PHANPYRE",
+			"name": "Phanpyre",
+			"ability": "Nocturnal Animal",
+			"effect": "+1–10 Sweep at night",
+			"rarity": "COMMON",
+			"toMax": 96,
+			"priority": "low"
+		},
+		{
+			"id": "SHARD_GROUNDHOG",
+			"name": "Groundhog",
+			"ability": "Diurnal Animal",
+			"effect": "+1–10 Sweep by day",
+			"rarity": "COMMON",
+			"toMax": 96,
+			"priority": "low"
+		},
+		{
+			"id": "SHARD_STINGRAY",
+			"name": "Stingray",
+			"ability": "Torrhus Serendipity",
+			"effect": "+2% rare Tree Gifts at Torrhus per level",
+			"rarity": "RARE",
+			"toMax": 48,
+			"priority": "low"
+		}
+	],
+	"tips": [
+		{
+			"id": "SWEEP_BOOSTER_UNCOMMON",
+			"name": "Uncommon Sweep Booster",
+			"effect": "Axe 5 → 10 Sweep, armor 2 → 5 per piece",
+			"icon": "feather"
+		},
+		{
+			"id": "FORAGING_FORTUNE_BOOSTER_UNCOMMON",
+			"name": "Uncommon Fortune Booster",
+			"effect": "Axe 10 → 20, armor 5 → 10 per piece",
+			"icon": "gold_nugget"
+		},
+		{
+			"id": "FORAGING_WISDOM_BOOSTER_UNCOMMON",
+			"name": "Uncommon Wisdom Booster",
+			"effect": "Axe 2 → 3, armor 1 → 2 per piece",
+			"icon": "experience_bottle"
+		},
+		{
+			"id": "ENCHANTMENT_FOREST_PLEDGE_5",
+			"name": "Forest Pledge V",
+			"effect": "+10 Foraging Fortune per armor piece",
+			"icon": "enchanted_book"
+		},
+		{
+			"id": "WATER_HYACINTH",
+			"name": "Water Hyacinth",
+			"effect": "Forest Pledge V → VI, +2 Fortune per piece",
+			"icon": "lily_pad"
+		},
+		{
+			"id": "PERFECT_CITRINE_GEM",
+			"name": "Perfect Citrine Gemstone",
+			"effect": "+12 Foraging Fortune per slot on Helix gear",
+			"icon": "yellow_dye"
+		},
+		{
+			"id": "FLAWLESS_CITRINE_GEM",
+			"name": "Flawless Citrine Gemstone",
+			"effect": "+10 Foraging Fortune per slot on Helix gear",
+			"icon": "yellow_dye"
+		},
+		{
+			"id": "PET_ITEM_FORAGING_SKILL_BOOST_EPIC",
+			"name": "Foraging Exp Boost (Epic)",
+			"effect": "+50% pet XP from Foraging",
+			"icon": "oak_sapling"
+		},
+		{
+			"id": "BOOSTER_COOKIE",
+			"name": "Booster Cookie",
+			"effect": "+25 on all Wisdom stats for 4 days",
+			"icon": "cookie"
+		},
+		{
+			"id": "TOIL_LOG",
+			"name": "Toil reforge (Toil Log)",
+			"effect": "Foraging Wisdom on your axe",
+			"icon": "oak_log"
+		}
+	]
+}

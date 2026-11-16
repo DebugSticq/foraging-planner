@@ -1,0 +1,589 @@
+{
+  "_comment": "All game values live here so they can be updated without rebuilding the mod. Run '/fp data export' in game to get an editable copy in config/foragingplanner/gamedata.json; that copy overrides this file.",
+  "dataVersion": 3,
+  "areas": [
+    "Galatea",
+    "Moonglade Marsh",
+    "Torrhus Canyon"
+  ],
+  "statPatterns": {
+    "sweep": "Sweep:\\s*\\D{0,3}([\\d,.]+)",
+    "fortune": "Foraging Fortune:\\s*\\D{0,3}([\\d,.]+)",
+    "wisdom": "Foraging Wisdom:\\s*\\D{0,3}([\\d,.]+)",
+    "strength": "(?:^|\\s)Strength:\\s*\\D{0,3}([\\d,.]+)",
+    "speed": "(?:^|\\s)Speed:\\s*\\D{0,3}([\\d,.]+)"
+  },
+  "hotf": {
+    "menuTitle": "Heart of the Forest",
+    "levelPattern": "Level (\\d+)",
+    "whispersPattern": "Forest Whispers: ([\\d,]+)",
+    "_costNote": "Cost to reach level N is floor((N+1)^costExponent), or costBase + costPerLevel*N. The first level is bought with a token, not whispers.",
+    "perks": [
+      {
+        "name": "Sweep",
+        "maxLevel": 50,
+        "costExponent": 3.0,
+        "effects": {
+          "sweep": 1.0
+        },
+        "unlockKnown": true,
+        "requiredTier": 1,
+        "currency": "forest",
+        "treeColumn": 3
+      },
+      {
+        "name": "Foraging Fortune",
+        "maxLevel": 50,
+        "costExponent": 3.105,
+        "effects": {
+          "fortune": 3.0
+        },
+        "requiredTier": 2,
+        "currency": "forest",
+        "treeColumn": 3
+      },
+      {
+        "name": "Efficient Forager",
+        "maxLevel": 100,
+        "costExponent": 2.6,
+        "effects": {
+          "wisdom": 0.1
+        },
+        "unlockEffects": {
+          "wisdom": 5
+        },
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 5
+      },
+      {
+        "name": "Half Empty",
+        "maxLevel": 25,
+        "costExponent": 4.1,
+        "effects": {
+          "fortune": 2.0,
+          "sweep": 1.0
+        },
+        "currency": "desert",
+        "requiredTier": 7,
+        "treeColumn": 0
+      },
+      {
+        "name": "Half Full",
+        "maxLevel": 25,
+        "costExponent": 4.1,
+        "effects": {
+          "fortune": 2.0,
+          "sweep": 1.0
+        },
+        "currency": "desert",
+        "requiredTier": 7,
+        "treeColumn": 6
+      },
+      {
+        "name": "Strength Boost",
+        "maxLevel": 50,
+        "costExponent": 3.1,
+        "note": "+2 Strength per level",
+        "effects": {
+          "strength": 2
+        },
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 2
+      },
+      {
+        "name": "Speed Boost",
+        "maxLevel": 50,
+        "costExponent": 3.1,
+        "note": "+1 Speed per level",
+        "effects": {
+          "speed": 1
+        },
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 4
+      },
+      {
+        "name": "Luck of the Forest",
+        "maxLevel": 40,
+        "costExponent": 3.07,
+        "note": "+0.5% Tree Gift loot per level",
+        "effects": {
+          "giftBonus": 0.5
+        },
+        "requiredTier": 2,
+        "currency": "forest",
+        "treeColumn": 1
+      },
+      {
+        "name": "250 Gifts",
+        "maxLevel": 40,
+        "costExponent": 3.07,
+        "note": "+1% Tree Gift loot per level",
+        "effects": {
+          "giftBonus": 1
+        },
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 3
+      },
+      {
+        "name": "Daily Wishes",
+        "maxLevel": 100,
+        "costBase": 200.0,
+        "costPerLevel": 18.0,
+        "note": "Daily reward varies with the first log type. Modeled as Forest-equivalent Whispers.",
+        "effects": {
+          "dailyWhispers": 400
+        },
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 4
+      },
+      {
+        "name": "Deep Waters",
+        "maxLevel": 50,
+        "costExponent": 2.9,
+        "note": "+1 Pressure Resistance per level",
+        "requiredTier": 3,
+        "currency": "forest",
+        "treeColumn": 0
+      },
+      {
+        "name": "Collector",
+        "maxLevel": 50,
+        "costExponent": 2.9,
+        "note": "+2% extra resource chance per level",
+        "requiredTier": 2,
+        "currency": "forest",
+        "treeColumn": 4
+      },
+      {
+        "name": "Forest Strength",
+        "maxLevel": 50,
+        "costExponent": 3.4,
+        "note": "0.1% of Strength as Fortune and Sweep per level",
+        "effects": {
+          "strengthConversion": 0.001
+        },
+        "requiredTier": 8,
+        "currency": "desert",
+        "treeColumn": 5
+      },
+      {
+        "name": "Forest Speed",
+        "maxLevel": 50,
+        "costExponent": 3.4,
+        "note": "0.2% of Speed as Fortune and Sweep per level",
+        "effects": {
+          "speedConversion": 0.002
+        },
+        "requiredTier": 8,
+        "currency": "desert",
+        "treeColumn": 1
+      },
+      {
+        "name": "Hunter's Luck",
+        "maxLevel": 50,
+        "costExponent": 3.2,
+        "note": "+1 Hunter Fortune per level",
+        "requiredTier": 3,
+        "currency": "forest",
+        "treeColumn": 3
+      },
+      {
+        "name": "Galatea's Might",
+        "maxLevel": 50,
+        "costExponent": 3.2,
+        "note": "+0.5% combat stats per level",
+        "requiredTier": 3,
+        "currency": "forest",
+        "treeColumn": 6
+      },
+      {
+        "name": "Essence Fortune",
+        "maxLevel": 50,
+        "costExponent": 3.2,
+        "note": "+0.5% double essence chance per level",
+        "currency": "desert",
+        "requiredTier": 8,
+        "treeColumn": 2
+      },
+      {
+        "name": "Ricochet",
+        "maxLevel": 10,
+        "costExponent": 5.5,
+        "note": "+1% axe bounce chance per level",
+        "currency": "desert",
+        "requiredTier": 7,
+        "treeColumn": 3
+      },
+      {
+        "name": "Damage Boost",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 2,
+        "currency": "forest",
+        "treeColumn": 0
+      },
+      {
+        "name": "Axe Toss",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 2,
+        "currency": "forest",
+        "treeColumn": 6
+      },
+      {
+        "name": "Lottery",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 0
+      },
+      {
+        "name": "Foraging Madness",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 1
+      },
+      {
+        "name": "Early Bird",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 5
+      },
+      {
+        "name": "Precision Cutting",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 6
+      },
+      {
+        "name": "Monster Hunter",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 8,
+        "currency": "desert",
+        "treeColumn": 0
+      },
+      {
+        "name": "Tree Whisperer",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 5,
+        "currency": "desert",
+        "treeColumn": 0
+      },
+      {
+        "name": "Homing Axe",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 0
+      },
+      {
+        "name": "Beekeeper",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 8,
+        "currency": "desert",
+        "treeColumn": 6
+      },
+      {
+        "name": "Maniac Slicer",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 6
+      },
+      {
+        "name": "Iron Lungs",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 4,
+        "currency": "desert",
+        "treeColumn": 2
+      },
+      {
+        "name": "Center of the Forest",
+        "maxLevel": 5,
+        "effects": {},
+        "requiredTier": 5,
+        "currency": "desert",
+        "treeColumn": 3,
+        "planEligible": false,
+        "note": "Permanent core upgrades require their own cost model."
+      },
+      {
+        "name": "Free Trial",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 5,
+        "currency": "desert",
+        "treeColumn": 6
+      },
+      {
+        "name": "Forest Fisher",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 1
+      },
+      {
+        "name": "Starlyn Supreme",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 6,
+        "currency": "desert",
+        "treeColumn": 3
+      },
+      {
+        "name": "Timber",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 8,
+        "currency": "desert",
+        "treeColumn": 3
+      },
+      {
+        "name": "Two-for-one",
+        "maxLevel": 1,
+        "effects": {},
+        "requiredTier": 8,
+        "currency": "desert",
+        "treeColumn": 4
+      }
+    ]
+  },
+  "trees": [
+    {
+      "id": "fig",
+      "name": "Fig",
+      "chatName": "Fig",
+      "bazaarId": "FIG_LOG",
+      "xpPerLog": 15.0,
+      "contestPointsPer100Logs": 3.0,
+      "_breakpointNote": "Entry i is the Sweep needed to cut i+1 logs per hit.",
+      "sweepBreakpoints": [
+        7,
+        9,
+        11,
+        16,
+        21,
+        26,
+        34,
+        42,
+        50,
+        62,
+        74,
+        86,
+        102,
+        118,
+        134,
+        154,
+        174,
+        194,
+        214,
+        234
+      ]
+    },
+    {
+      "id": "mangrove",
+      "name": "Mangrove",
+      "chatName": "Mangrove",
+      "bazaarId": "MANGROVE_LOG",
+      "xpPerLog": 20.0,
+      "contestPointsPer100Logs": 6.0,
+      "sweepBreakpoints": [
+        50,
+        55,
+        60,
+        75,
+        90,
+        105,
+        130,
+        155,
+        180,
+        230,
+        280,
+        330,
+        405,
+        480,
+        555,
+        655,
+        755,
+        855,
+        955,
+        1055
+      ]
+    },
+    {
+      "id": "helix",
+      "name": "Helix",
+      "chatName": "Helix",
+      "bazaarId": "HELIX_LOG",
+      "xpPerLog": 25.0,
+      "contestPointsPer100Logs": 9.0,
+      "sweepBreakpoints": [
+        150,
+        160,
+        170,
+        200,
+        230,
+        260,
+        320,
+        380,
+        440,
+        540,
+        640,
+        740,
+        890,
+        1040,
+        1190,
+        1390,
+        1590,
+        1790,
+        1990,
+        2190
+      ]
+    }
+  ],
+  "sweepChat": {
+    "sweepPattern": "Sweep Details: ([\\d,.]+)\\D{0,3} Sweep",
+    "treePattern": "\\s*(.+?) Tree Toughness: ([\\d.]+) ([\\d.]+) Logs"
+  },
+  "contest": {
+    "headerPattern": "(Agatha|Miria)'s Contest\\s*(?:(\\d+)m)?\\s*(?:(\\d+)s)?",
+    "pointsPattern": "(?i)(?:points?:?\\s*([\\d,.]+k?))|(?:([\\d,.]+k?)\\s*(?:points?|pts))",
+    "durationSeconds": 1200,
+    "pointsPerTreeGift": 10.0,
+    "brackets": [
+      {
+        "name": "COMMON",
+        "minPoints": 25,
+        "coupons": 10,
+        "hotfExp": 100,
+        "essence": 10
+      },
+      {
+        "name": "UNCOMMON",
+        "minPoints": 250,
+        "coupons": 15,
+        "hotfExp": 200,
+        "essence": 20
+      },
+      {
+        "name": "RARE",
+        "minPoints": 1000,
+        "coupons": 20,
+        "hotfExp": 350,
+        "essence": 30
+      },
+      {
+        "name": "EPIC",
+        "minPoints": 2000,
+        "coupons": 25,
+        "hotfExp": 500,
+        "essence": 40
+      },
+      {
+        "name": "LEGENDARY",
+        "minPoints": 3000,
+        "coupons": 30,
+        "hotfExp": 750,
+        "essence": 50
+      },
+      {
+        "name": "MYTHIC",
+        "minPoints": 5000,
+        "coupons": 35,
+        "hotfExp": 750,
+        "essence": 60
+      },
+      {
+        "name": "DIVINE",
+        "minPoints": 8000,
+        "coupons": 40,
+        "hotfExp": 750,
+        "essence": 70
+      },
+      {
+        "name": "SPECIAL",
+        "minPoints": 12000,
+        "coupons": 45,
+        "hotfExp": 750,
+        "essence": 80
+      }
+    ],
+    "miriaBrackets": [
+      {
+        "name": "COMMON",
+        "minPoints": 50,
+        "coupons": 10,
+        "hotfExp": 100,
+        "essence": 10
+      },
+      {
+        "name": "UNCOMMON",
+        "minPoints": 250,
+        "coupons": 15,
+        "hotfExp": 200,
+        "essence": 20
+      },
+      {
+        "name": "RARE",
+        "minPoints": 1000,
+        "coupons": 20,
+        "hotfExp": 350,
+        "essence": 30
+      },
+      {
+        "name": "EPIC",
+        "minPoints": 2500,
+        "coupons": 25,
+        "hotfExp": 500,
+        "essence": 40
+      },
+      {
+        "name": "LEGENDARY",
+        "minPoints": 5000,
+        "coupons": 30,
+        "hotfExp": 750,
+        "essence": 50
+      },
+      {
+        "name": "MYTHIC",
+        "minPoints": 10000,
+        "coupons": 35,
+        "hotfExp": 750,
+        "essence": 60
+      },
+      {
+        "name": "DIVINE",
+        "minPoints": 15000,
+        "coupons": 40,
+        "hotfExp": 750,
+        "essence": 70
+      },
+      {
+        "name": "SPECIAL",
+        "minPoints": 20000,
+        "coupons": 45,
+        "hotfExp": 750,
+        "essence": 80
+      }
+    ]
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "_comment": "Public builds do not include service credentials. Maintainer builds may override this resource with ignored local/pv.json.",
+  "api": "",
+  "appKey": ""
+}

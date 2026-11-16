@@ -1,0 +1,85 @@
+plugins {
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+// Jar name: foraging-planner-1.0.0+26.3.jar
+version = "${project.mod_version}+${project.minecraft_version}"
+base {
+	archivesName = project.archives_name
+}
+
+loom {
+	splitEnvironmentSourceSets()
+
+	mods {
+		"foragingplanner" {
+			sourceSet sourceSets.main
+			sourceSet sourceSets.client
+		}
+	}
+}
+
+repositories {
+	maven { url = "https://maven.terraformersmc.com/releases" }
+}
+
+dependencies {
+	compileOnly "com.terraformersmc:modmenu:21.0.1"
+	// To change the versions see the gradle.properties file
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+}
+
+processResources {
+	def version = project.version
+	inputs.property "version", version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": version
+	}
+	// Ship the changelog and licence inside the jar.
+	from(rootProject.file("CHANGELOG.md"))
+}
+
+// Keep backend deployment credentials out of source control and public CI artifacts.
+// Local maintainer builds retain their service settings; -PpublicBuild=true disables the override.
+tasks.named('processClientResources') {
+	def localPvConfig = layout.projectDirectory.file('local/pv.json').asFile
+	def bundledPvConfig = layout.buildDirectory.file('resources/client/foragingplanner/pv.json').get().asFile
+	def publicBuild = providers.gradleProperty('publicBuild').map { it.toBoolean() }.getOrElse(false)
+	def includePrivateConfig = !publicBuild && localPvConfig.isFile()
+	inputs.property('includePrivatePvConfig', includePrivateConfig)
+	if (includePrivateConfig) {
+		inputs.file(localPvConfig)
+		doLast {
+			bundledPvConfig.setText(localPvConfig.getText('UTF-8'), 'UTF-8')
+		}
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 25
+	it.options.encoding = "UTF-8"
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
+}
+
+sourceSets {
+    regression {
+        compileClasspath += sourceSets.client.output
+        runtimeClasspath += sourceSets.client.output
+    }
+}
+
+tasks.register('coreRegression', JavaExec) {
+	dependsOn regressionClasses
+	classpath = sourceSets.regression.runtimeClasspath
+	mainClass = 'dev.foragingplanner.core.CoreRegressionChecks'
+}
+tasks.named('check') { dependsOn 'coreRegression' }

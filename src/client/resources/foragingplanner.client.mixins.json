@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "dev.foragingplanner.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "TreeDisplayMixin",
+    "SoundMixin",
+    "ParticleMixin",
+    "EntityRenderMixin",
+    "DisplayAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

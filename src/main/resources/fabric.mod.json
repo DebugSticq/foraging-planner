@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "foragingplanner",
+  "icon": "assets/foragingplanner/icon.png",
+  "version": "${version}",
+  "name": "Foraging Planner",
+  "description": "Hypixel SkyBlock foraging helper: Heart of the Forest planner, tree calculator and Starlyn contest helper. Shows information only, automates nothing.",
+  "authors": [
+    "Flori"
+  ],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.foragingplanner.mc.ForagingPlannerClient"
+    ],
+    "modmenu": [
+      "dev.foragingplanner.mc.ModMenuIntegration"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.20.1",
+    "minecraft": "~26.3",
+    "java": ">=25",
+    "fabric-api": "*"
+  },
+  "mixins": [
+    "foragingplanner.client.mixins.json"
+  ]
+}
