@@ -83,6 +83,9 @@ public final class Commands {
                 .then(ClientCommands.literal("reset").executes(context -> { Bells.reset(); say(context.getSource(), "bell.reset_done"); return SUCCESS; }))
                 .then(ClientCommands.literal("toggle").then(ClientCommands.argument("number", StringArgumentType.word())
                         .executes(context -> { Bells.toggle(StringArgumentType.getString(context, "number"), context.getSource()::sendFeedback); return SUCCESS; }))));
+        root.then(ClientCommands.literal("perf")
+                .executes(context -> { Perf.report(context.getSource()::sendFeedback); return SUCCESS; })
+                .then(ClientCommands.literal("reset").executes(context -> { Perf.reset(); say(context.getSource(), "perf.reset_done"); return SUCCESS; })));
         root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("help").executes(context -> { Help.show(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("setup").executes(context -> { SettingsScreen.requestSetup(); return SUCCESS; }));

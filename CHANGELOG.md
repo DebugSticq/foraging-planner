@@ -6,6 +6,20 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
+## [1.0.4] - 2026-11-16
+
+### Added
+- `/fp perf` and "Show performance": how much time each part of the mod takes
+- Light mode for slower PCs, and an automatic light mode when the mod takes too much time
+- GitHub Actions: every push builds the jar; a `v*` tag creates a GitHub release (and a Modrinth version if a token is set). `release.bat` tags and pushes
+
+### Changed
+- Rarely used options moved into an "Advanced" group on each settings page
+- The bell path search now has a time budget per tick instead of a fixed node count
+
+### Fixed
+- Fewer repeated raycasts and mob sound lookups (short caches), so busy lobbies stutter less
+
 ## [1.0.3] - 2026-11-16
 
 ### Changed

@@ -404,7 +404,7 @@ public final class Bells {
 				along += len;
 				continue;
 			}
-			int steps = (int) Math.max(2, len * 5);
+			int steps = (int) Math.max(2, len * (Perf.light() ? 3 : 5));
 			for (int k = 0; k < steps; k++) {
 				double t = k / (double) steps;
 				float[] at = WorldOverlay.project(client, a.lerp(b, t));

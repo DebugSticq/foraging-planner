@@ -28,10 +28,29 @@ public final class WorldOverlay {
 	private WorldOverlay() {}
 
 	/** True when nothing solid is between the camera and the point (so marks do not show through walls). */
+	private static final java.util.Map<Long, long[]> SEEN = new java.util.HashMap<>();
+	private static long seenCleaned;
+
 	static boolean visible(Minecraft client, Vec3 point) {
 		var camera = client.gameRenderer.mainCamera();
 		if (camera == null || client.level == null || client.player == null) return true;
 		Vec3 eye = camera.position();
+		// The same point from the same camera block is only traced again after a short while.
+		long now = System.currentTimeMillis();
+		long key = net.minecraft.core.BlockPos.containing(point).asLong() * 31 + net.minecraft.core.BlockPos.containing(eye).asLong();
+		long[] cached = SEEN.get(key);
+		long keep = Perf.light() ? 300 : 120;
+		if (cached != null && now - cached[0] < keep) return cached[1] == 1;
+		if (now - seenCleaned > 2_000) {
+			seenCleaned = now;
+			SEEN.values().removeIf(v -> now - v[0] > 1_000);
+		}
+		boolean result = trace(client, eye, point);
+		SEEN.put(key, new long[] {now, result ? 1 : 0});
+		return result;
+	}
+
+	private static boolean trace(Minecraft client, Vec3 eye, Vec3 point) {
 		var hit = client.level.clip(new net.minecraft.world.level.ClipContext(eye, point,
 				net.minecraft.world.level.ClipContext.Block.VISUAL, net.minecraft.world.level.ClipContext.Fluid.NONE, client.player));
 		return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS || hit.getLocation().distanceToSqr(eye) >= point.distanceToSqr(eye) - 0.6;

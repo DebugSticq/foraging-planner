@@ -60,6 +60,20 @@ public final class Sounds {
 		if (!Planner.config.muteMobs || Planner.config.mutedMobs.isEmpty() || !id.startsWith("entity.")) return false;
 		var level = net.minecraft.client.Minecraft.getInstance().level;
 		if (level == null) return false;
+		// Mobs make many sounds in a row: remember the answer for one second per spot.
+		long now = System.currentTimeMillis();
+		long key = net.minecraft.core.BlockPos.containing(sound.getX(), sound.getY(), sound.getZ()).asLong();
+		long[] cached = MOB_CACHE.get(key);
+		if (cached != null && now - cached[0] < 1_000) return cached[1] == 1;
+		if (MOB_CACHE.size() > 256) MOB_CACHE.clear();
+		boolean muted = mutedMobNear(level, sound);
+		MOB_CACHE.put(key, new long[] {now, muted ? 1 : 0});
+		return muted;
+	}
+
+	private static final java.util.Map<Long, long[]> MOB_CACHE = new java.util.HashMap<>();
+
+	private static boolean mutedMobNear(net.minecraft.client.multiplayer.ClientLevel level, SoundInstance sound) {
 		var box = new net.minecraft.world.phys.AABB(sound.getX() - 2.5, sound.getY() - 3, sound.getZ() - 2.5, sound.getX() + 2.5, sound.getY() + 3, sound.getZ() + 2.5);
 		for (var entity : level.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, box)) {
 			var name = entity.getCustomName();

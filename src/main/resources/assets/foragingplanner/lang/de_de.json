@@ -1106,5 +1106,21 @@
   "foragingplanner.settings.vendor_names": "Händler-Namen",
   "foragingplanner.settings.vendor_names.hint": "Namen, an denen Shard-Händler erkannt werden.",
   "foragingplanner.settings.list_hint": "Namen, mit Komma getrennt",
-  "foragingplanner.settings.preview_safari": "HUD-Vorschau"
+  "foragingplanner.settings.preview_safari": "HUD-Vorschau",
+  "foragingplanner.settings.advanced": "Erweitert",
+  "foragingplanner.settings.advanced.hint": "Seltener gebrauchte Optionen.",
+  "foragingplanner.settings.perf_light": "Sparmodus",
+  "foragingplanner.settings.perf_light.hint": "Weniger Scans und kürzere Wegsuche, für langsamere PCs.",
+  "foragingplanner.settings.perf_auto": "Automatisch sparen",
+  "foragingplanner.settings.perf_auto.hint": "Schaltet den Sparmodus selbst ein, wenn die Mod zu viel Zeit braucht.",
+  "foragingplanner.settings.perf_report": "Leistung anzeigen",
+  "foragingplanner.settings.perf_report.hint": "Zeigt im Chat, welche Teile der Mod wie viel Zeit brauchen (/fp perf).",
+  "foragingplanner.perf.light_title": "Sparmodus an",
+  "foragingplanner.perf.light_text": "Die Mod hat viel Zeit gebraucht und spart jetzt automatisch.",
+  "foragingplanner.perf.mode_light": "Sparmodus",
+  "foragingplanner.perf.mode_auto": "Sparmodus (automatisch)",
+  "foragingplanner.perf.mode_normal": "normal",
+  "foragingplanner.perf.title": "Leistung: %1$s ms pro Tick · %2$s",
+  "foragingplanner.perf.help": "Werte der letzten 5 Sekunden · /fp perf reset",
+  "foragingplanner.perf.reset_done": "Messwerte zurückgesetzt."
 }

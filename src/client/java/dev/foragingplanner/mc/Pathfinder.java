@@ -20,7 +20,10 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public final class Pathfinder {
 	private static final int[][] DIRS = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
-	private static final int NODES_PER_TICK = 2500;
+	/** Time per tick the search may use: 2 ms, or 0.6 ms in light mode. */
+	private static long budgetNs() {
+		return Perf.light() ? 600_000L : 2_000_000L;
+	}
 	private static final int MAX_NODES = 90_000;
 	private static final int MAX_FALL = 4;
 
@@ -82,8 +85,9 @@ public final class Pathfinder {
 	/** Works for one tick. */
 	public void step() {
 		if (done) return;
-		int budget = NODES_PER_TICK;
-		while (budget-- > 0) {
+		long until = System.nanoTime() + budgetNs();
+		int count = 0;
+		while ((++count & 63) != 0 || System.nanoTime() < until) {
 			Node current = open.poll();
 			if (current == null || expanded > MAX_NODES) {
 				finish(best, false);

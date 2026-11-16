@@ -53,31 +53,33 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		CompactChat.register();
 
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
-				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "panel"), PlannerHud::extract);
+				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "panel"), (graphics, delta) -> Perf.run("hud", () -> PlannerHud.extract(graphics, delta)));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
-				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "world"), (graphics, delta) -> WorldOverlay.extract(graphics));
+				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "world"), (graphics, delta) -> Perf.run("world", () -> WorldOverlay.extract(graphics)));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
 				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "toasts"), (graphics, delta) -> Toasts.extract(graphics));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
-				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "minimap"), (graphics, delta) -> MiniMap.extract(graphics));
+				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "minimap"), (graphics, delta) -> Perf.run("minimap", () -> MiniMap.extract(graphics)));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
-				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "safari"), (graphics, delta) -> Safari.draw(graphics));
+				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "safari"), (graphics, delta) -> Perf.run("safari_draw", () -> Safari.draw(graphics)));
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			SettingsScreen.tick(client);
             TreeAssistant.keys();
             MiniMap.keys();
-            HuntingTracker.tick(client);
-            if (ticks % 10 == 0) TreeTracker.tick(client);
-            Routes.tick(client);
-            TreeProgress.tick(client);
-            TreeChoice.tick(client);
-            if (ticks % 10 == 5) Extras.tick(client);
-            if (ticks % 10 == 7) { Safari.tick(client); Bells.tick(client); }
-            Bells.pathTick(client);
+            Perf.run("hunting", () -> HuntingTracker.tick(client));
+            int scan = Perf.scanTicks();
+            if (ticks % scan == 0) Perf.run("trees", () -> TreeTracker.tick(client));
+            Perf.run("routes", () -> Routes.tick(client));
+            if (!Perf.light() || ticks % 2 == 0) Perf.run("tree_progress", () -> TreeProgress.tick(client));
+            Perf.run("tree_choice", () -> TreeChoice.tick(client));
+            if (ticks % scan == 5) Perf.run("extras", () -> Extras.tick(client));
+            if (ticks % scan == 7) Perf.run("safari", () -> { Safari.tick(client); Bells.tick(client); });
+            Perf.run("bell_path", () -> Bells.pathTick(client));
 			if (++ticks % REFRESH_INTERVAL_TICKS != 0) return;
 
 			try {
+				long refreshStart = System.nanoTime();
 				SkyBlockReader.refresh(client);
 				ProfileStore.tick(client);
                 ContestTracker.refresh(SkyBlockReader.sidebar());
@@ -98,6 +100,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
                 JournalStore.tick(SkyBlockReader.inForagingArea() && client.player != null && !Afk.idle());
 				if (SkyBlockReader.inForagingArea() || SkyBlockReader.inSkyBlock()) BazaarPrices.refreshIfDue();
 				PlannerHud.rebuild();
+				Perf.add("refresh", System.nanoTime() - refreshStart);
 			} catch (RuntimeException e) {
 				// A changed Hypixel layout must never crash the game. Log it once and try again next second.
 				if (!refreshFailureLogged) Planner.LOGGER.warn("Refresh failed", e);

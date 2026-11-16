@@ -1106,5 +1106,21 @@
   "foragingplanner.settings.vendor_names": "Vendor names",
   "foragingplanner.settings.vendor_names.hint": "Names used to recognise shard vendors.",
   "foragingplanner.settings.list_hint": "names, separated by commas",
-  "foragingplanner.settings.preview_safari": "HUD preview"
+  "foragingplanner.settings.preview_safari": "HUD preview",
+  "foragingplanner.settings.advanced": "Advanced",
+  "foragingplanner.settings.advanced.hint": "Options you rarely need.",
+  "foragingplanner.settings.perf_light": "Light mode",
+  "foragingplanner.settings.perf_light.hint": "Fewer scans and a shorter path search, for slower PCs.",
+  "foragingplanner.settings.perf_auto": "Save automatically",
+  "foragingplanner.settings.perf_auto.hint": "Turns on light mode by itself when the mod takes too much time.",
+  "foragingplanner.settings.perf_report": "Show performance",
+  "foragingplanner.settings.perf_report.hint": "Shows in chat how much time each part of the mod takes (/fp perf).",
+  "foragingplanner.perf.light_title": "Light mode on",
+  "foragingplanner.perf.light_text": "The mod took a lot of time and now saves some automatically.",
+  "foragingplanner.perf.mode_light": "light mode",
+  "foragingplanner.perf.mode_auto": "light mode (automatic)",
+  "foragingplanner.perf.mode_normal": "normal",
+  "foragingplanner.perf.title": "Performance: %1$s ms per tick · %2$s",
+  "foragingplanner.perf.help": "Values of the last 5 seconds · /fp perf reset",
+  "foragingplanner.perf.reset_done": "Measurements reset."
 }

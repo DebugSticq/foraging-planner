@@ -71,6 +71,10 @@ public final class ModConfig {
     public boolean huntrapProtection = true;
     public boolean attributeOverlay = true;
     public boolean vendorTracker = true;
+    /** Fewer scans and a smaller path budget, for slower PCs. */
+    public boolean perfLight = false;
+    /** Switch to the light mode by itself when the mod takes too much time. */
+    public boolean perfAuto = true;
     // Critter Safari
     public boolean safariTracker = true;
     public int capsuleWarnAt = 5;

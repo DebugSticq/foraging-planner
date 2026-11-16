@@ -89,6 +89,7 @@ public final class SettingsScreen extends Screen {
 	/** Rows that are on the list right now (closed groups hide their children). */
 	private List<Row> shown = new ArrayList<>();
 	private Row currentParent;
+	private String buildingPage = "";
 	/** Opened rows, by name. Kept while the game runs. */
 	private static final java.util.Set<String> EXPANDED = new java.util.HashSet<>();
 	/** Search over every page; empty shows the normal page. */
@@ -237,6 +238,7 @@ public final class SettingsScreen extends Screen {
 
 	private void buildPage(int target) {
 		ModConfig c = Planner.config;
+		buildingPage = PAGES[target];
 
 		switch (PAGES[target]) {
 			case "display" -> {
@@ -248,11 +250,6 @@ public final class SettingsScreen extends Screen {
 					new ToggleRow("rates", Items.EXPERIENCE_BOTTLE, () -> c.showRates, value -> c.showRates = value);
 					new ActionRow("session", "reset", Items.CLOCK, SessionRates::reset);
 				});
-				Row preset = new CycleRow("preset", Items.ITEM_FRAME, () -> c.activePreset, HudPresets::apply, HudPresets.NAMES);
-				sub(preset, () -> {
-					new ActionRow("preset_save", "save", Items.WRITABLE_BOOK, () -> HudPresets.save(c.activePreset));
-					new ToggleRow("preset_contest", Items.GOLDEN_HOE, () -> c.contestPreset, value -> c.contestPreset = value);
-				});
 				new ToggleRow("level_eta", Items.EXPERIENCE_BOTTLE, () -> c.levelEta, value -> c.levelEta = value);
 				new ToggleRow("gather", Items.CHEST, () -> c.gatherRates, value -> c.gatherRates = value);
 				Row map = new ToggleRow("minimap", Items.MAP, () -> c.minimap, value -> c.minimap = value);
@@ -261,8 +258,16 @@ public final class SettingsScreen extends Screen {
 					new SliderRow("map_range", Items.COMPASS, 30, 150, 10, "m", () -> c.mapRange, value -> c.mapRange = value);
 					new CycleRow("map_corner", Items.ITEM_FRAME, () -> c.mapCorner, value -> c.mapCorner = value, List.of("top_right", "top_left", "bottom_right", "bottom_left"));
 				});
-				Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
-				sub(afk, () -> new SliderRow("afk_minutes", Items.CLOCK, 1, 15, 1, " min", () -> c.afkMinutes, value -> c.afkMinutes = value));
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					Row preset = new CycleRow("preset", Items.ITEM_FRAME, () -> c.activePreset, HudPresets::apply, HudPresets.NAMES);
+					sub(preset, () -> {
+						new ActionRow("preset_save", "save", Items.WRITABLE_BOOK, () -> HudPresets.save(c.activePreset));
+						new ToggleRow("preset_contest", Items.GOLDEN_HOE, () -> c.contestPreset, value -> c.contestPreset = value);
+					});
+					Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
+					sub(afk, () -> new SliderRow("afk_minutes", Items.CLOCK, 1, 15, 1, " min", () -> c.afkMinutes, value -> c.afkMinutes = value));
+				});
 			}
 			case "trees" -> {
 				Row nav = new CycleRow("navigator", Items.COMPASS, () -> c.navigator, value -> {
@@ -285,9 +290,12 @@ public final class SettingsScreen extends Screen {
 				new ToggleRow("combo", Items.BLAZE_POWDER, () -> c.comboCounter, value -> c.comboCounter = value);
 				new ToggleRow("sweep_preview", Items.IRON_AXE, () -> c.sweepPreview, value -> c.sweepPreview = value);
 				new ToggleRow("precision", Items.SPECTRAL_ARROW, () -> c.precisionHelper, value -> c.precisionHelper = value);
-				new ToggleRow("clean_trees", Items.FEATHER, () -> c.cleanTrees, value -> c.cleanTrees = value);
 				new ToggleRow("prevent_strip", Items.IRON_AXE, () -> c.preventStripping, value -> c.preventStripping = value);
-				new ToggleRow("helix", Items.STRIPPED_BIRCH_WOOD, () -> c.helixGuide, value -> c.helixGuide = value);
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					new ToggleRow("clean_trees", Items.FEATHER, () -> c.cleanTrees, value -> c.cleanTrees = value);
+					new ToggleRow("helix", Items.STRIPPED_BIRCH_WOOD, () -> c.helixGuide, value -> c.helixGuide = value);
+				});
 			}
 			case "galatea" -> {
 				Row critters = new ToggleRow("critters", Items.SPYGLASS, () -> c.critterHighlight, value -> c.critterHighlight = value);
@@ -324,11 +332,14 @@ public final class SettingsScreen extends Screen {
 				new ToggleRow("ticket_reminder", Items.PAPER, () -> c.ticketReminder, value -> c.ticketReminder = value);
 				Row ground = new ToggleRow("safari_ground", Items.HOPPER, () -> c.safariGroundItems, value -> c.safariGroundItems = value);
 				sub(ground, () -> new TextRow("safari_rare_items", Items.NAME_TAG, () -> c.safariRareItems, value -> c.safariRareItems = value));
-				Row honey = new ToggleRow("honey_helix", Items.HONEYCOMB, () -> c.honeyHelix, value -> c.honeyHelix = value);
-				sub(honey, () -> new TextRow("honey_names", Items.NAME_TAG, () -> c.honeyNames, value -> c.honeyNames = value));
-				Row vendors = new ToggleRow("vendor_tracker", Items.EMERALD, () -> c.vendorTracker, value -> c.vendorTracker = value);
-				sub(vendors, () -> new TextRow("vendor_names", Items.NAME_TAG, () -> c.vendorNames, value -> c.vendorNames = value));
-				new ToggleRow("safari_debug", Items.WRITABLE_BOOK, () -> c.safariDebug, value -> c.safariDebug = value);
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					Row honey = new ToggleRow("honey_helix", Items.HONEYCOMB, () -> c.honeyHelix, value -> c.honeyHelix = value);
+					sub(honey, () -> new TextRow("honey_names", Items.NAME_TAG, () -> c.honeyNames, value -> c.honeyNames = value));
+					Row vendors = new ToggleRow("vendor_tracker", Items.EMERALD, () -> c.vendorTracker, value -> c.vendorTracker = value);
+					sub(vendors, () -> new TextRow("vendor_names", Items.NAME_TAG, () -> c.vendorNames, value -> c.vendorNames = value));
+					new ToggleRow("safari_debug", Items.WRITABLE_BOOK, () -> c.safariDebug, value -> c.safariDebug = value);
+				});
 			}
 			case "alerts" -> {
 				Row contest = new GroupRow("group_contest", Items.GOLDEN_HOE);
@@ -360,12 +371,15 @@ public final class SettingsScreen extends Screen {
 					new ToggleRow("hide_lottery", Items.PAPER, () -> c.hideLottery, value -> c.hideLottery = value);
 				});
 				new ToggleRow("mute_phantoms", Items.PHANTOM_MEMBRANE, () -> c.mutePhantoms, value -> c.mutePhantoms = value);
-				new ToggleRow("mute_tree_break", Items.NOTE_BLOCK, () -> c.muteTreeBreak, value -> c.muteTreeBreak = value);
 				Row mobs = new ToggleRow("mute_mobs", Items.DEAD_BUSH, () -> c.muteMobs, value -> c.muteMobs = value);
 				sub(mobs, () -> new TextRow("muted_mobs", Items.NAME_TAG, () -> c.mutedMobs, value -> c.mutedMobs = value));
-				new ActionRow("sounds_list", "open", Items.NOTE_BLOCK, () -> {
-					onClose();
-					if (minecraft.player != null) Sounds.list(minecraft.player::sendSystemMessage);
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					new ToggleRow("mute_tree_break", Items.NOTE_BLOCK, () -> c.muteTreeBreak, value -> c.muteTreeBreak = value);
+					new ActionRow("sounds_list", "open", Items.NOTE_BLOCK, () -> {
+						onClose();
+						if (minecraft.player != null) Sounds.list(minecraft.player::sendSystemMessage);
+					});
 				});
 			}
 			case "planner" -> {
@@ -378,10 +392,6 @@ public final class SettingsScreen extends Screen {
 				List<String> trees = new ArrayList<>(List.of("auto"));
 				Planner.data.trees.forEach(tree -> trees.add(tree.id));
 				new CycleRow("tree", Items.OAK_LOG, () -> c.tree, value -> c.tree = value, trees);
-				new ToggleRow("learning", Items.BOOK, () -> c.learnSweep, value -> {
-					c.learnSweep = value;
-					LearnedSweep.apply();
-				});
 				Row hotf = new GroupRow("group_hotf", Items.OAK_SAPLING);
 				sub(hotf, () -> {
 					new NumberRow("tokens", Items.SUNFLOWER, c.tokens, 0, 100, true, value -> c.tokens = (int) value, () -> true);
@@ -392,6 +402,13 @@ public final class SettingsScreen extends Screen {
 					new ToggleRow("whisper_reminder", Items.OAK_SAPLING, () -> c.whisperReminder, value -> c.whisperReminder = value);
 				});
 				new ToggleRow("attribute_overlay", Items.PRISMARINE_SHARD, () -> c.attributeOverlay, value -> c.attributeOverlay = value);
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					new ToggleRow("learning", Items.BOOK, () -> c.learnSweep, value -> {
+						c.learnSweep = value;
+						LearnedSweep.apply();
+					});
+				});
 			}
 			case "stats" -> {
 				Row manual = new ToggleRow("manual", Items.WRITABLE_BOOK, () -> c.manualStats, value -> c.manualStats = value);
@@ -403,7 +420,7 @@ public final class SettingsScreen extends Screen {
 					new NumberRow("strength", Items.IRON_SWORD, c.manualStrength, 0, 100_000, false, value -> c.manualStrength = value, on);
 					new NumberRow("speed", Items.SUGAR, c.manualSpeed, 0, 100_000, false, value -> c.manualSpeed = value, on);
 				});
-				EXPANDED.add("manual");
+				EXPANDED.add("stats/manual");
 			}
 			case "style" -> {
 				new SliderRow("hud_radius", Items.SNOWBALL, 0, 12, 1, "px", () -> c.hudRadius, value -> c.hudRadius = value);
@@ -412,14 +429,17 @@ public final class SettingsScreen extends Screen {
 				new SliderRow("hud_padding", Items.ITEM_FRAME, 2, 10, 1, "px", () -> c.hudPadding, value -> c.hudPadding = value);
 				Row border = new ToggleRow("hud_border", Items.PAINTING, () -> c.hudBorder, value -> c.hudBorder = value);
 				sub(border, () -> new ColorRow("hud_border_color", Items.GLOW_INK_SAC, ACCENTS, () -> c.hudBorderColor, value -> c.hudBorderColor = value));
-				new ColorRow("hud_label_color", Items.NAME_TAG, LABELS, () -> c.hudLabelColor, value -> c.hudLabelColor = value);
-				new ToggleRow("hud_shadow", Items.COAL, () -> c.hudShadow, value -> c.hudShadow = value);
-				new SliderRow("session_columns", Items.CLOCK, 1, 3, 1, "", () -> c.sessionColumns, value -> c.sessionColumns = value);
-				new ActionRow("hud_style_reset", "restore", Items.BARRIER, () -> {
-					c.hudRadius = 0; c.hudOpacity = 47; c.hudColor = 0x000000; c.hudPadding = 4; c.hudBorder = false;
-					c.hudBorderColor = 0x55FF55; c.hudLabelColor = 0xAAAAAA; c.hudShadow = true; c.sessionColumns = 2;
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					new ColorRow("hud_label_color", Items.NAME_TAG, LABELS, () -> c.hudLabelColor, value -> c.hudLabelColor = value);
+					new ToggleRow("hud_shadow", Items.COAL, () -> c.hudShadow, value -> c.hudShadow = value);
+					new SliderRow("session_columns", Items.CLOCK, 1, 3, 1, "", () -> c.sessionColumns, value -> c.sessionColumns = value);
+					new ActionRow("hud_style_reset", "restore", Items.BARRIER, () -> {
+						c.hudRadius = 0; c.hudOpacity = 47; c.hudColor = 0x000000; c.hudPadding = 4; c.hudBorder = false;
+						c.hudBorderColor = 0x55FF55; c.hudLabelColor = 0xAAAAAA; c.hudShadow = true; c.sessionColumns = 2;
+					});
+					new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
 				});
-				new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
 			}
 			case "online" -> {
 				Row board = new ToggleRow("leaderboard", Items.GOLDEN_HOE, () -> c.leaderboardShare, value -> {
@@ -428,7 +448,16 @@ public final class SettingsScreen extends Screen {
 					if (!value) Leaderboard.forget();
 				});
 				sub(board, () -> new ActionRow("leaderboard_open", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 11))));
-				new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
+				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
+				sub(advanced, () -> {
+					new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
+					new ToggleRow("perf_light", Items.FEATHER, () -> c.perfLight, value -> c.perfLight = value);
+					new ToggleRow("perf_auto", Items.CLOCK, () -> c.perfAuto, value -> c.perfAuto = value);
+					new ActionRow("perf_report", "open", Items.COMPARATOR, () -> {
+						onClose();
+						if (minecraft.player != null) Perf.report(minecraft.player::sendSystemMessage);
+					});
+				});
 			}
 			default -> {}
 		}
@@ -472,7 +501,7 @@ public final class SettingsScreen extends Screen {
 	}
 
 	private void toggleExpanded(Row row) {
-		if (!EXPANDED.remove(row.name)) EXPANDED.add(row.name);
+		if (!EXPANDED.remove(row.key)) EXPANDED.add(row.key);
 		layoutRows();
 		scrollTarget = Math.clamp(scrollTarget, 0, maxScroll());
 	}
@@ -685,7 +714,7 @@ public final class SettingsScreen extends Screen {
 			boolean hovered = !draggingBar && row.usable() && inside(mouseX, mouseY, contentX + indent, Math.max(y, viewTop), w,
 					Math.min(y + ROW_HEIGHT, viewBottom) - Math.max(y, viewTop));
 			row.hover = animated() ? approach(row.hover, hovered ? 1 : 0, dt, 16) : hovered ? 1 : 0;
-			boolean expanded = EXPANDED.contains(row.name);
+			boolean expanded = EXPANDED.contains(row.key);
 			row.turn = animated() ? approach(row.turn, expanded ? 1 : 0, dt, 16) : expanded ? 1 : 0;
 
 			if (indent > 0) g.fill(x - 8, y - 5, x - 7, y + ROW_HEIGHT / 2 + 1, alpha(0x33FFFFFF, a));
@@ -1055,6 +1084,8 @@ public final class SettingsScreen extends Screen {
 		final String name;
 		final Item icon;
 		final Row parent;
+		/** Name plus page, so "advanced" opens on one page only. */
+		final String key;
 		final List<Row> children = new ArrayList<>();
 		int index;
 		double hover, slot = -1, reveal = 1, turn;
@@ -1065,6 +1096,7 @@ public final class SettingsScreen extends Screen {
 			this.icon = icon;
 			this.index = rows.size();
 			this.parent = currentParent;
+			this.key = buildingPage + "/" + name;
 			if (parent != null) parent.children.add(this);
 			rows.add(this);
 		}
@@ -1094,7 +1126,7 @@ public final class SettingsScreen extends Screen {
 		}
 
 		final boolean ancestorsOpen() {
-			for (Row p = parent; p != null; p = p.parent) if (!EXPANDED.contains(p.name)) return false;
+			for (Row p = parent; p != null; p = p.parent) if (!EXPANDED.contains(p.key)) return false;
 			return true;
 		}
 
