@@ -33,6 +33,16 @@ public final class Bells {
 	private static long scanAt;
 	private static boolean allDoneShown;
 
+	// Walking path to the next bell
+	private static Pathfinder finder;
+	private static List<BlockPos> path = List.of();
+	private static boolean pathReached;
+	private static BlockPos pathGoal;
+	private static long pathAt;
+	private static int pathStart;
+	private static final java.util.Set<Long> HIDDEN = new java.util.HashSet<>();
+	private static int ticks;
+
 	private Bells() {}
 
 	public static List<Bell> all() {
@@ -146,6 +156,62 @@ public final class Bells {
 			routeAt = now;
 			route = plan(me);
 		}
+	}
+
+	/** Every tick: works on the walking path to the next bell a little. */
+	public static void pathTick(Minecraft client) {
+		if (!Planner.config.safariBells || !Planner.config.bellRoute || client.player == null || client.level == null || !Safari.inside() || route.isEmpty()) {
+			finder = null;
+			path = List.of();
+			pathGoal = null;
+			return;
+		}
+		long now = System.currentTimeMillis();
+		BlockPos goal = route.getFirst().pos();
+		Vec3 me = client.player.position();
+
+		if (finder != null) {
+			finder.step();
+			if (finder.done()) {
+				path = finder.result();
+				pathReached = finder.reached();
+				pathGoal = finder.goal();
+				pathAt = now;
+				finder = null;
+			}
+		}
+
+		pathStart = nearestIndex(me);
+		boolean offPath = !path.isEmpty() && Vec3.atBottomCenterOf(path.get(pathStart)).distanceTo(me) > 4.5;
+		boolean stale = !pathReached && now - pathAt > 8_000;
+		boolean otherGoal = pathGoal == null || !pathGoal.equals(goal);
+		if (finder == null && (otherGoal || offPath || stale || path.isEmpty() && now - pathAt > 2_000)) {
+			finder = new Pathfinder(client.level, client.player.blockPosition(), goal);
+			if (otherGoal) path = List.of();
+		}
+
+		// Which parts of the path are behind blocks, four times a second.
+		if (++ticks % 5 == 0) {
+			HIDDEN.clear();
+			for (int i = pathStart; i < path.size(); i++) {
+				Vec3 at = Vec3.atBottomCenterOf(path.get(i)).add(0, 0.15, 0);
+				if (at.distanceTo(me) > 56) break;
+				if (!WorldOverlay.visible(client, at)) HIDDEN.add(path.get(i).asLong());
+			}
+		}
+	}
+
+	private static int nearestIndex(Vec3 me) {
+		int best = 0;
+		double bestD = Double.MAX_VALUE;
+		for (int i = 0; i < path.size(); i++) {
+			double d = Vec3.atBottomCenterOf(path.get(i)).distanceToSqr(me);
+			if (d < bestD) {
+				bestD = d;
+				best = i;
+			}
+		}
+		return best;
 	}
 
 	/** Looks for bell blocks near the player and near the known places that are close. */
@@ -264,7 +330,9 @@ public final class Bells {
 		out.add("§7" + Planner.tr("bell.hud") + " §e" + done + "§7/" + total);
 		if (!route.isEmpty()) {
 			Bell next = route.getFirst();
-			out.add("§7→ §f" + next.hint() + " §8" + Math.round(Vec3.atCenterOf(next.pos()).distanceTo(player.position())) + "m");
+			boolean walk = !path.isEmpty() && pathReached && route.getFirst().pos().equals(pathGoal);
+			String way = walk ? "~" + Math.max(0, path.size() - pathStart) + "m " + Planner.tr("bell.walk") : Math.round(Vec3.atCenterOf(next.pos()).distanceTo(player.position())) + "m";
+			out.add("§7→ §f" + next.hint() + " §8" + way);
 		} else if (done >= total) {
 			out.add("§a" + Planner.tr("bell.all_short"));
 		}
@@ -276,16 +344,22 @@ public final class Bells {
 		var font = client.font;
 
 		if (Planner.config.bellRoute && !route.isEmpty()) {
-			Vec3 previous = player.add(0, 0.2, 0);
-			for (int i = 0; i < route.size(); i++) {
-				Vec3 next = Vec3.atCenterOf(route.get(i).pos());
-				WorldOverlay.dottedLine(client, g, previous, next, alpha(0xFFFFD34D, Math.max(0.25, 0.85 - i * 0.12)));
-				previous = next;
-			}
 			Bell first = route.getFirst();
 			Vec3 target = Vec3.atCenterOf(first.pos());
-			double distance = target.distanceTo(player);
-			if (distance > 5) WorldOverlay.arrowTo(client, g, player, target.x, target.z, distance, 0xFFFFD34D);
+			boolean current = !path.isEmpty() && first.pos().equals(pathGoal);
+			if (current) {
+				drawPath(client, g, player, now);
+				if (!pathReached) {
+					// The path stops where the known world ends; the rest is a faint straight hint.
+					WorldOverlay.dottedLine(client, g, Vec3.atBottomCenterOf(path.getLast()).add(0, 0.2, 0), target, alpha(0xFFFFD34D, 0.3));
+				}
+				int ahead = Math.min(path.size() - 1, pathStart + 6);
+				Vec3 aim = Vec3.atBottomCenterOf(path.get(ahead));
+				double left = Math.max(0, path.size() - pathStart) + 0.0;
+				if (target.distanceTo(player) > 5) WorldOverlay.arrowTo(client, g, player, aim.x, aim.z, pathReached ? left : target.distanceTo(player), 0xFFFFD34D);
+			} else if (target.distanceTo(player) > 5) {
+				WorldOverlay.arrowTo(client, g, player, target.x, target.z, target.distanceTo(player), 0xFFFFD34D);
+			}
 		}
 
 		List<Bell> bells = all();
@@ -317,10 +391,45 @@ public final class Bells {
 		}
 	}
 
+	/** The walking path as a glowing line on the ground, with light running along it. */
+	private static void drawPath(Minecraft client, GuiGraphicsExtractor g, Vec3 player, long now) {
+		double along = 0;
+		double flow = now / 1000.0 * 5;
+		for (int i = pathStart; i < path.size() - 1; i++) {
+			BlockPos pa = path.get(i), pb = path.get(i + 1);
+			Vec3 a = Vec3.atBottomCenterOf(pa).add(0, 0.06, 0), b = Vec3.atBottomCenterOf(pb).add(0, 0.06, 0);
+			double len = a.distanceTo(b);
+			if (a.distanceTo(player) > 56) break;
+			if (HIDDEN.contains(pa.asLong()) && HIDDEN.contains(pb.asLong())) {
+				along += len;
+				continue;
+			}
+			int steps = (int) Math.max(2, len * 5);
+			for (int k = 0; k < steps; k++) {
+				double t = k / (double) steps;
+				float[] at = WorldOverlay.project(client, a.lerp(b, t));
+				if (at == null) continue;
+				double phase = ((along + len * t - flow) % 3 + 3) % 3;
+				double fade = Math.clamp(1.2 - at[2] / 56, 0.35, 1);
+				int color = phase < 0.7 ? 0xFFFFF4B8 : 0xFFFFC23D;
+				int size = at[2] < 10 ? 2 : 1;
+				int x = Math.round(at[0]), y = Math.round(at[1]);
+				g.fill(x - size, y - size, x + size, y + size, alpha(color, fade));
+			}
+			along += len;
+		}
+	}
+
 	/** Bell dots and the route for the minimap. */
 	public static void drawMap(GuiGraphicsExtractor g, int cx, int cy, double scale, Vec3 me) {
 		if (!Planner.config.safariBells) return;
 		Vec3 prev = me;
+		if (Planner.config.bellRoute && !path.isEmpty()) {
+			for (int i = pathStart; i < path.size() - 1; i++) {
+				Vec3 a = Vec3.atBottomCenterOf(path.get(i)), b = Vec3.atBottomCenterOf(path.get(i + 1));
+				MiniMap.line(g, cx + (a.x - me.x) * scale, cy + (a.z - me.z) * scale, cx + (b.x - me.x) * scale, cy + (b.z - me.z) * scale, 0xFFFFD34D);
+			}
+		}
 		if (Planner.config.bellRoute) {
 			for (Bell b : route) {
 				Vec3 p = Vec3.atCenterOf(b.pos());

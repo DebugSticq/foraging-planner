@@ -1012,7 +1012,7 @@
   "foragingplanner.settings.safari_bells": "Glocken markieren",
   "foragingplanner.settings.safari_bells.hint": "Zeigt alle 7 versteckten Glocken und merkt sich, welche schon geläutet sind.",
   "foragingplanner.settings.bell_route": "Glocken-Route",
-  "foragingplanner.settings.bell_route.hint": "Plant den kürzesten Weg durch die restlichen Glocken, mit Linie und Pfeil.",
+  "foragingplanner.settings.bell_route.hint": "Berechnet einen echten Laufweg zur nächsten Glocke und zeigt ihn als leuchtende Linie am Boden.",
   "foragingplanner.settings.bell_reset": "Glocken zurücksetzen",
   "foragingplanner.settings.bell_reset.hint": "Markiert alle Glocken wieder als nicht geläutet.",
   "foragingplanner.settings.safari_prices": "Shard-Preise über Crittern",
@@ -1079,5 +1079,6 @@
   "foragingplanner.bell.hint.4": "Eisberg umdrehen (draufspringen), Eis mit Icebreaker abbauen",
   "foragingplanner.bell.hint.5": "Höhle unter dem Eisberg (Icy)",
   "foragingplanner.bell.hint.6": "Auf dem Spawn-Zelt",
-  "foragingplanner.bell.hint.found": "Selbst gefundene Glocke"
+  "foragingplanner.bell.hint.found": "Selbst gefundene Glocke",
+  "foragingplanner.bell.walk": "Laufweg"
 }

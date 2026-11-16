@@ -45,7 +45,9 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class Safari {
 	private static final Pattern LEVEL_TAG = Pattern.compile("\\[[^]]*]|[\\d,.]+/?[\\d,.]*[❤♥]|[❤♥✦✧★]");
-	private static final Pattern MY_CATCH = Pattern.compile("(?i)^(?:you |nice! you |success! you )?(?:caught|captured|catch(?:ed)?) (?:an? |the )?(?:sparkling )?([A-Za-z' -]{3,30}?)(?:!|\\.| with| in |$)");
+	/** "You caught a Phanpyre Shard!" and "You caught x2 Phanflare Shards!" */
+	private static final Pattern MY_CATCH = Pattern.compile("(?i)^You caught (?:an? |the |x?(\\d+)x? )?(.+?) Shards?!*$");
+	private static final Pattern MY_CATCH_PLAIN = Pattern.compile("(?i)^You (?:caught|captured) (?:an? |the )?(?:Sparkling )?([A-Za-z' -]{3,30})!$");
 	private static final Pattern OTHER_CATCH = Pattern.compile("^(?:\\[[^]]+] )?([A-Za-z0-9_]{3,16}) (?:caught|captured) (?:an? |the )?(?:sparkling )?([A-Za-z' -]{3,30}?)(?:!|\\.|$)");
 	private static final Pattern FAIL = Pattern.compile("(?i)(broke free|escaped|got away|slipped out|missed)");
 	private static final Pattern ESSENCE = Pattern.compile("(?i)\\+?([\\d,]+)x? Safari Essence|Safari Essence x?([\\d,]+)");
@@ -67,7 +69,9 @@ public final class Safari {
 	private static boolean inRun;
 	private static long runStart, leftAt;
 	private static int capsulesStart = -1, capsules = -1, capsulesWarned = Integer.MAX_VALUE;
-	private static int catches, fails;
+	private static int catches, fails, shards;
+	private static boolean hasCapsules;
+	private static String lastPlace = "";
 	private static long essence;
 	private static final List<String> caughtThisRun = new ArrayList<>();
 	private static boolean ticketHinted;
@@ -76,13 +80,23 @@ public final class Safari {
 
 	/** Inside the Critter Safari itself (not the entrance). */
 	public static boolean inside() {
-		String area = SkyBlockReader.area().toLowerCase(Locale.ROOT);
-		return area.contains("safari") && !area.contains("entrance") || area.contains(" biome");
+		if (hasCapsules) return true;
+		String place = place();
+		return place.contains("safari") && !place.contains("entrance") || place.contains(" biome");
 	}
 
 	public static boolean nearSafari() {
-		String area = SkyBlockReader.area().toLowerCase(Locale.ROOT);
-		return area.contains("safari") || area.contains(" biome");
+		return hasCapsules || place().contains("safari") || place().contains(" biome");
+	}
+
+	/** Island from the tab list plus the place line of the sidebar ("⏣ Icy Biome"). */
+	private static String place() {
+		StringBuilder out = new StringBuilder(SkyBlockReader.area());
+		for (String line : SkyBlockReader.sidebar()) {
+			String clean = Planner.strip(line).trim();
+			if (clean.startsWith("⏣") || clean.startsWith("ф")) out.append(" | ").append(clean.substring(1).trim());
+		}
+		return out.toString().toLowerCase(Locale.ROOT);
 	}
 
 	public static void register() {
@@ -140,29 +154,36 @@ public final class Safari {
 			}
 		}
 
+		Matcher mine = MY_CATCH.matcher(text);
+		if (mine.find()) {
+			if (inside()) caught(mine.group(2).replaceFirst("(?i)^sparkling\\s+", "").trim(), mine.group(1) == null ? 1 : Integer.parseInt(mine.group(1)));
+			return;
+		}
+		Matcher plain = MY_CATCH_PLAIN.matcher(text);
+		if (plain.find()) {
+			if (inside()) caught(plain.group(1).trim(), 0);
+			return;
+		}
+
 		Matcher other = OTHER_CATCH.matcher(text);
 		if (other.find() && !other.group(1).equalsIgnoreCase("you")) {
 			String player = other.group(1);
 			var self = Minecraft.getInstance().player;
 			if (self != null && player.equalsIgnoreCase(self.getGameProfile().name())) {
-				caught(other.group(2).trim());
+				caught(other.group(2).replaceFirst("(?i)\\s+shards?$", "").trim(), 0);
 			} else {
 				PARTY.merge(player, 1, Integer::sum);
 			}
 			return;
 		}
 
-		Matcher mine = MY_CATCH.matcher(text);
-		if (mine.find()) {
-			caught(mine.group(1).trim());
-			return;
-		}
 		if (FAIL.matcher(text).find() && (lower.contains("critter") || lower.contains("capsule"))) fails++;
 	}
 
-	private static void caught(String critter) {
+	private static void caught(String critter, int shardCount) {
 		if (critter.isBlank()) return;
 		catches++;
+		shards += shardCount;
 		caughtThisRun.add(critter);
 		Progress p = Progress.get();
 		if (p.critterCaught.add(critter)) {
@@ -178,6 +199,12 @@ public final class Safari {
 		MARKS.clear();
 		if (client.player == null || client.level == null) return;
 		long now = System.currentTimeMillis();
+		hasCapsules = countCapsules(client) > 0;
+		String placeNow = place();
+		if (!placeNow.equals(lastPlace)) {
+			lastPlace = placeNow;
+			if (nearSafari()) debug("place: '" + placeNow + "' capsules=" + hasCapsules);
+		}
 		boolean inside = inside();
 		trackRun(client, inside, now);
 		if (!inside) {
@@ -263,7 +290,7 @@ public final class Safari {
 			if (!inRun) {
 				inRun = true;
 				runStart = now;
-				catches = fails = 0;
+				catches = fails = shards = 0;
 				essence = 0;
 				caughtThisRun.clear();
 				PARTY.clear();
@@ -425,7 +452,7 @@ public final class Safari {
 		if (inRun && Planner.config.safariTracker) {
 			out.add("§7" + Planner.tr("safari.hud_run") + " §f" + GearScreenFormat.duration((now - runStart) / 1000));
 			if (capsules >= 0) out.add("§7" + Planner.tr("safari.hud_capsules") + " " + (capsules <= Planner.config.capsuleWarnAt ? "§c" : "§f") + capsules);
-			out.add("§7" + Planner.tr("safari.hud_catches") + " §a" + catches + (fails > 0 ? " §8· §c" + fails : ""));
+			out.add("§7" + Planner.tr("safari.hud_catches") + " §a" + catches + (shards > catches ? " §8(" + shards + " Shards)" : "") + (fails > 0 ? " §8· §c" + fails : ""));
 			while (!ESSENCE_SAMPLES.isEmpty() && now - ESSENCE_SAMPLES.peekFirst()[0] > 3_600_000) ESSENCE_SAMPLES.removeFirst();
 			if (essence > 0) {
 				double span = Math.max(60_000, now - runStart);
@@ -466,7 +493,7 @@ public final class Safari {
 		var font = client.font;
 		for (Mark mark : MARKS) {
 			float[] at = WorldOverlay.project(client, mark.pos().add(0, 1.0, 0));
-			if (at == null) continue;
+			if (at == null || !WorldOverlay.visibleMob(client, mark.pos())) continue;
 			int x = Math.round(at[0]), y = Math.round(at[1]);
 			double pulse = mark.alert() && Planner.config.animations ? 0.6 + 0.4 * Math.sin(now / 120.0) : 1;
 			round(g, x - 3, y - 3, 6, 6, 3, alpha(mark.color(), pulse));

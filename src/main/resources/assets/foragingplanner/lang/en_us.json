@@ -1012,7 +1012,7 @@
   "foragingplanner.settings.safari_bells": "Mark bells",
   "foragingplanner.settings.safari_bells.hint": "Shows all 7 hidden bells and remembers which ones you rang.",
   "foragingplanner.settings.bell_route": "Bell route",
-  "foragingplanner.settings.bell_route.hint": "Plans the shortest way through the remaining bells, with a line and an arrow.",
+  "foragingplanner.settings.bell_route.hint": "Finds a real walking path to the next bell and shows it as a glowing line on the ground.",
   "foragingplanner.settings.bell_reset": "Reset bells",
   "foragingplanner.settings.bell_reset.hint": "Marks every bell as not rung again.",
   "foragingplanner.settings.safari_prices": "Shard prices over critters",
@@ -1079,5 +1079,6 @@
   "foragingplanner.bell.hint.4": "Flip the iceberg (jump on it), mine the ice with an Icebreaker",
   "foragingplanner.bell.hint.5": "Cave below the iceberg (Icy)",
   "foragingplanner.bell.hint.6": "On top of the spawn tent",
-  "foragingplanner.bell.hint.found": "Bell you found"
+  "foragingplanner.bell.hint.found": "Bell you found",
+  "foragingplanner.bell.walk": "walk"
 }

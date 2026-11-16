@@ -74,6 +74,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
             TreeChoice.tick(client);
             if (ticks % 10 == 5) Extras.tick(client);
             if (ticks % 10 == 7) { Safari.tick(client); Bells.tick(client); }
+            Bells.pathTick(client);
 			if (++ticks % REFRESH_INTERVAL_TICKS != 0) return;
 
 			try {

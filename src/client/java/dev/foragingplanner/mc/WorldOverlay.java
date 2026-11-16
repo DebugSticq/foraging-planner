@@ -27,6 +27,21 @@ public final class WorldOverlay {
 
 	private WorldOverlay() {}
 
+	/** True when nothing solid is between the camera and the point (so marks do not show through walls). */
+	static boolean visible(Minecraft client, Vec3 point) {
+		var camera = client.gameRenderer.mainCamera();
+		if (camera == null || client.level == null || client.player == null) return true;
+		Vec3 eye = camera.position();
+		var hit = client.level.clip(new net.minecraft.world.level.ClipContext(eye, point,
+				net.minecraft.world.level.ClipContext.Block.VISUAL, net.minecraft.world.level.ClipContext.Fluid.NONE, client.player));
+		return hit.getType() == net.minecraft.world.phys.HitResult.Type.MISS || hit.getLocation().distanceToSqr(eye) >= point.distanceToSqr(eye) - 0.6;
+	}
+
+	/** A mob counts as visible when its feet or its head can be seen. */
+	static boolean visibleMob(Minecraft client, Vec3 feet) {
+		return visible(client, feet.add(0, 0.4, 0)) || visible(client, feet.add(0, 1.5, 0));
+	}
+
 	/** Screen position of a world point, or null when it is behind the camera. */
 	static float[] project(Minecraft client, Vec3 point) {
 		var camera = client.gameRenderer.mainCamera();
@@ -170,7 +185,7 @@ public final class WorldOverlay {
 		var font = client.font;
 		for (Extras.Mark mark : Extras.marks()) {
 			float[] at = project(client, mark.pos().add(0, 1.2, 0));
-			if (at == null) continue;
+			if (at == null || !visibleMob(client, mark.pos())) continue;
 			int x = Math.round(at[0]), y = Math.round(at[1]);
 			double pulse = mark.alert() && Planner.config.animations ? 0.6 + 0.4 * Math.sin(now / 120.0) : 1;
 			round(g, x - 4, y - 4, 8, 8, 4, alpha(mark.color(), pulse));
@@ -182,7 +197,7 @@ public final class WorldOverlay {
 		if (Planner.config.invisibugHelper) {
 			for (Vec3 crit : Precision.crits()) {
 				float[] at = project(client, crit);
-				if (at == null) continue;
+				if (at == null || !visible(client, crit)) continue;
 				int x = Math.round(at[0]), y = Math.round(at[1]);
 				round(g, x - 3, y - 3, 6, 6, 3, 0xFFFF66FF);
 			}

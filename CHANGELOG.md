@@ -15,6 +15,14 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - Ticket counter, floor drop markers, Honeyed Helix markers, Safari Essence per hour and party catches
 - New "Critter Safari" settings page and a "Safari" HUD card
 
+### Changed
+- The bell route is now a real walking path on the ground (jumps, drops, ladders, water) instead of a straight line
+
+### Fixed
+- Mob, critter and item highlights no longer show through blocks
+- Safari catches are counted again ("You caught a ... Shard!" and "You caught x2 ... Shards!")
+- The Critter Safari is now also detected from the sidebar location and from Critter Capsules in the inventory
+
 ## [1.0.0] - 2026-11-16
 
 First full release.
