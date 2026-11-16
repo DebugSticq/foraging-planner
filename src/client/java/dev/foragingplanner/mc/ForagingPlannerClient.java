@@ -49,6 +49,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		HotfTooltip.register();
 		LogStripGuard.register();
 		Safari.register();
+		RareDrops.register();
 		// Must be last: it can hide messages, and Fabric stops at the first listener that hides one.
 		CompactChat.register();
 
@@ -58,6 +59,8 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "world"), (graphics, delta) -> Perf.run("world", () -> WorldOverlay.extract(graphics)));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
 				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "toasts"), (graphics, delta) -> Toasts.extract(graphics));
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
+				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "fun"), (graphics, delta) -> Fun.draw(graphics));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,
 				Identifier.fromNamespaceAndPath(Planner.MOD_ID, "minimap"), (graphics, delta) -> Perf.run("minimap", () -> MiniMap.extract(graphics)));
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT,

@@ -265,7 +265,12 @@ public final class SettingsScreen extends Screen {
 						new ActionRow("preset_save", "save", Items.WRITABLE_BOOK, () -> HudPresets.save(c.activePreset));
 						new ToggleRow("preset_contest", Items.GOLDEN_HOE, () -> c.contestPreset, value -> c.contestPreset = value);
 					});
-					Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
+					Row fun = new GroupRow("group_fun", Items.FIREWORK_ROCKET);
+				sub(fun, () -> {
+					new CycleRow("season_theme", Items.SNOWBALL, () -> c.seasonTheme, value -> c.seasonTheme = value, List.of("auto", "off", "winter", "spring", "summer", "autumn"));
+					new ToggleRow("tree_fall_effect", Items.OAK_LEAVES, () -> c.treeFallEffect, value -> c.treeFallEffect = value);
+				});
+				Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
 					sub(afk, () -> new SliderRow("afk_minutes", Items.CLOCK, 1, 15, 1, " min", () -> c.afkMinutes, value -> c.afkMinutes = value));
 				});
 			}
@@ -287,7 +292,8 @@ public final class SettingsScreen extends Screen {
 				});
 				new ToggleRow("regrow_warning", Items.OAK_SAPLING, () -> c.regrowWarning, value -> c.regrowWarning = value);
 				new ToggleRow("tree_progress", Items.EXPERIENCE_BOTTLE, () -> c.treeProgress, value -> c.treeProgress = value);
-				new ToggleRow("combo", Items.BLAZE_POWDER, () -> c.comboCounter, value -> c.comboCounter = value);
+				Row combo = new ToggleRow("combo", Items.BLAZE_POWDER, () -> c.comboCounter, value -> c.comboCounter = value);
+				sub(combo, () -> new ToggleRow("combo_fire", Items.BLAZE_POWDER, () -> c.comboFire, value -> c.comboFire = value));
 				new ToggleRow("sweep_preview", Items.IRON_AXE, () -> c.sweepPreview, value -> c.sweepPreview = value);
 				new ToggleRow("precision", Items.SPECTRAL_ARROW, () -> c.precisionHelper, value -> c.precisionHelper = value);
 				new ToggleRow("prevent_strip", Items.IRON_AXE, () -> c.preventStripping, value -> c.preventStripping = value);
@@ -357,6 +363,14 @@ public final class SettingsScreen extends Screen {
 				sub(toasts, () -> {
 					new ToggleRow("toast_sound", Items.BELL, () -> c.toastSound, value -> c.toastSound = value);
 					new ToggleRow("toast_chat", Items.PAPER, () -> c.toastChat, value -> c.toastChat = value);
+				});
+				Row rare = new GroupRow("group_rare", Items.GOLD_INGOT);
+				sub(rare, () -> {
+					new TextRow("rare_items", Items.NAME_TAG, () -> c.rareItems, value -> c.rareItems = value);
+					new TextRow("rare_ignore", Items.BARRIER, () -> c.rareIgnore, value -> c.rareIgnore = value);
+					new NumberRow("rare_value", Items.GOLD_NUGGET, c.rareValue, 0, 10_000_000_000.0, true, value -> c.rareValue = (long) value, () -> true);
+					new ToggleRow("rare_bonus", Items.CHEST, () -> c.rareBonus, value -> c.rareBonus = value);
+					new ToggleRow("confetti", Items.FIREWORK_ROCKET, () -> c.confetti, value -> c.confetti = value);
 				});
 				new ActionRow("alarms", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 8)));
 				new ToggleRow("inventory_warning", Items.CHEST, () -> c.inventoryWarning, value -> c.inventoryWarning = value);
@@ -571,6 +585,10 @@ public final class SettingsScreen extends Screen {
 	private void drawBackdrop(GuiGraphicsExtractor g, long now, double open) {
 		g.fillGradient(0, 0, width, height, alpha(0xFF06100C, 0.70 * open), alpha(0xFF020604, 0.88 * open));
 		if (!animated()) return;
+		if (!Fun.fireflies()) {
+			Fun.backdrop(g, width, height, (now - openedNs) / 1e9, open);
+			return;
+		}
 
 		// Fireflies: each one drifts slowly upwards on its own path and pulses at its own pace.
 		double t = (now - openedNs) / 1e9;

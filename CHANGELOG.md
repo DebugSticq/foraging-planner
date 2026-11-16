@@ -11,6 +11,11 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 ### Added
 - `/fp perf` and "Show performance": how much time each part of the mod takes
 - Light mode for slower PCs, and an automatic light mode when the mod takes too much time
+- Rare drops are configurable: an "always rare" list (e.g. Mango Dye, Chameleon Shard), a "never rare" list, a minimum coin value and bonus drops on/off. Listed items also count from hunting and Safari catches and "RARE DROP!" messages
+- Confetti across the screen for a rare drop
+- "Timber!" with falling leaves when a tree you helped with reaches 100 %
+- Combo fire: flames from x50, rainbow from x250, and a sound and "NEW RECORD!" when you beat your best combo
+- Seasons behind the settings menu: snow in winter, blossoms in spring, fireflies in summer, leaves in autumn (or pick one)
 - GitHub Actions: every push builds the jar; a `v*` tag creates a GitHub release (and a Modrinth version if a token is set). `release.bat` tags and pushes
 
 ### Changed

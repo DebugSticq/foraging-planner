@@ -97,7 +97,10 @@ public final class TreeProgress {
 		percent = value;
 		seenMs = now;
 		standDistance = Math.sqrt(bestDistance);
-		if (value >= 100) finish();
+		if (value >= 100) {
+			if (myHits > 0) Fun.treeFelled(best.position(), type);
+			finish();
+		}
 	}
 
 	/** Called for every Foraging XP gain: one hit on the tree in front of the player. */

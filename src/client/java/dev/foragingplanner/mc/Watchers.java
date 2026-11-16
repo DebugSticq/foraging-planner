@@ -18,7 +18,6 @@ public final class Watchers {
 	/** Contest gaps longer than this are breaks in play, not the contest rhythm. */
 	private static final long MAX_GAP_MS = 4 * 3_600_000L;
 	private static final long WARN_BEFORE_MS = 120_000L;
-	private static final double RARE_VALUE = 100_000;
 
 	private static final List<String> METRICS = List.of("logs", "xp", "gifts", "contests", "essence", "hotf");
 	private static final double[] BIG = {1e3, 1e4, 1e5, 1e6, 1e7, 1e8};
@@ -340,10 +339,39 @@ public final class Watchers {
 
 	/** Called for every reward item of a tree gift. */
 	public static void reward(String id, String name, long count, boolean bonus) {
+		double value = value(id, count);
+		ModConfig c = Planner.config;
+		if (matches(name, c.rareIgnore)) return;
+		boolean listed = matches(name, c.rareItems);
+		boolean byValue = c.rareValue > 0 && value >= c.rareValue;
+		if (!listed && !byValue && !(bonus && c.rareBonus)) return;
+		recordRare(id, name, count, value);
+	}
+
+	/** Coins for count items, from the Bazaar or the auction house; 0 when unknown. */
+	static double value(String id, long count) {
 		Double price = Planner.PRICES.get(id);
+		if (price == null) price = BazaarPrices.BUY.get(id);
 		if (price == null) price = AuctionPrices.get(id);
-		double value = price == null ? 0 : price * count;
-		if (!bonus && value < RARE_VALUE) return;
+		return price == null ? 0 : price * count;
+	}
+
+	/** True when the name contains one of the entries (case is ignored). */
+	static boolean matches(String name, java.util.List<String> list) {
+		String n = name.toLowerCase(java.util.Locale.ROOT);
+		for (String e : list) if (!e.isBlank() && n.contains(e.trim().toLowerCase(java.util.Locale.ROOT))) return true;
+		return false;
+	}
+
+	private static String lastRare = "";
+	private static long lastRareMs;
+
+	/** Saves a rare drop, shows the card and throws confetti. */
+	public static void recordRare(String id, String name, long count, double value) {
+		long nowMs = System.currentTimeMillis();
+		if (name.equals(lastRare) && nowMs - lastRareMs < 2_000) return;
+		lastRare = name;
+		lastRareMs = nowMs;
 
 		Progress p = Progress.get();
 		double gifts = JournalStore.journal.totals.getOrDefault("gifts", 0.0);
@@ -362,6 +390,7 @@ public final class Watchers {
 
 		String text = (count > 1 ? count + "× " : "") + name + (value > 0 ? " · " + GearScreenFormat.coins(value) : "");
 		Toasts.show(Toasts.Kind.RARE, "gold_ingot", Planner.tr("toast.rare"), text);
+		Fun.confetti();
 	}
 
 	/** Tree gifts since the last rare drop, or -1 when none was seen yet. */

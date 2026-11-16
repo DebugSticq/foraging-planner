@@ -71,6 +71,21 @@ public final class ModConfig {
     public boolean huntrapProtection = true;
     public boolean attributeOverlay = true;
     public boolean vendorTracker = true;
+    // Rare drops: what counts as rare
+    /** Always rare (name contains one of these), e.g. "Mango Dye". */
+    public java.util.List<String> rareItems = new java.util.ArrayList<>(java.util.List.of("Mango Dye", "Chameleon Shard"));
+    /** Never rare, even when expensive. */
+    public java.util.List<String> rareIgnore = new java.util.ArrayList<>();
+    /** Gift rewards worth at least this many coins are rare (0 = only the list). */
+    public long rareValue = 100_000;
+    /** Bonus gift drops always count as rare. */
+    public boolean rareBonus = true;
+    // Just for fun
+    public boolean confetti = true;
+    public boolean treeFallEffect = true;
+    public boolean comboFire = true;
+    /** auto (by date), off (fireflies), winter, spring, summer, autumn */
+    public String seasonTheme = "auto";
     /** Fewer scans and a smaller path budget, for slower PCs. */
     public boolean perfLight = false;
     /** Switch to the light mode by itself when the mod takes too much time. */
