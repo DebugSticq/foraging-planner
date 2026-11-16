@@ -69,8 +69,8 @@ import dev.foragingplanner.core.Goal;
  * and a live preview on wide screens. Every change is saved a moment after it is made.
  */
 public final class SettingsScreen extends Screen {
-	private static final String[] PAGES = {"display", "trees", "galatea", "alerts", "chat", "online", "planner", "stats", "safari", "style"};
-	private static final Item[] PAGE_ICONS = {Items.PAINTING, Items.OAK_LOG, Items.SPYGLASS, Items.BELL, Items.PAPER, Items.GOLDEN_HOE, Items.OAK_SAPLING, Items.IRON_AXE, Items.BELL, Items.FLOWER_POT};
+	private static final String[] PAGES = {"display", "trees", "galatea", "safari", "alerts", "chat", "planner", "stats", "style", "online"};
+	private static final Item[] PAGE_ICONS = {Items.PAINTING, Items.OAK_LOG, Items.SPYGLASS, Items.ENDER_PEARL, Items.BELL, Items.PAPER, Items.OAK_SAPLING, Items.IRON_AXE, Items.FLOWER_POT, Items.GOLDEN_HOE};
 
 	private static final int ROW_HEIGHT = 36;
 	private static final int ROW_STEP = ROW_HEIGHT + 5;
@@ -86,6 +86,11 @@ public final class SettingsScreen extends Screen {
 
 	private final Screen parent;
 	private final List<Row> rows = new ArrayList<>();
+	/** Rows that are on the list right now (closed groups hide their children). */
+	private List<Row> shown = new ArrayList<>();
+	private Row currentParent;
+	/** Opened rows, by name. Kept while the game runs. */
+	private static final java.util.Set<String> EXPANDED = new java.util.HashSet<>();
 	/** Search over every page; empty shows the normal page. */
 	private EditBox searchBox;
 	private String query = "";
@@ -182,6 +187,8 @@ public final class SettingsScreen extends Screen {
 		viewBottom = panelY + panelH - 36;
 
 		buildRows();
+		for (Row row : rows) row.wasShown = false;
+		layoutRows();
 		if (pill < 0) pill = page;
 		scrollTarget = Math.clamp(scrollTarget, 0, maxScroll());
 		scroll = Math.clamp(scroll, 0, maxScroll());
@@ -220,104 +227,152 @@ public final class SettingsScreen extends Screen {
 		setupRequested = true;
 	}
 
+	/** Rows created inside run() hang under parent and only show when it is opened. */
+	private void sub(Row parent, Runnable run) {
+		Row before = currentParent;
+		currentParent = parent;
+		run.run();
+		currentParent = before;
+	}
+
 	private void buildPage(int target) {
 		ModConfig c = Planner.config;
 
 		switch (PAGES[target]) {
 			case "display" -> {
-				new ActionRow("journal", "open", Items.WRITABLE_BOOK, () -> minecraft.gui.setScreen(new JournalScreen(this)));
-				new ToggleRow("hud", Items.PAINTING, () -> c.hudEnabled, value -> c.hudEnabled = value);
-				new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
-				new ToggleRow("animations", Items.GLOW_BERRIES, () -> c.animations, value -> c.animations = value);
-				new ToggleRow("rates", Items.EXPERIENCE_BOTTLE, () -> c.showRates, value -> c.showRates = value);
-				new ActionRow("session", "reset", Items.CLOCK, SessionRates::reset);
-				new ActionRow("stats", "open", Items.SPYGLASS, () -> minecraft.gui.setScreen(new StatsScreen(this)));
-				new ToggleRow("tree_progress", Items.EXPERIENCE_BOTTLE, () -> c.treeProgress, value -> c.treeProgress = value);
-				new ToggleRow("combo", Items.BLAZE_POWDER, () -> c.comboCounter, value -> c.comboCounter = value);
+				new ActionRow("setup", "open", Items.NETHER_STAR, () -> minecraft.gui.setScreen(new SetupScreen(this)));
+				Row hud = new ToggleRow("hud", Items.PAINTING, () -> c.hudEnabled, value -> c.hudEnabled = value);
+				sub(hud, () -> {
+					new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+					new ToggleRow("animations", Items.GLOW_BERRIES, () -> c.animations, value -> c.animations = value);
+					new ToggleRow("rates", Items.EXPERIENCE_BOTTLE, () -> c.showRates, value -> c.showRates = value);
+					new ActionRow("session", "reset", Items.CLOCK, SessionRates::reset);
+				});
+				Row preset = new CycleRow("preset", Items.ITEM_FRAME, () -> c.activePreset, HudPresets::apply, HudPresets.NAMES);
+				sub(preset, () -> {
+					new ActionRow("preset_save", "save", Items.WRITABLE_BOOK, () -> HudPresets.save(c.activePreset));
+					new ToggleRow("preset_contest", Items.GOLDEN_HOE, () -> c.contestPreset, value -> c.contestPreset = value);
+				});
 				new ToggleRow("level_eta", Items.EXPERIENCE_BOTTLE, () -> c.levelEta, value -> c.levelEta = value);
 				new ToggleRow("gather", Items.CHEST, () -> c.gatherRates, value -> c.gatherRates = value);
-				new ToggleRow("minimap", Items.MAP, () -> c.minimap, value -> c.minimap = value);
-				new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
-				new CycleRow("preset", Items.ITEM_FRAME, () -> c.activePreset, HudPresets::apply, HudPresets.NAMES);
-				new ActionRow("preset_save", "save", Items.WRITABLE_BOOK, () -> HudPresets.save(c.activePreset));
-				new ToggleRow("preset_contest", Items.GOLDEN_HOE, () -> c.contestPreset, value -> c.contestPreset = value);
+				Row map = new ToggleRow("minimap", Items.MAP, () -> c.minimap, value -> c.minimap = value);
+				sub(map, () -> {
+					new SliderRow("map_size", Items.MAP, 60, 200, 10, "px", () -> c.mapSize, value -> c.mapSize = value);
+					new SliderRow("map_range", Items.COMPASS, 30, 150, 10, "m", () -> c.mapRange, value -> c.mapRange = value);
+					new CycleRow("map_corner", Items.ITEM_FRAME, () -> c.mapCorner, value -> c.mapCorner = value, List.of("top_right", "top_left", "bottom_right", "bottom_left"));
+				});
+				Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
+				sub(afk, () -> new SliderRow("afk_minutes", Items.CLOCK, 1, 15, 1, " min", () -> c.afkMinutes, value -> c.afkMinutes = value));
 			}
 			case "trees" -> {
-				new CycleRow("navigator", Items.COMPASS, () -> c.navigator, value -> {
+				Row nav = new CycleRow("navigator", Items.COMPASS, () -> c.navigator, value -> {
 					c.navigator = value;
 					c.treeArrow = value.contains("arrow") || value.equals("all");
 					c.treeChoice = value.contains("star") || value.equals("all");
 					c.treeRoute = value.equals("route") || value.equals("all");
 				}, List.of("off", "arrow", "star", "arrow_star", "route", "all"));
-				new ToggleRow("protected_trees", Items.BARRIER, () -> c.protectedTrees, value -> c.protectedTrees = value);
+				sub(nav, () -> {
+					new ToggleRow("big_trees_only", Items.DARK_OAK_LOG, () -> c.bigTreesOnly, value -> c.bigTreesOnly = value);
+					new ToggleRow("ghost_routes", Items.PHANTOM_MEMBRANE, () -> c.ghostRoutes, value -> c.ghostRoutes = value);
+				});
+				Row markers = new ToggleRow("tree_markers", Items.SLIME_BALL, () -> c.treeMarkers, value -> c.treeMarkers = value);
+				sub(markers, () -> {
+					new ToggleRow("tree_size", Items.OAK_LOG, () -> c.treeSizeLabel, value -> c.treeSizeLabel = value);
+					new ToggleRow("protected_trees", Items.BARRIER, () -> c.protectedTrees, value -> c.protectedTrees = value);
+				});
 				new ToggleRow("regrow_warning", Items.OAK_SAPLING, () -> c.regrowWarning, value -> c.regrowWarning = value);
-				new ToggleRow("big_trees_only", Items.DARK_OAK_LOG, () -> c.bigTreesOnly, value -> c.bigTreesOnly = value);
-				new ToggleRow("tree_markers", Items.SLIME_BALL, () -> c.treeMarkers, value -> c.treeMarkers = value);
-				new ToggleRow("tree_size", Items.OAK_LOG, () -> c.treeSizeLabel, value -> c.treeSizeLabel = value);
+				new ToggleRow("tree_progress", Items.EXPERIENCE_BOTTLE, () -> c.treeProgress, value -> c.treeProgress = value);
+				new ToggleRow("combo", Items.BLAZE_POWDER, () -> c.comboCounter, value -> c.comboCounter = value);
 				new ToggleRow("sweep_preview", Items.IRON_AXE, () -> c.sweepPreview, value -> c.sweepPreview = value);
 				new ToggleRow("precision", Items.SPECTRAL_ARROW, () -> c.precisionHelper, value -> c.precisionHelper = value);
 				new ToggleRow("clean_trees", Items.FEATHER, () -> c.cleanTrees, value -> c.cleanTrees = value);
 				new ToggleRow("prevent_strip", Items.IRON_AXE, () -> c.preventStripping, value -> c.preventStripping = value);
 				new ToggleRow("helix", Items.STRIPPED_BIRCH_WOOD, () -> c.helixGuide, value -> c.helixGuide = value);
-				new ToggleRow("ghost_routes", Items.PHANTOM_MEMBRANE, () -> c.ghostRoutes, value -> c.ghostRoutes = value);
 			}
 			case "galatea" -> {
-				new ToggleRow("milestones", Items.OAK_SAPLING, () -> c.milestones, value -> c.milestones = value);
-				new ToggleRow("attribute_overlay", Items.PRISMARINE_SHARD, () -> c.attributeOverlay, value -> c.attributeOverlay = value);
-				new ToggleRow("vendor_tracker", Items.EMERALD, () -> c.vendorTracker, value -> c.vendorTracker = value);
-				new ToggleRow("drop_protection", Items.GOLD_NUGGET, () -> c.dropProtection, value -> c.dropProtection = value);
-				new ToggleRow("huntrap_protection", Items.TRIPWIRE_HOOK, () -> c.huntrapProtection, value -> c.huntrapProtection = value);
-				new ToggleRow("critters", Items.SPYGLASS, () -> c.critterHighlight, value -> c.critterHighlight = value);
+				Row critters = new ToggleRow("critters", Items.SPYGLASS, () -> c.critterHighlight, value -> c.critterHighlight = value);
+				sub(critters, () -> new TextRow("critter_names", Items.NAME_TAG, () -> c.critterNames, value -> c.critterNames = value));
 				new ToggleRow("invisibug", Items.GLOW_BERRIES, () -> c.invisibugHelper, value -> c.invisibugHelper = value);
-				new ToggleRow("strider", Items.STRING, () -> c.striderCounter, value -> c.striderCounter = value);
+				Row strider = new ToggleRow("strider", Items.STRING, () -> c.striderCounter, value -> c.striderCounter = value);
+				sub(strider, () -> new SliderRow("strider_min", Items.STRING, 1, 10, 1, "", () -> c.striderMin, value -> c.striderMin = value));
 				new ToggleRow("fall_alert", Items.BELL, () -> c.fallAlert, value -> c.fallAlert = value);
-				new ToggleRow("inventory_warning", Items.CHEST, () -> c.inventoryWarning, value -> c.inventoryWarning = value);
-				new ToggleRow("beacon_alert", Items.BEACON, () -> c.beaconAlert, value -> c.beaconAlert = value);
-				new ToggleRow("beacon_solver", Items.NOTE_BLOCK, () -> c.beaconSolver, value -> c.beaconSolver = value);
-				new ToggleRow("hotf_costs", Items.OAK_SAPLING, () -> c.hotfCosts, value -> c.hotfCosts = value);
-				new ToggleRow("whisper_reminder", Items.OAK_SAPLING, () -> c.whisperReminder, value -> c.whisperReminder = value);
-				new ToggleRow("pause_reminder", Items.CAKE, () -> c.pauseReminder, value -> c.pauseReminder = value);
-			}
-			case "alerts" -> {
-				new ToggleRow("sound", Items.BELL, () -> c.contestSound, value -> c.contestSound = value);
-				new ToggleRow("title", Items.OAK_SIGN, () -> c.contestTitle, value -> c.contestTitle = value);
-				new ToggleRow("countdown", Items.CLOCK, () -> c.contestCountdown, value -> c.contestCountdown = value);
-				new ToggleRow("countdown_sound", Items.NOTE_BLOCK, () -> c.contestCountdownSound, value -> c.contestCountdownSound = value);
-				new ToggleRow("toasts", Items.ITEM_FRAME, () -> c.toasts, value -> c.toasts = value);
-				new ToggleRow("toast_sound", Items.BELL, () -> c.toastSound, value -> c.toastSound = value);
-				new ToggleRow("toast_chat", Items.PAPER, () -> c.toastChat, value -> c.toastChat = value);
-				new ActionRow("alarms", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 8)));
-				new ActionRow("test_alert", "play", Items.NOTE_BLOCK, () -> {
-					toastNs = System.nanoTime();
-					if (c.contestSound) minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f));
+				Row beacon = new ToggleRow("beacon_alert", Items.BEACON, () -> c.beaconAlert, value -> c.beaconAlert = value);
+				sub(beacon, () -> new ToggleRow("beacon_solver", Items.NOTE_BLOCK, () -> c.beaconSolver, value -> c.beaconSolver = value));
+				new ToggleRow("milestones", Items.OAK_SAPLING, () -> c.milestones, value -> c.milestones = value);
+				Row protection = new GroupRow("group_protection", Items.SHIELD);
+				sub(protection, () -> {
+					Row drop = new ToggleRow("drop_protection", Items.GOLD_NUGGET, () -> c.dropProtection, value -> c.dropProtection = value);
+					sub(drop, () -> new TextRow("protected_items", Items.NAME_TAG, () -> c.protectedItems, value -> c.protectedItems = value));
+					new ToggleRow("huntrap_protection", Items.TRIPWIRE_HOOK, () -> c.huntrapProtection, value -> c.huntrapProtection = value);
 				});
 			}
+			case "safari" -> {
+				Row tracker = new ToggleRow("safari_tracker", Items.CLOCK, () -> c.safariTracker, value -> c.safariTracker = value);
+				sub(tracker, () -> {
+					new SliderRow("capsule_warn", Items.ENDER_PEARL, 0, 20, 1, "", () -> c.capsuleWarnAt, value -> c.capsuleWarnAt = value);
+					new ToggleRow("party_progress", Items.PLAYER_HEAD, () -> c.partyProgress, value -> c.partyProgress = value);
+				});
+				Row bells = new ToggleRow("safari_bells", Items.BELL, () -> c.safariBells, value -> c.safariBells = value);
+				sub(bells, () -> {
+					new ToggleRow("bell_route", Items.COMPASS, () -> c.bellRoute, value -> c.bellRoute = value);
+					new ActionRow("bell_reset", "reset", Items.BELL, Bells::reset);
+				});
+				new ToggleRow("safari_prices", Items.GOLD_NUGGET, () -> c.safariPrices, value -> c.safariPrices = value);
+				new ToggleRow("sparkling_alert", Items.GLOWSTONE_DUST, () -> c.sparklingAlert, value -> c.sparklingAlert = value);
+				new ToggleRow("critterdex_helper", Items.BOOK, () -> c.critterdexHelper, value -> c.critterdexHelper = value);
+				new ToggleRow("safari_milestones", Items.OAK_SAPLING, () -> c.safariMilestones, value -> c.safariMilestones = value);
+				new ToggleRow("ticket_reminder", Items.PAPER, () -> c.ticketReminder, value -> c.ticketReminder = value);
+				Row ground = new ToggleRow("safari_ground", Items.HOPPER, () -> c.safariGroundItems, value -> c.safariGroundItems = value);
+				sub(ground, () -> new TextRow("safari_rare_items", Items.NAME_TAG, () -> c.safariRareItems, value -> c.safariRareItems = value));
+				Row honey = new ToggleRow("honey_helix", Items.HONEYCOMB, () -> c.honeyHelix, value -> c.honeyHelix = value);
+				sub(honey, () -> new TextRow("honey_names", Items.NAME_TAG, () -> c.honeyNames, value -> c.honeyNames = value));
+				Row vendors = new ToggleRow("vendor_tracker", Items.EMERALD, () -> c.vendorTracker, value -> c.vendorTracker = value);
+				sub(vendors, () -> new TextRow("vendor_names", Items.NAME_TAG, () -> c.vendorNames, value -> c.vendorNames = value));
+				new ToggleRow("safari_debug", Items.WRITABLE_BOOK, () -> c.safariDebug, value -> c.safariDebug = value);
+			}
+			case "alerts" -> {
+				Row contest = new GroupRow("group_contest", Items.GOLDEN_HOE);
+				sub(contest, () -> {
+					new ToggleRow("sound", Items.BELL, () -> c.contestSound, value -> c.contestSound = value);
+					new ToggleRow("title", Items.OAK_SIGN, () -> c.contestTitle, value -> c.contestTitle = value);
+					Row countdown = new ToggleRow("countdown", Items.CLOCK, () -> c.contestCountdown, value -> c.contestCountdown = value);
+					sub(countdown, () -> new ToggleRow("countdown_sound", Items.NOTE_BLOCK, () -> c.contestCountdownSound, value -> c.contestCountdownSound = value));
+					new ActionRow("test_alert", "play", Items.NOTE_BLOCK, () -> {
+						toastNs = System.nanoTime();
+						if (c.contestSound) minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.EXPERIENCE_ORB_PICKUP, 1f));
+					});
+				});
+				Row toasts = new ToggleRow("toasts", Items.ITEM_FRAME, () -> c.toasts, value -> c.toasts = value);
+				sub(toasts, () -> {
+					new ToggleRow("toast_sound", Items.BELL, () -> c.toastSound, value -> c.toastSound = value);
+					new ToggleRow("toast_chat", Items.PAPER, () -> c.toastChat, value -> c.toastChat = value);
+				});
+				new ActionRow("alarms", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 8)));
+				new ToggleRow("inventory_warning", Items.CHEST, () -> c.inventoryWarning, value -> c.inventoryWarning = value);
+				new ToggleRow("pause_reminder", Items.CAKE, () -> c.pauseReminder, value -> c.pauseReminder = value);
+			}
 			case "chat" -> {
-				new ToggleRow("compact_gifts", Items.CHEST, () -> c.compactGifts, value -> c.compactGifts = value);
-				new ToggleRow("compact_sweep", Items.PAPER, () -> c.compactSweep, value -> c.compactSweep = value);
-				new ToggleRow("compact_contest", Items.GOLDEN_HOE, () -> c.compactContest, value -> c.compactContest = value);
-				new ToggleRow("hide_lottery", Items.PAPER, () -> c.hideLottery, value -> c.hideLottery = value);
+				Row compact = new GroupRow("group_compact", Items.PAPER);
+				sub(compact, () -> {
+					new ToggleRow("compact_gifts", Items.CHEST, () -> c.compactGifts, value -> c.compactGifts = value);
+					new ToggleRow("compact_sweep", Items.PAPER, () -> c.compactSweep, value -> c.compactSweep = value);
+					new ToggleRow("compact_contest", Items.GOLDEN_HOE, () -> c.compactContest, value -> c.compactContest = value);
+					new ToggleRow("hide_lottery", Items.PAPER, () -> c.hideLottery, value -> c.hideLottery = value);
+				});
 				new ToggleRow("mute_phantoms", Items.PHANTOM_MEMBRANE, () -> c.mutePhantoms, value -> c.mutePhantoms = value);
-				new ToggleRow("mute_mobs", Items.DEAD_BUSH, () -> c.muteMobs, value -> c.muteMobs = value);
 				new ToggleRow("mute_tree_break", Items.NOTE_BLOCK, () -> c.muteTreeBreak, value -> c.muteTreeBreak = value);
+				Row mobs = new ToggleRow("mute_mobs", Items.DEAD_BUSH, () -> c.muteMobs, value -> c.muteMobs = value);
+				sub(mobs, () -> new TextRow("muted_mobs", Items.NAME_TAG, () -> c.mutedMobs, value -> c.mutedMobs = value));
 				new ActionRow("sounds_list", "open", Items.NOTE_BLOCK, () -> {
 					onClose();
 					if (minecraft.player != null) Sounds.list(minecraft.player::sendSystemMessage);
 				});
 			}
-			case "online" -> {
-				new ToggleRow("leaderboard", Items.GOLDEN_HOE, () -> c.leaderboardShare, value -> {
-					c.leaderboardShare = value;
-					if (value && !Leaderboard.verified()) Leaderboard.verify();
-					if (!value) Leaderboard.forget();
-				});
-				new ActionRow("leaderboard_open", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 11)));
-				new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
-				new ActionRow("setup", "open", Items.NETHER_STAR, () -> minecraft.gui.setScreen(new SetupScreen(this)));
-			}
 			case "planner" -> {
 				new ActionRow("perk_tree", "open", Items.OAK_SAPLING, () -> minecraft.gui.setScreen(new PerkTreeScreen(this)));
 				new ActionRow("gear", "open", Items.IRON_CHESTPLATE, () -> minecraft.gui.setScreen(new GearScreen(this)));
+				new ActionRow("stats", "open", Items.SPYGLASS, () -> minecraft.gui.setScreen(new StatsScreen(this)));
+				new ActionRow("journal", "open", Items.WRITABLE_BOOK, () -> minecraft.gui.setScreen(new JournalScreen(this)));
 				new CycleRow("goal", Items.NETHER_STAR, () -> c.goal, value -> c.goal = value,
 						Arrays.stream(Goal.values()).map(Goal::id).toList());
 				List<String> trees = new ArrayList<>(List.of("auto"));
@@ -327,54 +382,53 @@ public final class SettingsScreen extends Screen {
 					c.learnSweep = value;
 					LearnedSweep.apply();
 				});
-				new NumberRow("tokens", Items.SUNFLOWER, c.tokens, 0, 100, true, value -> c.tokens = (int) value, () -> true);
-				new NumberRow("tier", Items.OAK_SAPLING, c.hotfTier, 1, 8, true, value -> c.hotfTier = (int) value, () -> true);
-				new NumberRow("forest_budget", Items.OAK_LOG, c.whispers, 0, 2_000_000_000, true, value -> c.whispers = (long) value, () -> true);
-				new NumberRow("desert_budget", Items.SAND, c.desertWhispers, 0, 2_000_000_000, true, value -> c.desertWhispers = (long) value, () -> true);
+				Row hotf = new GroupRow("group_hotf", Items.OAK_SAPLING);
+				sub(hotf, () -> {
+					new NumberRow("tokens", Items.SUNFLOWER, c.tokens, 0, 100, true, value -> c.tokens = (int) value, () -> true);
+					new NumberRow("tier", Items.OAK_SAPLING, c.hotfTier, 1, 8, true, value -> c.hotfTier = (int) value, () -> true);
+					new NumberRow("forest_budget", Items.OAK_LOG, c.whispers, 0, 2_000_000_000, true, value -> c.whispers = (long) value, () -> true);
+					new NumberRow("desert_budget", Items.SAND, c.desertWhispers, 0, 2_000_000_000, true, value -> c.desertWhispers = (long) value, () -> true);
+					new ToggleRow("hotf_costs", Items.OAK_SAPLING, () -> c.hotfCosts, value -> c.hotfCosts = value);
+					new ToggleRow("whisper_reminder", Items.OAK_SAPLING, () -> c.whisperReminder, value -> c.whisperReminder = value);
+				});
+				new ToggleRow("attribute_overlay", Items.PRISMARINE_SHARD, () -> c.attributeOverlay, value -> c.attributeOverlay = value);
 			}
 			case "stats" -> {
-				new ToggleRow("manual", Items.WRITABLE_BOOK, () -> c.manualStats, value -> c.manualStats = value);
-				BooleanSupplier manual = () -> c.manualStats;
-				new NumberRow("sweep", Items.IRON_AXE, c.manualSweep, 0, 100_000, false, value -> c.manualSweep = value, manual);
-				new NumberRow("fortune", Items.GOLD_INGOT, c.manualFortune, 0, 100_000, false, value -> c.manualFortune = value, manual);
-				new NumberRow("wisdom", Items.EXPERIENCE_BOTTLE, c.manualWisdom, 0, 100_000, false, value -> c.manualWisdom = value, manual);
-				new NumberRow("strength", Items.IRON_SWORD, c.manualStrength, 0, 100_000, false, value -> c.manualStrength = value, manual);
-				new NumberRow("speed", Items.SUGAR, c.manualSpeed, 0, 100_000, false, value -> c.manualSpeed = value, manual);
-			}
-			case "safari" -> {
-				new ToggleRow("safari_tracker", Items.CLOCK, () -> c.safariTracker, value -> c.safariTracker = value);
-				new NumberRow("capsule_warn", Items.ENDER_PEARL, c.capsuleWarnAt, 0, 20, true, value -> c.capsuleWarnAt = (int) value, () -> true);
-				new ToggleRow("safari_bells", Items.BELL, () -> c.safariBells, value -> c.safariBells = value);
-				new ToggleRow("bell_route", Items.COMPASS, () -> c.bellRoute, value -> c.bellRoute = value);
-				new ActionRow("bell_reset", "reset", Items.BELL, Bells::reset);
-				new ToggleRow("safari_prices", Items.GOLD_NUGGET, () -> c.safariPrices, value -> c.safariPrices = value);
-				new ToggleRow("sparkling_alert", Items.GLOWSTONE_DUST, () -> c.sparklingAlert, value -> c.sparklingAlert = value);
-				new ToggleRow("critterdex_helper", Items.BOOK, () -> c.critterdexHelper, value -> c.critterdexHelper = value);
-				new ToggleRow("safari_milestones", Items.OAK_SAPLING, () -> c.safariMilestones, value -> c.safariMilestones = value);
-				new ToggleRow("ticket_reminder", Items.PAPER, () -> c.ticketReminder, value -> c.ticketReminder = value);
-				new ToggleRow("safari_ground", Items.HOPPER, () -> c.safariGroundItems, value -> c.safariGroundItems = value);
-				new ToggleRow("honey_helix", Items.HONEYCOMB, () -> c.honeyHelix, value -> c.honeyHelix = value);
-				new ToggleRow("party_progress", Items.PLAYER_HEAD, () -> c.partyProgress, value -> c.partyProgress = value);
-				new ToggleRow("safari_debug", Items.WRITABLE_BOOK, () -> c.safariDebug, value -> c.safariDebug = value);
+				Row manual = new ToggleRow("manual", Items.WRITABLE_BOOK, () -> c.manualStats, value -> c.manualStats = value);
+				BooleanSupplier on = () -> c.manualStats;
+				sub(manual, () -> {
+					new NumberRow("sweep", Items.IRON_AXE, c.manualSweep, 0, 100_000, false, value -> c.manualSweep = value, on);
+					new NumberRow("fortune", Items.GOLD_INGOT, c.manualFortune, 0, 100_000, false, value -> c.manualFortune = value, on);
+					new NumberRow("wisdom", Items.EXPERIENCE_BOTTLE, c.manualWisdom, 0, 100_000, false, value -> c.manualWisdom = value, on);
+					new NumberRow("strength", Items.IRON_SWORD, c.manualStrength, 0, 100_000, false, value -> c.manualStrength = value, on);
+					new NumberRow("speed", Items.SUGAR, c.manualSpeed, 0, 100_000, false, value -> c.manualSpeed = value, on);
+				});
+				EXPANDED.add("manual");
 			}
 			case "style" -> {
 				new SliderRow("hud_radius", Items.SNOWBALL, 0, 12, 1, "px", () -> c.hudRadius, value -> c.hudRadius = value);
 				new SliderRow("hud_opacity", Items.SPYGLASS, 0, 100, 5, "%", () -> c.hudOpacity, value -> c.hudOpacity = value);
 				new ColorRow("hud_color", Items.INK_SAC, BACKGROUNDS, () -> c.hudColor, value -> c.hudColor = value);
 				new SliderRow("hud_padding", Items.ITEM_FRAME, 2, 10, 1, "px", () -> c.hudPadding, value -> c.hudPadding = value);
-				new ToggleRow("hud_border", Items.PAINTING, () -> c.hudBorder, value -> c.hudBorder = value);
-				new ColorRow("hud_border_color", Items.GLOW_INK_SAC, ACCENTS, () -> c.hudBorderColor, value -> c.hudBorderColor = value);
+				Row border = new ToggleRow("hud_border", Items.PAINTING, () -> c.hudBorder, value -> c.hudBorder = value);
+				sub(border, () -> new ColorRow("hud_border_color", Items.GLOW_INK_SAC, ACCENTS, () -> c.hudBorderColor, value -> c.hudBorderColor = value));
 				new ColorRow("hud_label_color", Items.NAME_TAG, LABELS, () -> c.hudLabelColor, value -> c.hudLabelColor = value);
 				new ToggleRow("hud_shadow", Items.COAL, () -> c.hudShadow, value -> c.hudShadow = value);
-				new SliderRow("map_size", Items.MAP, 60, 200, 10, "px", () -> c.mapSize, value -> c.mapSize = value);
-				new SliderRow("map_range", Items.COMPASS, 30, 150, 10, "m", () -> c.mapRange, value -> c.mapRange = value);
-				new CycleRow("map_corner", Items.ITEM_FRAME, () -> c.mapCorner, value -> c.mapCorner = value, List.of("top_right", "top_left", "bottom_right", "bottom_left"));
 				new SliderRow("session_columns", Items.CLOCK, 1, 3, 1, "", () -> c.sessionColumns, value -> c.sessionColumns = value);
 				new ActionRow("hud_style_reset", "restore", Items.BARRIER, () -> {
 					c.hudRadius = 0; c.hudOpacity = 47; c.hudColor = 0x000000; c.hudPadding = 4; c.hudBorder = false;
 					c.hudBorderColor = 0x55FF55; c.hudLabelColor = 0xAAAAAA; c.hudShadow = true; c.sessionColumns = 2;
 				});
 				new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+			}
+			case "online" -> {
+				Row board = new ToggleRow("leaderboard", Items.GOLDEN_HOE, () -> c.leaderboardShare, value -> {
+					c.leaderboardShare = value;
+					if (value && !Leaderboard.verified()) Leaderboard.verify();
+					if (!value) Leaderboard.forget();
+				});
+				sub(board, () -> new ActionRow("leaderboard_open", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 11))));
+				new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
 			}
 			default -> {}
 		}
@@ -393,11 +447,38 @@ public final class SettingsScreen extends Screen {
 	}
 
 	private int rowY(Row row) {
-		return viewTop + row.index * ROW_STEP - (int) Math.round(scroll);
+		double slot = row.slot < 0 ? row.index * ROW_STEP : row.slot;
+		return viewTop + (int) Math.round(slot) - (int) Math.round(scroll);
+	}
+
+	/** Decides which rows are visible and their order. Children slide out from their parent. */
+	private void layoutRows() {
+		List<Row> next = new ArrayList<>();
+		for (Row row : rows) {
+			boolean open = !query.isEmpty() || row.ancestorsOpen();
+			if (open) {
+				row.index = next.size();
+				next.add(row);
+				if (!row.wasShown) {
+					row.slot = row.parent != null && row.parent.slot >= 0 && animated() ? row.parent.slot : row.index * ROW_STEP;
+					row.reveal = row.parent != null && animated() ? 0 : 1;
+				}
+			} else {
+				row.hide(true);
+			}
+			row.wasShown = open;
+		}
+		shown = next;
+	}
+
+	private void toggleExpanded(Row row) {
+		if (!EXPANDED.remove(row.name)) EXPANDED.add(row.name);
+		layoutRows();
+		scrollTarget = Math.clamp(scrollTarget, 0, maxScroll());
 	}
 
 	private int maxScroll() {
-		int content = rows.size() * ROW_STEP - 5;
+		int content = shown.size() * ROW_STEP - 5;
 		return Math.max(0, content - (viewBottom - viewTop));
 	}
 
@@ -583,28 +664,52 @@ public final class SettingsScreen extends Screen {
 		scroll = animated() ? approach(scroll, scrollTarget, dt, 16) : scrollTarget;
 		g.enableScissor(contentX - 4, viewTop, contentX + contentW + 12, viewBottom);
 
-		for (Row row : rows) {
+		for (Row row : shown) {
+			double target = row.index * ROW_STEP;
+			row.slot = animated() ? approach(row.slot < 0 ? target : row.slot, target, dt, 18) : target;
+			row.reveal = animated() ? approach(row.reveal, 1, dt, 12) : 1;
+		}
+		for (Row row : shown) {
 			int y = rowY(row);
 			boolean inView = y + ROW_HEIGHT > viewTop && y < viewBottom;
-			double appear = animated() ? easeOut((now - pageNs - row.index * 35e6) / 240e6) : 1;
+			double appear = (animated() ? easeOut((now - pageNs - row.index * 35e6) / 240e6) : 1) * row.reveal;
 			double edge = Math.clamp(Math.min((y + ROW_HEIGHT - viewTop) / 14.0, (viewBottom - y) / 14.0), 0.0, 1.0);
 			double a = open * appear * edge;
 			row.hide(!inView || a < 0.6);
 			if (!inView || a <= 0.01) continue;
 
-			double rowA = a * (row.enabled() ? 1 : 0.45);
-			int x = contentX + (int) Math.round((1 - appear) * 14);
-			boolean hovered = !draggingBar && row.enabled() && inside(mouseX, mouseY, contentX, Math.max(y, viewTop), contentW,
+			double rowA = a * (row.usable() ? 1 : 0.45);
+			int indent = query.isEmpty() ? row.depth() * 14 : 0;
+			int w = contentW - indent;
+			int x = contentX + indent + (int) Math.round((1 - appear) * 14);
+			boolean hovered = !draggingBar && row.usable() && inside(mouseX, mouseY, contentX + indent, Math.max(y, viewTop), w,
 					Math.min(y + ROW_HEIGHT, viewBottom) - Math.max(y, viewTop));
 			row.hover = animated() ? approach(row.hover, hovered ? 1 : 0, dt, 16) : hovered ? 1 : 0;
+			boolean expanded = EXPANDED.contains(row.name);
+			row.turn = animated() ? approach(row.turn, expanded ? 1 : 0, dt, 16) : expanded ? 1 : 0;
 
-			round(g, x, y, contentW, ROW_HEIGHT, 7, alpha(mixArgb(UI_ROW, UI_ROW_HOVER, row.hover), rowA));
+			if (indent > 0) g.fill(x - 8, y - 5, x - 7, y + ROW_HEIGHT / 2 + 1, alpha(0x33FFFFFF, a));
+			if (indent > 0) g.fill(x - 8, y + ROW_HEIGHT / 2, x - 2, y + ROW_HEIGHT / 2 + 1, alpha(0x33FFFFFF, a));
+			int fill = row.expandable() && row.turn > 0.01 ? mixArgb(mixArgb(UI_ROW, UI_ROW_HOVER, row.hover), 0xFF1C3324, row.turn * 0.6) : mixArgb(UI_ROW, UI_ROW_HOVER, row.hover);
+			round(g, x, y, w, ROW_HEIGHT, 7, alpha(fill, rowA));
 			round(g, x + 8, y + 8, 20, 20, 5, alpha(UI_TILE, rowA));
 			icon(g, row.icon, x + 10, y + 10, rowA);
 
-			int textWidth = contentW - 36 - row.controlWidth() - 18;
-			g.text(font, fit(font, text(row.name).getString(), textWidth), x + 36, y + 8, alpha(UI_TEXT, rowA), false);
+			int chevron = row.expandable() ? 16 : 0;
+			int textWidth = w - 36 - row.controlWidth() - 18 - chevron;
+			String title = text(row.name).getString() + (row.expandable() && !expanded ? "  §8(" + row.children.size() + ")" : "");
+			g.text(font, fit(font, title, textWidth), x + 36, y + 8, alpha(UI_TEXT, rowA), false);
 			g.text(font, fit(font, Planner.tr("settings." + row.name + ".hint"), textWidth), x + 36, y + 20, alpha(UI_MUTED, rowA), false);
+			if (row.expandable()) {
+				int cx = x + w - 10 - row.controlWidth() - 12, cy = y + ROW_HEIGHT / 2;
+				var pose = g.pose();
+				pose.pushMatrix();
+				pose.translate(cx, cy);
+				pose.rotate((float) (row.turn * Math.PI / 2));
+				int col = alpha(mixArgb(UI_MUTED, UI_ACCENT, Math.max(row.turn, row.hover)), rowA);
+				for (int i = 0; i < 4; i++) g.fill(-2 + i, -3 + i, -1 + i, 4 - i, col);
+				pose.popMatrix();
+			}
 
 			row.drawControl(g, x + contentW - 10, y + ROW_HEIGHT / 2, rowA, mouseX, mouseY, dt, delta, now);
 		}
@@ -823,12 +928,21 @@ public final class SettingsScreen extends Screen {
 		if (super.mouseClicked(event, doubled)) return true;
 
 		if (inside(mx, my, contentX, viewTop, contentW, viewBottom - viewTop)) {
-			for (Row row : rows) {
+			for (Row row : shown) {
 				int y = rowY(row);
 				if (my < y || my >= y + ROW_HEIGHT) continue;
-				if (!row.enabled()) return true;
+				int indent = query.isEmpty() ? row.depth() * 14 : 0;
+				if (mx < contentX + indent) return true;
+				// The left part of a row with sub-settings opens it; the control on the right still works.
+				int controlLeft = contentX + contentW - 10 - row.controlWidth() - 22;
+				if (row.expandable() && (mx < controlLeft || row instanceof GroupRow)) {
+					playClick();
+					toggleExpanded(row);
+					return true;
+				}
+				if (!row.usable()) return true;
 
-				if (!(row instanceof NumberRow)) setFocused(null);
+				if (!(row instanceof NumberRow) && !(row instanceof TextRow)) setFocused(null);
 
 				if (row.click(mx, my, contentX + contentW - 10, y + ROW_HEIGHT / 2)) {
 					playClick();
@@ -940,17 +1054,47 @@ public final class SettingsScreen extends Screen {
 	private abstract class Row {
 		final String name;
 		final Item icon;
+		final Row parent;
+		final List<Row> children = new ArrayList<>();
 		int index;
-		double hover;
+		double hover, slot = -1, reveal = 1, turn;
+		boolean wasShown;
 
 		Row(String name, Item icon) {
 			this.name = name;
 			this.icon = icon;
 			this.index = rows.size();
+			this.parent = currentParent;
+			if (parent != null) parent.children.add(this);
 			rows.add(this);
 		}
 
 		boolean enabled() {
+			return true;
+		}
+
+		/** Whether the rows under this one can be changed (a switched off feature greys out its options). */
+		boolean childrenActive() {
+			return true;
+		}
+
+		final boolean usable() {
+			for (Row p = parent; p != null; p = p.parent) if (!p.childrenActive()) return false;
+			return enabled();
+		}
+
+		final boolean expandable() {
+			return !children.isEmpty();
+		}
+
+		final int depth() {
+			int d = 0;
+			for (Row p = parent; p != null; p = p.parent) d++;
+			return d;
+		}
+
+		final boolean ancestorsOpen() {
+			for (Row p = parent; p != null; p = p.parent) if (!EXPANDED.contains(p.name)) return false;
 			return true;
 		}
 
@@ -980,6 +1124,11 @@ public final class SettingsScreen extends Screen {
 		}
 
 		@Override
+		boolean childrenActive() {
+			return get.getAsBoolean();
+		}
+
+		@Override
 		int controlWidth() {
 			return 30;
 		}
@@ -1000,6 +1149,87 @@ public final class SettingsScreen extends Screen {
 		boolean click(double mouseX, double mouseY, int right, int midY) {
 			set.accept(!get.getAsBoolean());
 			return true;
+		}
+	}
+
+	/** Only a heading that opens and closes the settings under it. */
+	private final class GroupRow extends Row {
+		GroupRow(String name, Item icon) {
+			super(name, icon);
+		}
+
+		@Override
+		int controlWidth() {
+			return 0;
+		}
+
+		@Override
+		void drawControl(GuiGraphicsExtractor g, int right, int midY, double a, int mouseX, int mouseY, double dt, float delta, long now) {}
+
+		@Override
+		boolean click(double mouseX, double mouseY, int right, int midY) {
+			return false;
+		}
+	}
+
+	/** A list of names typed with commas, e.g. "Hideonleaf, Shellwise". */
+	private final class TextRow extends Row {
+		private final EditBox box;
+
+		TextRow(String name, Item icon, java.util.function.Supplier<List<String>> get, Consumer<List<String>> set) {
+			super(name, icon);
+			box = new EditBox(font, 0, 0, 120, 10, text(name));
+			box.setBordered(false);
+			box.setTextShadow(false);
+			box.setMaxLength(400);
+			box.setHint(Component.literal("§8" + Planner.tr("settings.list_hint")));
+			box.setValue(String.join(", ", get.get()));
+			box.setResponder(value -> {
+				List<String> list = new ArrayList<>();
+				for (String part : value.split(",")) if (!part.isBlank()) list.add(part.trim());
+				set.accept(list);
+				markDirty();
+				PlannerHud.rebuild();
+			});
+			box.visible = false;
+			addWidget(box);
+		}
+
+		private int fieldWidth() {
+			return Math.clamp(contentW / 2 - 20, 90, 180);
+		}
+
+		@Override
+		int controlWidth() {
+			return fieldWidth();
+		}
+
+		@Override
+		void hide(boolean hidden) {
+			box.visible = !hidden;
+			if (hidden && box.isFocused()) setFocused(null);
+		}
+
+		@Override
+		void drawControl(GuiGraphicsExtractor g, int right, int midY, double a, int mouseX, int mouseY, double dt, float delta, long now) {
+			int fw = fieldWidth();
+			int fx = right - fw, fy = midY - 8;
+			boolean focused = box.isFocused();
+			round(g, fx, fy, fw, 16, 4, alpha(UI_FIELD, a));
+			g.fill(fx + 3, fy + 15, fx + fw - 3, fy + 16, alpha(focused ? UI_AMBER : UI_FIELD_LINE, a));
+			box.setEditable(usable());
+			box.setTextColor(alpha(UI_TEXT, a));
+			box.setTextColorUneditable(alpha(UI_DIM, a));
+			box.setWidth(fw - 10);
+			box.setX(fx + 5);
+			box.setY(fy + 4);
+			box.extractRenderState(g, mouseX, mouseY, delta);
+		}
+
+		@Override
+		boolean click(double mouseX, double mouseY, int right, int midY) {
+			setFocused(box);
+			return false;
 		}
 	}
 

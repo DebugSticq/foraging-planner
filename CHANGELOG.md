@@ -6,6 +6,13 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
+## [1.0.3] - 2026-11-16
+
+### Changed
+- Settings sorted again: tree helpers on the trees page, warnings on the alerts page, HOTF and attributes on the planner page, shard vendors on the Safari page
+- Settings with options can be opened: click a row to show its sub-settings below it (minimap size, AFK time, capsule warning, colours and more)
+- Name lists (critters, muted mobs, protected items, vendors, important floor drops) can be edited right in the settings
+
 ## [1.0.1] - 2026-11-16
 
 ### Added
