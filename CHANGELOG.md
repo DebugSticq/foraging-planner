@@ -9,17 +9,21 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 ## [1.0.5] - 2026-11-17
 
 ### Added
-- Gear menu: new "Enchants & reforges" page. For your axe, armor and equipment it shows the best foraging reforge (Moonglade, Moil, Toil, Groovy, Marshy, Majestic, ...), the Recombobulator and axe enchantments (First Impression, Karma, Petalfall, Missile, Absorb), each with the stat change, the gain for your goal and the price
-- Custom axe looks, only visible to you: Moonblade (silver crescent with a pulsing glow), Rootcleaver (living wood with moss and leaves) and Emberbit (obsidian double axe with flickering ember cracks). Settings > Display > Just for fun All of them are animated (shimmer along the edge, drifting spores, flowing embers). In the hand, on the ground and in item frames they are low-poly 3D models (drawn as real triangles, with glowing ice edges and lava cracks that pulse); in the inventory the pixel version. The 3D models move: ice crystals circle the Frostaxt, the leaves and vine of the Waldaxt sway and spores rise from its moss, and embers rise from the Lavaaxt. "3D model" turns the 3D version off
-- Custom /hotf menu: perks as cards in Hypixel's own layout, levels, the planner's top three upgrades in gold, a detail panel with the perk's description. Clicks go to the real menu. Hold Alt or press "Original" for the normal menu
-- Share settings: copy all settings as one line of text and paste them at a friend's or a second instance (Settings > Online, or `/fp settings export|import|undo`). Personal data is left out and a backup is made before pasting
+- **Custom axe looks** (Settings > Display > Just for fun), only visible to you:
+  - Moonblade (frost axe), Rootcleaver (forest axe) and Emberbit (lava axe)
+  - Low-poly 3D models in the hand, on the ground and in item frames, a 32×32 pixel version in the inventory
+  - Animated: ice crystals circle the frost axe, leaves and vine sway and spores rise from the forest axe, embers rise from the lava axe; glowing edges and cracks pulse
+  - "3D model" switches to the pixel version everywhere, "All axes" applies the look to every SkyBlock axe
+- **Custom /hotf menu**: perks as cards in Hypixel's own layout with levels, the planner's top three upgrades in gold and a detail panel. Clicks go to the real menu; hold Alt or press "Original" for the normal one
+- **Enchants & reforges** page in the gear menu: best foraging reforge per piece (Moonglade, Moil, Toil, Groovy, Marshy, Majestic, ...), Recombobulator and axe enchantments (First Impression, Karma, Petalfall, Missile, Absorb), each with stat change, gain for your goal and price
+- **Share settings**: copy all settings as one line of text and paste them elsewhere (Settings > Online or `/fp settings export|import|undo`). Personal data is left out, a backup is made before pasting
 
 ### Fixed
+- Protected trees are found from the "Tree Protection Order" nametag and from the fine message, even when the tree is not in the tree list
+- Protected trees get a red label; hits and Axe Toss on them are blocked (sneak to hit anyway, can be turned off)
+- The protected-tree warning only shows when you aim at the tree itself, not at a wall in front of it
+- Protected marks disappear when the order is gone instead of staying forever
 - Switches and selectors of indented settings were cut off at the right edge
-- The protected-tree warning no longer shows when you aim at a wall or other block next to a protected tree, only at the tree itself
-- Protected trees are now found from the "Tree Protection Order" nametag (also text displays) and from the fine message, even when the tree is not in the tree list
-- Protected trees get a red "Protected" label; hits and Axe Toss on them are blocked (sneak to hit anyway, can be turned off)
-- Protected marks disappear again when the order is gone, instead of staying forever
 
 ## [1.0.4] - 2026-11-16
 
