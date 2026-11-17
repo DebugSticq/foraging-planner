@@ -1214,6 +1214,6 @@
   "foragingplanner.hotfgui.rank": "Platz %1$s im Plan · +%2$s %% für dein Ziel",
   "foragingplanner.settings.copy": "Kopieren",
   "foragingplanner.settings.paste": "Einfügen",
-  "foragingplanner.settings.axe_skin_3d": "3D-Modell (Test)",
-  "foragingplanner.settings.axe_skin_3d.hint": "Experimentelles 3D-Modell in der Hand statt der Pixel-Version."
+  "foragingplanner.settings.axe_skin_mesh": "3D-Modell",
+  "foragingplanner.settings.axe_skin_mesh.hint": "Low-Poly-3D-Modell in der Hand, im Inventar die Pixel-Version."
 }

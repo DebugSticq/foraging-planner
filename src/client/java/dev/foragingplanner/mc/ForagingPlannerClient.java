@@ -50,6 +50,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		LogStripGuard.register();
 		Safari.register();
 		RareDrops.register();
+		MeshAxe.register();
 		// Must be last: it can hide messages, and Fabric stops at the first listener that hides one.
 		CompactChat.register();
 

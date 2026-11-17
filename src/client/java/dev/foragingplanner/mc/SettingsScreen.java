@@ -271,7 +271,7 @@ public final class SettingsScreen extends Screen {
 					Row skin = new CycleRow("axe_skin", Items.IRON_AXE, () -> c.axeSkin, value -> c.axeSkin = value, AxeSkins.SKINS);
 					sub(skin, () -> {
 						new ToggleRow("axe_skin_all", Items.STONE_AXE, () -> c.axeSkinAll, value -> c.axeSkinAll = value);
-						new ToggleRow("axe_skin_3d", Items.ANVIL, () -> c.axeSkin3d, value -> c.axeSkin3d = value);
+						new ToggleRow("axe_skin_mesh", Items.ANVIL, () -> c.axeSkinMesh, value -> c.axeSkinMesh = value);
 					});
 					new ToggleRow("tree_fall_effect", Items.OAK_LEAVES, () -> c.treeFallEffect, value -> c.treeFallEffect = value);
 				});

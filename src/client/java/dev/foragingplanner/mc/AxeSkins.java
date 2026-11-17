@@ -41,9 +41,9 @@ public final class AxeSkins {
 			IDS.put(data, id);
 		}
 		if (id.isEmpty() || !isAxe(id)) return null;
-		if (!skin.equals(loadedSkin) || loaded3d != Planner.config.axeSkin3d) {
+		if (!skin.equals(loadedSkin) || loaded3d != Planner.config.axeSkinMesh) {
 			loadedSkin = skin;
-			loaded3d = Planner.config.axeSkin3d;
+			loaded3d = Planner.config.axeSkinMesh;
 			model = Identifier.fromNamespaceAndPath(Planner.MOD_ID, "axe_" + skin + (loaded3d ? "_3d" : ""));
 		}
 		return model;

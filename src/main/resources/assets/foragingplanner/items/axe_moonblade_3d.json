@@ -12,8 +12,11 @@
       }
     ],
     "fallback": {
-      "type": "minecraft:model",
-      "model": "foragingplanner:item/axe_moonblade_3d"
+      "type": "minecraft:special",
+      "base": "foragingplanner:item/axe_moonblade_base",
+      "model": {
+        "type": "foragingplanner:axe_mesh_ice"
+      }
     }
   }
 }
