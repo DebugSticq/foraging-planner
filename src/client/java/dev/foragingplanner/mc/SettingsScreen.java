@@ -268,6 +268,8 @@ public final class SettingsScreen extends Screen {
 					Row fun = new GroupRow("group_fun", Items.FIREWORK_ROCKET);
 				sub(fun, () -> {
 					new CycleRow("season_theme", Items.SNOWBALL, () -> c.seasonTheme, value -> c.seasonTheme = value, List.of("auto", "off", "winter", "spring", "summer", "autumn"));
+					Row skin = new CycleRow("axe_skin", Items.IRON_AXE, () -> c.axeSkin, value -> c.axeSkin = value, AxeSkins.SKINS);
+					sub(skin, () -> new ToggleRow("axe_skin_all", Items.STONE_AXE, () -> c.axeSkinAll, value -> c.axeSkinAll = value));
 					new ToggleRow("tree_fall_effect", Items.OAK_LEAVES, () -> c.treeFallEffect, value -> c.treeFallEffect = value);
 				});
 				Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);

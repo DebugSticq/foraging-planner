@@ -1178,5 +1178,12 @@
   "foragingplanner.enchant.ultimate_first_impression": "+1 Sweep per level on hits, double on the first hit",
   "foragingplanner.enchant.karma": "+1 % chance for double Tree Gift loot per level",
   "foragingplanner.enchant.petalfall": "+0.2 Timber per level",
-  "foragingplanner.enchant.ultimate_missile": "Axe Toss loses 10 % fewer logs per level"
+  "foragingplanner.enchant.ultimate_missile": "Axe Toss loses 10 % fewer logs per level",
+  "foragingplanner.settings.axe_skin": "Axe look",
+  "foragingplanner.settings.axe_skin.hint": "A custom model for your foraging axes. Only you see it.",
+  "foragingplanner.settings.axe_skin_all": "All axes",
+  "foragingplanner.settings.axe_skin_all.hint": "Other SkyBlock axes get the look too.",
+  "foragingplanner.option.moonblade": "Moonblade",
+  "foragingplanner.option.rootcleaver": "Rootcleaver",
+  "foragingplanner.option.emberbit": "Emberbit"
 }

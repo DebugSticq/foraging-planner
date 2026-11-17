@@ -1178,5 +1178,12 @@
   "foragingplanner.enchant.ultimate_first_impression": "+1 Sweep pro Stufe bei Schlägen, doppelt beim ersten Schlag",
   "foragingplanner.enchant.karma": "+1 % Chance auf doppelte Tree-Gift-Beute pro Stufe",
   "foragingplanner.enchant.petalfall": "+0,2 Timber pro Stufe",
-  "foragingplanner.enchant.ultimate_missile": "Axe Toss verliert 10 % weniger Logs pro Stufe"
+  "foragingplanner.enchant.ultimate_missile": "Axe Toss verliert 10 % weniger Logs pro Stufe",
+  "foragingplanner.settings.axe_skin": "Axt-Aussehen",
+  "foragingplanner.settings.axe_skin.hint": "Eigenes Modell für deine Foraging-Äxte. Nur du siehst es.",
+  "foragingplanner.settings.axe_skin_all": "Alle Äxte",
+  "foragingplanner.settings.axe_skin_all.hint": "Auch andere SkyBlock-Äxte bekommen das Aussehen.",
+  "foragingplanner.option.moonblade": "Mondsichel",
+  "foragingplanner.option.rootcleaver": "Wurzelaxt",
+  "foragingplanner.option.emberbit": "Glutaxt"
 }

@@ -10,6 +10,7 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 ### Added
 - Gear menu: new "Enchants & reforges" page. For your axe, armor and equipment it shows the best foraging reforge (Moonglade, Moil, Toil, Groovy, Marshy, Majestic, ...), the Recombobulator and axe enchantments (First Impression, Karma, Petalfall, Missile, Absorb), each with the stat change, the gain for your goal and the price
+- Custom axe looks, only visible to you: Moonblade (silver crescent with a pulsing glow), Rootcleaver (living wood with moss and leaves) and Emberbit (obsidian double axe with flickering ember cracks). Settings > Display > Just for fun
 
 ### Fixed
 - Protected trees are now found from the "Tree Protection Order" nametag (also text displays) and from the fine message, even when the tree is not in the tree list

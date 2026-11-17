@@ -8,7 +8,8 @@
     "ParticleMixin",
     "EntityRenderMixin",
     "DisplayAccessor",
-    "GameModeMixin"
+    "GameModeMixin",
+    "ItemModelMixin"
   ],
   "injectors": {
     "defaultRequire": 1
