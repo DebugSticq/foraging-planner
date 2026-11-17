@@ -10,11 +10,12 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 ### Added
 - Gear menu: new "Enchants & reforges" page. For your axe, armor and equipment it shows the best foraging reforge (Moonglade, Moil, Toil, Groovy, Marshy, Majestic, ...), the Recombobulator and axe enchantments (First Impression, Karma, Petalfall, Missile, Absorb), each with the stat change, the gain for your goal and the price
-- Custom axe looks, only visible to you: Moonblade (silver crescent with a pulsing glow), Rootcleaver (living wood with moss and leaves) and Emberbit (obsidian double axe with flickering ember cracks). Settings > Display > Just for fun
+- Custom axe looks, only visible to you: Moonblade (silver crescent with a pulsing glow), Rootcleaver (living wood with moss and leaves) and Emberbit (obsidian double axe with flickering ember cracks). Settings > Display > Just for fun In hand, on the ground and in item frames they are real 3D models with glowing parts; in the inventory a 32×32 sprite. All of them are animated (shimmer along the edge, drifting spores, flowing embers)
 - Custom /hotf menu: perks as cards in Hypixel's own layout, levels, the planner's top three upgrades in gold, a detail panel with the perk's description. Clicks go to the real menu. Hold Alt or press "Original" for the normal menu
 - Share settings: copy all settings as one line of text and paste them at a friend's or a second instance (Settings > Online, or `/fp settings export|import|undo`). Personal data is left out and a backup is made before pasting
 
 ### Fixed
+- Switches and selectors of indented settings were cut off at the right edge
 - The protected-tree warning no longer shows when you aim at a wall or other block next to a protected tree, only at the tree itself
 - Protected trees are now found from the "Tree Protection Order" nametag (also text displays) and from the fine message, even when the tree is not in the tree list
 - Protected trees get a red "Protected" label; hits and Axe Toss on them are blocked (sneak to hit anyway, can be turned off)

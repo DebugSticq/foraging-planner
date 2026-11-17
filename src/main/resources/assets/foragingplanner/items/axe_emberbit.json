@@ -1,6 +1,19 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "foragingplanner:item/axe_emberbit"
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "cases": [
+      {
+        "when": "gui",
+        "model": {
+          "type": "minecraft:model",
+          "model": "foragingplanner:item/axe_emberbit"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "foragingplanner:item/axe_emberbit_3d"
+    }
   }
 }

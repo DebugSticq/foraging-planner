@@ -782,7 +782,7 @@ public final class SettingsScreen extends Screen {
 				pose.popMatrix();
 			}
 
-			row.drawControl(g, x + contentW - 10, y + ROW_HEIGHT / 2, rowA, mouseX, mouseY, dt, delta, now);
+			row.drawControl(g, x + w - 10, y + ROW_HEIGHT / 2, rowA, mouseX, mouseY, dt, delta, now);
 		}
 
 		g.disableScissor();
