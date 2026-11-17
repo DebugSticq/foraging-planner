@@ -90,6 +90,8 @@ public final class ModConfig {
     public String axeSkin = "off";
     /** Also every other SkyBlock axe, not only foraging axes. */
     public boolean axeSkinAll = false;
+    /** Experimental block-built 3D models in the hand instead of the pixel version. */
+    public boolean axeSkin3d = false;
     /** auto (by date), off (fireflies), winter, spring, summer, autumn */
     public String seasonTheme = "auto";
     /** Fewer scans and a smaller path budget, for slower PCs. */

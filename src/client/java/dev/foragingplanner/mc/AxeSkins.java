@@ -23,6 +23,7 @@ public final class AxeSkins {
 	/** SkyBlock id per item data, so the tag is not copied every frame. */
 	private static final Map<CustomData, String> IDS = new IdentityHashMap<>();
 	private static String loadedSkin = "";
+	private static boolean loaded3d;
 	private static Identifier model;
 
 	private AxeSkins() {}
@@ -40,9 +41,10 @@ public final class AxeSkins {
 			IDS.put(data, id);
 		}
 		if (id.isEmpty() || !isAxe(id)) return null;
-		if (!skin.equals(loadedSkin)) {
+		if (!skin.equals(loadedSkin) || loaded3d != Planner.config.axeSkin3d) {
 			loadedSkin = skin;
-			model = Identifier.fromNamespaceAndPath(Planner.MOD_ID, "axe_" + skin);
+			loaded3d = Planner.config.axeSkin3d;
+			model = Identifier.fromNamespaceAndPath(Planner.MOD_ID, "axe_" + skin + (loaded3d ? "_3d" : ""));
 		}
 		return model;
 	}

@@ -1213,5 +1213,7 @@
   "foragingplanner.hotfgui.hint": "Fahre über eine Karte für Details. Gold umrandet = die besten drei Upgrades für dein Ziel.",
   "foragingplanner.hotfgui.rank": "Platz %1$s im Plan · +%2$s %% für dein Ziel",
   "foragingplanner.settings.copy": "Kopieren",
-  "foragingplanner.settings.paste": "Einfügen"
+  "foragingplanner.settings.paste": "Einfügen",
+  "foragingplanner.settings.axe_skin_3d": "3D-Modell (Test)",
+  "foragingplanner.settings.axe_skin_3d.hint": "Experimentelles 3D-Modell in der Hand statt der Pixel-Version."
 }

@@ -1213,5 +1213,7 @@
   "foragingplanner.hotfgui.hint": "Hover a card for details. Gold outline = the best three upgrades for your goal.",
   "foragingplanner.hotfgui.rank": "Rank %1$s in the plan · +%2$s %% for your goal",
   "foragingplanner.settings.copy": "Copy",
-  "foragingplanner.settings.paste": "Paste"
+  "foragingplanner.settings.paste": "Paste",
+  "foragingplanner.settings.axe_skin_3d": "3D model (test)",
+  "foragingplanner.settings.axe_skin_3d.hint": "Experimental 3D model in the hand instead of the pixel version."
 }
