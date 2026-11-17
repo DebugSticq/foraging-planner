@@ -465,6 +465,19 @@ public final class GearAdvisor {
 		return new Result(picks, locked, level, totalCost, combinedGain, bySlot);
 	}
 
+	/** Improvement of the goal in percent for a change of the player's stats (Jade Dragon scaling included). */
+	public static double gainPercent(double sweep, double fortune, double wisdom) {
+		GearData data = GearData.get();
+		Map<String, GearData.Item> now = current();
+		int digits = data.assumptions.mangroveDigits;
+		Objective objective = Planner.objective();
+		PlayerStats stats = SkyBlockReader.statsKnown() ? SkyBlockReader.stats() : statsFromGear(now, digits);
+		double base = objective.smoothValue(stats);
+		if (base <= 0) return 0;
+		fortune += contribution(now.get("pet"), digits).fortunePerSweep() * sweep;
+		return (objective.smoothValue(plus(stats, sweep, fortune, wisdom)) / base - 1) * 100;
+	}
+
 	private static PlayerStats statsFromGear(Map<String, GearData.Item> gear, int digits) {
 		double sweep = 0;
 		double fortune = 0;

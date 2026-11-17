@@ -1,0 +1,314 @@
+{
+ "_comment": "Foraging reforges from the NotEnoughUpdates repo (constants/reforges.json, reforgestones.json); enchantments from the enchanted book descriptions.",
+ "reforges": [
+  {
+   "name": "Double-Bit",
+   "stone": null,
+   "stoneName": null,
+   "types": "AXE",
+   "items": null,
+   "apply": 0,
+   "stats": {
+    "COMMON": {
+     "fortune": 1.0
+    },
+    "UNCOMMON": {
+     "fortune": 2.0
+    },
+    "RARE": {
+     "fortune": 3.0
+    },
+    "EPIC": {
+     "fortune": 4.0
+    },
+    "LEGENDARY": {
+     "fortune": 5.0
+    },
+    "MYTHIC": {
+     "fortune": 6.0
+    },
+    "DIVINE": {
+     "fortune": 7.0
+    }
+   }
+  },
+  {
+   "name": "Lush",
+   "stone": null,
+   "stoneName": null,
+   "types": "AXE",
+   "items": null,
+   "apply": 0,
+   "stats": {
+    "COMMON": {
+     "fortune": 1.0
+    },
+    "UNCOMMON": {
+     "fortune": 1.0
+    },
+    "RARE": {
+     "fortune": 2.0
+    },
+    "EPIC": {
+     "fortune": 2.0
+    },
+    "LEGENDARY": {
+     "fortune": 3.0
+    },
+    "MYTHIC": {
+     "fortune": 5.0
+    },
+    "DIVINE": {
+     "fortune": 7.0
+    }
+   }
+  },
+  {
+   "name": "Groovy",
+   "stone": "MANGROVE_GEM",
+   "stoneName": "Mangrove Gem",
+   "types": "ARMOR",
+   "items": null,
+   "apply": 100000,
+   "stats": {
+    "COMMON": {
+     "fortune": 2
+    },
+    "UNCOMMON": {
+     "fortune": 3
+    },
+    "RARE": {
+     "fortune": 4
+    },
+    "EPIC": {
+     "fortune": 5
+    },
+    "LEGENDARY": {
+     "fortune": 6
+    },
+    "MYTHIC": {
+     "fortune": 7
+    },
+    "DIVINE": {
+     "fortune": 8
+    }
+   }
+  },
+  {
+   "name": "Marshy",
+   "stone": "MARSHROOM",
+   "stoneName": "Marshroom",
+   "types": "EQUIPMENT",
+   "items": null,
+   "apply": 25000,
+   "stats": {
+    "COMMON": {
+     "fortune": 0.5
+    },
+    "UNCOMMON": {
+     "fortune": 1
+    },
+    "RARE": {
+     "fortune": 1.5
+    },
+    "EPIC": {
+     "fortune": 2.5
+    },
+    "LEGENDARY": {
+     "fortune": 3.5
+    },
+    "MYTHIC": {
+     "fortune": 4.5
+    },
+    "DIVINE": {
+     "fortune": 5.5
+    }
+   }
+  },
+  {
+   "name": "Moil",
+   "stone": "MOIL_LOG",
+   "stoneName": "Moil Log",
+   "types": "AXE",
+   "items": null,
+   "apply": 25000,
+   "stats": {
+    "COMMON": {
+     "fortune": 1
+    },
+    "UNCOMMON": {
+     "fortune": 2
+    },
+    "RARE": {
+     "fortune": 3
+    },
+    "EPIC": {
+     "fortune": 4
+    },
+    "LEGENDARY": {
+     "fortune": 6
+    },
+    "MYTHIC": {
+     "fortune": 8
+    },
+    "DIVINE": {
+     "fortune": 10
+    }
+   }
+  },
+  {
+   "name": "Moonglade",
+   "stone": "MOONGLADE_JEWEL",
+   "stoneName": "Moonglade Jewel",
+   "types": "AXE",
+   "items": null,
+   "apply": 100000,
+   "stats": {
+    "COMMON": {
+     "fortune": 4,
+     "wisdom": 1
+    },
+    "UNCOMMON": {
+     "fortune": 6,
+     "wisdom": 2
+    },
+    "RARE": {
+     "fortune": 8,
+     "wisdom": 3
+    },
+    "EPIC": {
+     "fortune": 10,
+     "wisdom": 4
+    },
+    "LEGENDARY": {
+     "fortune": 12,
+     "wisdom": 5
+    },
+    "MYTHIC": {
+     "fortune": 15,
+     "wisdom": 6
+    },
+    "DIVINE": {
+     "fortune": 18,
+     "wisdom": 7
+    }
+   }
+  },
+  {
+   "name": "Majestic",
+   "stone": "MORNING_DEW",
+   "stoneName": "Morning Dew",
+   "types": null,
+   "items": [
+    "SAFARI_BELT"
+   ],
+   "apply": 250000,
+   "stats": {
+    "COMMON": {
+     "sweep": 0.5,
+     "fortune": 2
+    },
+    "UNCOMMON": {
+     "sweep": 1,
+     "fortune": 4
+    },
+    "RARE": {
+     "sweep": 1.5,
+     "fortune": 6
+    },
+    "EPIC": {
+     "sweep": 2,
+     "fortune": 8
+    },
+    "LEGENDARY": {
+     "sweep": 3,
+     "fortune": 12
+    },
+    "MYTHIC": {
+     "sweep": 4,
+     "fortune": 16
+    },
+    "DIVINE": {
+     "sweep": 5,
+     "fortune": 20
+    }
+   }
+  },
+  {
+   "name": "Toil",
+   "stone": "TOIL_LOG",
+   "stoneName": "Toil Log",
+   "types": "AXE",
+   "items": null,
+   "apply": 100000,
+   "stats": {
+    "COMMON": {
+     "wisdom": 1
+    },
+    "UNCOMMON": {
+     "wisdom": 2
+    },
+    "RARE": {
+     "wisdom": 3
+    },
+    "EPIC": {
+     "wisdom": 4
+    },
+    "LEGENDARY": {
+     "wisdom": 6
+    },
+    "MYTHIC": {
+     "wisdom": 8
+    },
+    "DIVINE": {
+     "wisdom": 10
+    }
+   }
+  }
+ ],
+ "enchants": [
+  {
+   "id": "ULTIMATE_FIRST_IMPRESSION",
+   "name": "First Impression",
+   "slot": "axe",
+   "max": 5,
+   "ultimate": true,
+   "sweepPerLevel": 1,
+   "note": "+lvl Sweep on melee breaks, +2\u00d7lvl on the first break of a tree"
+  },
+  {
+   "id": "KARMA",
+   "name": "Karma",
+   "slot": "axe",
+   "max": 5,
+   "giftDoublePerLevel": 1,
+   "note": "+lvl % chance for double Tree Gift loot (VI from Forest's Favor)"
+  },
+  {
+   "id": "PETALFALL",
+   "name": "Petalfall",
+   "slot": "axe",
+   "max": 5,
+   "timberPerLevel": 0.2,
+   "note": "+0.2 Timber per level"
+  },
+  {
+   "id": "ULTIMATE_MISSILE",
+   "name": "Missile",
+   "slot": "axe",
+   "max": 5,
+   "ultimate": true,
+   "note": "Throwing Axe log penalty \u221210 % per level"
+  },
+  {
+   "id": "ABSORB",
+   "name": "Absorb",
+   "slot": "axe",
+   "max": 10,
+   "tiered": true,
+   "fortunePerLevel": 2,
+   "wisdomPerLevel": 1,
+   "note": "Levels up by breaking logs: 1k, 5k, 25k, 100k, 300k, 1.5M, 5M, 10M, 25M"
+  }
+ ]
+}

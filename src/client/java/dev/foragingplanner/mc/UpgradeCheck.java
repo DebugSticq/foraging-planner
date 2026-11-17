@@ -24,6 +24,12 @@ public final class UpgradeCheck {
 	public record Chip(String text, boolean done) {}
 
 	private static final Map<String, List<Chip>> EQUIPMENT = new HashMap<>();
+	/** Copies of the equipment last seen in the equipment menu, for the reforge and enchant advice. */
+	private static final Map<String, ItemStack> EQUIPMENT_STACKS = new java.util.LinkedHashMap<>();
+
+	static Map<String, ItemStack> equipmentStacks() {
+		return EQUIPMENT_STACKS;
+	}
 
 	private UpgradeCheck() {}
 
@@ -59,7 +65,10 @@ public final class UpgradeCheck {
 		for (Slot slot : menu.getMenu().slots) {
 			ItemStack stack = slot.getItem();
 			GearData.Item item = data.item(GearAdvisor.itemId(stack));
-			if (item != null && List.of("necklace", "cloak", "belt", "gloves").contains(item.slot)) EQUIPMENT.put(item.slot, check(stack, item.slot));
+			if (item != null && List.of("necklace", "cloak", "belt", "gloves").contains(item.slot)) {
+				EQUIPMENT.put(item.slot, check(stack, item.slot));
+				EQUIPMENT_STACKS.put(item.slot, stack.copy());
+			}
 		}
 	}
 

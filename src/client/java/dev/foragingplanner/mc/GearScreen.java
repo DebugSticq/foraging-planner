@@ -51,8 +51,8 @@ import net.minecraft.world.item.Items;
  * auction house search into the chat box; the player still presses Enter themselves.
  */
 public final class GearScreen extends Screen {
-	private static final String[] TABS = {"picks", "plan", "gear", "shards", "tips"};
-	private static final net.minecraft.world.item.Item[] TAB_ICONS = {Items.NETHER_STAR, Items.GOLD_INGOT, Items.IRON_CHESTPLATE, Items.AMETHYST_SHARD, Items.BOOK};
+	private static final String[] TABS = {"picks", "plan", "gear", "upgrades", "shards", "tips"};
+	private static final net.minecraft.world.item.Item[] TAB_ICONS = {Items.NETHER_STAR, Items.GOLD_INGOT, Items.IRON_CHESTPLATE, Items.ENCHANTED_BOOK, Items.AMETHYST_SHARD, Items.BOOK};
 	private static final int RADIUS = 10;
 	private static final int NAV_HEIGHT = 26;
 	private static final int NAV_STEP = 30;
@@ -77,6 +77,7 @@ public final class GearScreen extends Screen {
 	private GearAdvisor.Result result = new GearAdvisor.Result(List.of(), List.of(), -1, 0, 0, Map.of());
 	private List<GearAdvisor.Pick> plan = List.of();
 	private List<GearAdvisor.Pick> picks = List.of();
+	private List<UpgradeAdvisor.Option> upgrades = List.of();
 	private Map<String, GearData.Item> gear = Map.of();
 
 	public GearScreen(Screen parent) {
@@ -123,6 +124,7 @@ public final class GearScreen extends Screen {
 		gear = GearAdvisor.current();
 		result = GearAdvisor.recommend();
 		picks = result.picks();
+		upgrades = UpgradeAdvisor.options();
 		plan = GearAdvisor.plan(result, Progress.get().budget);
 		refreshedNs = System.nanoTime();
 		scrollTarget = Math.clamp(scrollTarget, 0, maxScroll());
@@ -138,7 +140,7 @@ public final class GearScreen extends Screen {
 	// Rows
 
 	private int rowHeight() {
-		return tab == 0 || tab == 1 || tab == 2 ? 46 : 38;
+		return tab <= 3 ? 46 : 38;
 	}
 
 	private int rowCount() {
@@ -146,7 +148,8 @@ public final class GearScreen extends Screen {
 			case 0 -> Math.max(1, picks.size() + result.locked().size());
 			case 1 -> 1 + Math.max(1, plan.size());
 			case 2 -> GearAdvisor.SLOTS.size();
-			case 3 -> GearData.get().shards.size();
+			case 3 -> Math.max(1, upgrades.size());
+			case 4 -> GearData.get().shards.size();
 			default -> GearData.get().tips.size();
 		};
 	}
@@ -341,7 +344,8 @@ public final class GearScreen extends Screen {
 				case 0 -> drawPick(g, i, x, y, a, hover, maxPerMillion, dt, now);
 				case 1 -> drawPlan(g, i, x, y, a, hover);
 				case 2 -> drawGear(g, GearAdvisor.SLOTS.get(i), x, y, a);
-				case 3 -> drawShard(g, GearData.get().shards.get(i), x, y, a);
+				case 3 -> drawUpgrade(g, i, x, y, a);
+				case 4 -> drawShard(g, GearData.get().shards.get(i), x, y, a);
 				default -> drawTip(g, GearData.get().tips.get(i), x, y, a);
 			}
 		}
@@ -571,6 +575,33 @@ public final class GearScreen extends Screen {
 		g.text(font, fit(font, shard.effect, textW), x + 38, y + 21, alpha(UI_MUTED, a), false);
 	}
 
+	private void drawUpgrade(GuiGraphicsExtractor g, int index, int x, int y, double a) {
+		if (upgrades.isEmpty()) {
+			g.text(font, tr("upgrades_empty"), x + 12, y + 12, alpha(UI_MUTED, a), false);
+			g.text(font, fit(font, tr("upgrades_empty_hint"), contentW - 24), x + 12, y + 26, alpha(UI_DIM, a), false);
+			return;
+		}
+		UpgradeAdvisor.Option o = upgrades.get(index);
+		int h = rowHeight();
+		double dim = o.done() ? a * 0.55 : a;
+		iconTile(g, o.icon(), x, y, h, dim);
+		int right = x + contentW - 10;
+
+		String value = o.done() ? "✔" : o.gainPercent() == null ? tr("upgrade_info") : String.format(Locale.US, "+%.1f%%", o.gainPercent());
+		String cost = o.done() ? "" : o.price() == null ? (o.search() == null ? "" : tr("price_unknown")) : coins(o.price());
+		g.text(font, value, right - font.width(value), y + 8, alpha(o.done() ? UI_ACCENT : o.gainPercent() == null ? UI_DIM : UI_ACCENT, a), false);
+		if (!cost.isEmpty()) g.text(font, cost, right - font.width(cost), y + 20, alpha(o.price() == null ? UI_DIM : UI_AMBER, a), false);
+		if (o.perMillion() > 0) {
+			String per = String.format(Locale.US, "%.2f%%/M", o.perMillion());
+			g.text(font, per, right - font.width(per), y + 32, alpha(UI_DIM, a), false);
+		}
+
+		int textW = contentW - 50 - Math.max(font.width(value), Math.max(font.width(cost), 60)) - 12;
+		g.text(font, fit(font, tr("slot." + o.slot()) + "  ·  " + o.piece(), textW), x + 38, y + 7, alpha(UI_MUTED, dim), false);
+		g.text(font, fit(font, o.title(), textW), x + 38, y + 19, alpha(UI_TEXT, dim), false);
+		if (!o.detail().isEmpty()) g.text(font, fit(font, o.detail(), textW), x + 38, y + 31, alpha(UI_DIM, dim), false);
+	}
+
 	private void drawTip(GuiGraphicsExtractor g, GearData.Tip tip, int x, int y, double a) {
 		int h = rowHeight();
 		iconTile(g, tip.icon, x, y, h, a);
@@ -625,7 +656,8 @@ public final class GearScreen extends Screen {
 		return switch (tab) {
 			case 0 -> index < picks.size();
 			case 1 -> index == 0 || index - 1 < plan.size();
-			case 3, 4 -> true;
+			case 3 -> index < upgrades.size() && upgrades.get(index).search() != null;
+			case 4, 5 -> true;
 			default -> false;
 		};
 	}
@@ -693,8 +725,9 @@ public final class GearScreen extends Screen {
 							search(pick.bazaar() ? "/bz " + pick.item().name : "/ahs " + pick.item().name);
 						}
 					}
-					case 3 -> search("/bz " + GearData.get().shards.get(i).name + " Shard");
-					case 4 -> search("/bz " + GearData.get().tips.get(i).name);
+					case 3 -> search(upgrades.get(i).search());
+					case 4 -> search("/bz " + GearData.get().shards.get(i).name + " Shard");
+					case 5 -> search("/bz " + GearData.get().tips.get(i).name);
 					default -> { }
 				}
 
