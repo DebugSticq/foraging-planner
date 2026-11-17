@@ -1,33 +1,51 @@
-# Automatically build the project and run any configured tests for every push
-# and submitted pull request. This can help catch issues that only occur on
-# certain platforms or Java versions, and provides a first line of defence
-# against bad commits.
-
+# Builds the mod on every push and pull request and keeps the jar as a download.
 name: build
-on: [pull_request, push]
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
 
 permissions:
   contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-24.04
     steps:
-      - name: checkout repository
+      - name: Checkout
         uses: actions/checkout@v6
-      - name: validate gradle wrapper
+
+      - name: Validate Gradle wrapper
         uses: gradle/actions/wrapper-validation@v6
-      - name: setup jdk
+
+      - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
-      - name: make gradle wrapper executable
-        run: chmod +x ./gradlew
-      - name: build
-        run: ./gradlew build -PpublicBuild=true
-      - name: capture build artifacts
+
+      - name: Set up Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v6
+
+      - name: Read version
+        id: version
+        run: |
+          echo "mod=$(grep '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '\r')" >> "$GITHUB_OUTPUT"
+          echo "mc=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '\r')" >> "$GITHUB_OUTPUT"
+
+      - name: Build and run checks
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build -PpublicBuild=true --console=plain
+
+      - name: Upload jar
         uses: actions/upload-artifact@v7
         with:
-          name: foraging-planner-public-build
-          path: build/libs/
+          name: foraging-planner-${{ steps.version.outputs.mod }}+${{ steps.version.outputs.mc }}-${{ github.sha }}
+          path: build/libs/*.jar
+          retention-days: 30
