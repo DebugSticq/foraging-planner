@@ -975,7 +975,7 @@
   "foragingplanner.protected.label": "protected",
   "foragingplanner.protected.aim": "Protected tree – fine!",
   "foragingplanner.protected.learned": "Protected tree remembered",
-  "foragingplanner.protected.learned_text": "It is marked red and skipped from now on.",
+  "foragingplanner.protected.learned_text": "The spot is now marked red and hits on it are blocked.",
   "foragingplanner.regrow.warning": "A tree grows back here in %ds – move!",
   "foragingplanner.milestone.reached": "%s milestone %s reached!",
   "foragingplanner.milestone.claim": "Claim the reward at Hina.",
@@ -1148,5 +1148,9 @@
   "foragingplanner.option.summer": "Summer",
   "foragingplanner.option.autumn": "Autumn",
   "foragingplanner.fun.timber": "Timber!",
-  "foragingplanner.combo.record": "NEW RECORD!"
+  "foragingplanner.combo.record": "NEW RECORD!",
+  "foragingplanner.protected.label_big": "Protected – 1,000 coin fine",
+  "foragingplanner.protected.blocked": "Protected tree! Hit blocked (sneak to hit anyway)",
+  "foragingplanner.settings.protected_block": "Block hits",
+  "foragingplanner.settings.protected_block.hint": "Stops hits and Axe Toss on protected trees. Sneak to override."
 }

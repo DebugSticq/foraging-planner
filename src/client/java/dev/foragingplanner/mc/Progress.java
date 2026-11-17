@@ -48,6 +48,8 @@ public final class Progress {
 	public Map<String, Integer> giftsByTree = new LinkedHashMap<>();
 	/** Protected trees, as "area|x|z" of their spot. */
 	public java.util.Set<String> protectedTrees = new java.util.LinkedHashSet<>();
+	/** Places of protected trees: "area|x|y|z|lastSeenMs|source" (source n = nametag, f = fine). */
+	public java.util.List<String> protectedZones = new java.util.ArrayList<>();
 
 	// Critter Safari
 	/** Indices of the built-in bells (and keys "x,y,z" of found ones) already rung. */

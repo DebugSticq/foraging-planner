@@ -18,35 +18,179 @@ import net.minecraft.world.phys.Vec3;
  * that are about to grow back where the player is standing. Also shows where a thrown axe is aimed.
  */
 public final class TreeWarnings {
-	/** Chat lines about a fine for a protected tree. */
-	private static final Pattern FINE = Pattern.compile("(?i)(protected|protection order).*(tree|fine|coins)|fined .*coins");
+	/** "You tried to cut the protected Tree and were fined 1,000 Coins by the Tree Protection Agency!" */
+	private static final Pattern FINE = Pattern.compile("(?i)protected tree.*fined|fined .*tree protection|tree protection agency");
+	/** Nametag-zones not seen again for this long while the player is close are dropped (order lifted). */
+	private static final long GONE_MS = 20_000;
+	/** Zones learned from a fine are kept this long. */
+	private static final long FINE_KEEP_MS = 30 * 60_000L;
+
+	/** A protected place. */
+	public static final class Zone {
+		final String area;
+		final double x, y, z;
+		long seenMs;
+		final char source;
+
+		Zone(String area, double x, double y, double z, long seenMs, char source) {
+			this.area = area;
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.seenMs = seenMs;
+			this.source = source;
+		}
+
+		Vec3 pos() {
+			return new Vec3(x, y, z);
+		}
+
+		String save() {
+			return area + "|" + Math.round(x) + "|" + Math.round(y) + "|" + Math.round(z) + "|" + seenMs + "|" + source;
+		}
+	}
+
+	private static final java.util.List<Zone> ZONES = new java.util.ArrayList<>();
+	private static boolean loaded;
+	private static long warnedMs;
 
 	private TreeWarnings() {}
 
+	private static void load() {
+		if (loaded) return;
+		loaded = true;
+		// The old per-tree list was permanent and often wrong: start fresh.
+		if (!Progress.get().protectedTrees.isEmpty()) {
+			Progress.get().protectedTrees.clear();
+			Progress.changed();
+		}
+		for (String line : Progress.get().protectedZones) {
+			String[] p = line.split("\\|");
+			if (p.length < 6) continue;
+			try {
+				ZONES.add(new Zone(p[0], Double.parseDouble(p[1]), Double.parseDouble(p[2]), Double.parseDouble(p[3]), Long.parseLong(p[4]), p[5].charAt(0)));
+			} catch (RuntimeException ignored) {
+				// skip broken entries
+			}
+		}
+	}
+
+	private static void save() {
+		java.util.List<String> out = new java.util.ArrayList<>();
+		for (Zone z : ZONES) out.add(z.save());
+		Progress.get().protectedZones = out;
+		Progress.changed();
+	}
+
+	public static java.util.List<Zone> zones() {
+		load();
+		return ZONES;
+	}
+
+	/** True when a protected tree is within {@code radius} blocks (sideways) of the point. */
+	public static boolean protectedAt(Vec3 at, double radius) {
+		if (!Planner.config.protectedTrees) return false;
+		String area = SkyBlockReader.area();
+		for (Zone z : zones()) {
+			if (!z.area.equals(area)) continue;
+			double dx = z.x - at.x, dz = z.z - at.z;
+			if (dx * dx + dz * dz <= radius * radius && Math.abs(z.y - at.y) < 18) return true;
+		}
+		return false;
+	}
+
+	private static Zone add(double x, double y, double z, char source) {
+		String area = SkyBlockReader.area();
+		long now = System.currentTimeMillis();
+		for (Zone zone : zones()) {
+			double dx = zone.x - x, dz = zone.z - z;
+			if (zone.area.equals(area) && dx * dx + dz * dz < 4 * 4 && Math.abs(zone.y - y) < 18) {
+				zone.seenMs = now;
+				return null;
+			}
+		}
+		Zone zone = new Zone(area, x, y, z, now, source);
+		ZONES.add(zone);
+		save();
+		return zone;
+	}
+
 	public static void register() {
 		ServerMessages.register((component, overlay) -> {
-			if (overlay || !Planner.config.protectedTrees || !SkyBlockReader.inForagingArea()) return;
+			if (overlay || !Planner.config.protectedTrees) return;
 			String text = Planner.strip(component.getString());
 			if (!FINE.matcher(text).find()) return;
-			TreeTracker.Spot spot = aimedSpot(Minecraft.getInstance(), 40);
-			if (spot == null) spot = nearest(Minecraft.getInstance());
-			if (spot != null && TreeTracker.markProtected(spot)) {
-				Toasts.show(Toasts.Kind.ALARM, "barrier", Planner.tr("protected.learned"), Planner.tr("protected.learned_text"));
-			}
+			Minecraft client = Minecraft.getInstance();
+			if (client.player == null) return;
+			// Where the axe went: the block in the crosshair, else the nearest nametag zone, else a bit ahead.
+			Vec3 at = null;
+			HitResult hit = client.player.pick(40, 0, false);
+			if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) at = Vec3.atCenterOf(block.getBlockPos());
+			if (at == null) at = client.player.getEyePosition().add(client.player.getLookAngle().scale(8));
+			Zone added = add(at.x, at.y, at.z, 'f');
+			Planner.LOGGER.info("[FP] Protected tree fine at {} ({})", at, added != null ? "new" : "known");
+			if (added != null) Toasts.show(Toasts.Kind.ALARM, "barrier", Planner.tr("protected.learned"), Planner.tr("protected.learned_text"));
 		});
 	}
 
-	/** Once a second: nametags near a tree that mention protection mark the tree as protected. */
+	/** Once a second: nametags and text displays that mention protection mark that place. */
 	public static void scanNametags(Minecraft client) {
-		if (!Planner.config.protectedTrees || client.player == null || client.level == null || !SkyBlockReader.inForagingArea()) return;
-		for (var e : client.level.getEntitiesOfClass(net.minecraft.world.entity.decoration.ArmorStand.class, client.player.getBoundingBox().inflate(48))) {
-			var name = e.getCustomName();
-			if (name == null || !Planner.strip(name.getString()).toLowerCase(Locale.ROOT).contains("protect")) continue;
-			for (TreeTracker.Spot spot : TreeTracker.spots()) {
-				double dx = spot.cx - e.getX(), dz = spot.cz - e.getZ();
-				if (dx * dx + dz * dz < 6 * 6 && Math.abs(spot.cy - e.getY()) < 16) TreeTracker.markProtected(spot);
-			}
+		if (!Planner.config.protectedTrees || client.player == null || client.level == null) return;
+		long now = System.currentTimeMillis();
+		Vec3 me = client.player.position();
+		java.util.Set<Zone> seen = new java.util.HashSet<>();
+		for (var e : client.level.getEntitiesOfClass(net.minecraft.world.entity.Entity.class, client.player.getBoundingBox().inflate(64))) {
+			String name = null;
+			if (e.getCustomName() != null) name = e.getCustomName().getString();
+			else if (e instanceof net.minecraft.world.entity.Display.TextDisplay display && display.getText() != null) name = display.getText().getString();
+			if (name == null) continue;
+			String lower = Planner.strip(name).toLowerCase(Locale.ROOT);
+			if (!lower.contains("protection order") && !(lower.contains("protected") && lower.contains("tree"))) continue;
+			Zone added = add(e.getX(), e.getY(), e.getZ(), 'n');
+			if (added != null) Planner.LOGGER.info("[FP] Protected tree nametag '{}' at {}", Planner.strip(name), e.position());
+			for (Zone z : zones()) if (z.pos().distanceToSqr(e.position()) < 16 * 16) seen.add(z);
 		}
+		// Drop zones whose nametag is gone while the player is close enough to see it, and old fine zones.
+		boolean changed = ZONES.removeIf(z -> {
+			if (seen.contains(z)) {
+				z.seenMs = now;
+				return false;
+			}
+			if (z.source == 'f') return now - z.seenMs > FINE_KEEP_MS;
+			boolean near = z.area.equals(SkyBlockReader.area()) && z.pos().distanceTo(me) < 40;
+			return near && now - z.seenMs > GONE_MS;
+		});
+		if (changed) save();
+	}
+
+	/** Called by the hit hooks: true stops the hit on a protected tree. Sneaking hits anyway. */
+	public static boolean blockHit(net.minecraft.core.BlockPos pos) {
+		if (!Planner.config.protectedTrees || !Planner.config.protectedBlock) return false;
+		var player = Minecraft.getInstance().player;
+		if (player == null || player.isShiftKeyDown()) return false;
+		if (!protectedAt(Vec3.atCenterOf(pos), 6)) return false;
+		warnBlocked();
+		return true;
+	}
+
+	/** Axe Toss and other right-click abilities aimed at a protected tree. */
+	public static boolean blockUse() {
+		if (!Planner.config.protectedTrees || !Planner.config.protectedBlock) return false;
+		Minecraft client = Minecraft.getInstance();
+		if (client.player == null || client.player.isShiftKeyDown() || !holdingAxe(client)) return false;
+		HitResult hit = client.player.pick(40, 0, false);
+		if (!(hit instanceof BlockHitResult block) || hit.getType() != HitResult.Type.BLOCK) return false;
+		if (!protectedAt(Vec3.atCenterOf(block.getBlockPos()), 6)) return false;
+		warnBlocked();
+		return true;
+	}
+
+	private static void warnBlocked() {
+		long now = System.currentTimeMillis();
+		if (now - warnedMs < 3_000) return;
+		warnedMs = now;
+		var player = Minecraft.getInstance().player;
+		if (player != null) player.sendOverlayMessage(net.minecraft.network.chat.Component.literal("§c⛔ " + Planner.tr("protected.blocked")));
 	}
 
 	/** The tree spot the crosshair points at, within {@code range} blocks. */
@@ -85,16 +229,35 @@ public final class TreeWarnings {
 
 	/** Called from the world overlay every frame. */
 	public static void draw(Minecraft client, GuiGraphicsExtractor g, long now) {
-		if (client.player == null || !SkyBlockReader.inForagingArea()) return;
+		if (client.player == null) return;
 		var font = client.font;
+		if (Planner.config.protectedTrees) {
+			String area = SkyBlockReader.area();
+			Vec3 me = client.player.position();
+			for (Zone z : zones()) {
+				if (!z.area.equals(area) || z.pos().distanceTo(me) > 64) continue;
+				Vec3 top = z.pos().add(0, 2.2, 0);
+				float[] at = WorldOverlay.project(client, top);
+				if (at == null || !WorldOverlay.visible(client, top)) continue;
+				String label = "⛔ " + Planner.tr("protected.label_big");
+				int tw = font.width(label);
+				int x = Math.round(at[0]), y = Math.round(at[1]);
+				double pulse = Planner.config.animations ? 0.8 + 0.2 * Math.sin(now / 160.0) : 1;
+				round(g, x - tw / 2 - 4, y - 6, tw + 8, 12, 4, alpha(0xFF3A0B0B, 0.85));
+				g.text(font, label, x - tw / 2, y - 4, alpha(0xFFFF5555, pulse), false);
+			}
+		}
+		if (!SkyBlockReader.inForagingArea()) return;
 		int sw = client.getWindow().getGuiScaledWidth(), sh = client.getWindow().getGuiScaledHeight();
 		String warning = null;
 		int color = 0xFFFF5555;
 
 		// Aim: what a thrown axe would hit, and whether that tree is protected.
 		if (Planner.config.protectedTrees && holdingAxe(client)) {
-			TreeTracker.Spot aimed = aimedSpot(client, 40);
-			if (aimed != null && TreeTracker.isProtected(aimed)) warning = "⚠ " + Planner.tr("protected.aim");
+			HitResult aim = client.player.pick(40, 0, false);
+			if (aim instanceof BlockHitResult block && aim.getType() == HitResult.Type.BLOCK && protectedAt(Vec3.atCenterOf(block.getBlockPos()), 6)) {
+				warning = "⚠ " + Planner.tr("protected.aim");
+			}
 		}
 
 		// Regrowing tree around the player.

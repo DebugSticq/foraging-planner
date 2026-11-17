@@ -90,6 +90,8 @@ public final class ModConfig {
     public boolean perfLight = false;
     /** Switch to the light mode by itself when the mod takes too much time. */
     public boolean perfAuto = true;
+    /** Stops hits and Axe Toss on protected trees (sneak to hit anyway). */
+    public boolean protectedBlock = true;
     // Critter Safari
     public boolean safariTracker = true;
     public int capsuleWarnAt = 5;

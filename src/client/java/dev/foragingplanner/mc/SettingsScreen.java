@@ -288,7 +288,8 @@ public final class SettingsScreen extends Screen {
 				Row markers = new ToggleRow("tree_markers", Items.SLIME_BALL, () -> c.treeMarkers, value -> c.treeMarkers = value);
 				sub(markers, () -> {
 					new ToggleRow("tree_size", Items.OAK_LOG, () -> c.treeSizeLabel, value -> c.treeSizeLabel = value);
-					new ToggleRow("protected_trees", Items.BARRIER, () -> c.protectedTrees, value -> c.protectedTrees = value);
+					Row prot = new ToggleRow("protected_trees", Items.BARRIER, () -> c.protectedTrees, value -> c.protectedTrees = value);
+					sub(prot, () -> new ToggleRow("protected_block", Items.SHIELD, () -> c.protectedBlock, value -> c.protectedBlock = value));
 				});
 				new ToggleRow("regrow_warning", Items.OAK_SAPLING, () -> c.regrowWarning, value -> c.regrowWarning = value);
 				new ToggleRow("tree_progress", Items.EXPERIENCE_BOTTLE, () -> c.treeProgress, value -> c.treeProgress = value);

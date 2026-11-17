@@ -6,6 +6,13 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
+## [1.0.5] - 2026-11-17
+
+### Fixed
+- Protected trees are now found from the "Tree Protection Order" nametag (also text displays) and from the fine message, even when the tree is not in the tree list
+- Protected trees get a red "Protected" label; hits and Axe Toss on them are blocked (sneak to hit anyway, can be turned off)
+- Protected marks disappear again when the order is gone, instead of staying forever
+
 ## [1.0.4] - 2026-11-16
 
 ### Added

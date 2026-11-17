@@ -84,14 +84,7 @@ public final class TreeTracker {
 
 	/** True when a fine message was seen for this tree, or a nametag near it says it is protected. */
 	public static boolean isProtected(Spot spot) {
-		return Progress.get().protectedTrees.contains(key(spot));
-	}
-
-	/** Marks a tree as protected; returns true when it was new. */
-	public static boolean markProtected(Spot spot) {
-		boolean added = Progress.get().protectedTrees.add(key(spot));
-		if (added) Progress.changed();
-		return added;
+		return TreeWarnings.protectedAt(spot.center(), 7);
 	}
 
 	/** "Big" compared with the other trees of the same kind; unknown sizes count as big. */

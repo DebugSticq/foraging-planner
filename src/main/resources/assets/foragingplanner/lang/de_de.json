@@ -975,7 +975,7 @@
   "foragingplanner.protected.label": "geschützt",
   "foragingplanner.protected.aim": "Geschützter Baum – Strafe!",
   "foragingplanner.protected.learned": "Geschützter Baum gemerkt",
-  "foragingplanner.protected.learned_text": "Wird ab jetzt rot markiert und übersprungen.",
+  "foragingplanner.protected.learned_text": "Die Stelle wird jetzt rot markiert und Schläge darauf blockiert.",
   "foragingplanner.regrow.warning": "Baum wächst hier in %ds nach – weg da!",
   "foragingplanner.milestone.reached": "%s-Meilenstein %s erreicht!",
   "foragingplanner.milestone.claim": "Belohnung bei Hina abholen.",
@@ -1148,5 +1148,9 @@
   "foragingplanner.option.summer": "Sommer",
   "foragingplanner.option.autumn": "Herbst",
   "foragingplanner.fun.timber": "Timber!",
-  "foragingplanner.combo.record": "NEUER REKORD!"
+  "foragingplanner.combo.record": "NEUER REKORD!",
+  "foragingplanner.protected.label_big": "Geschützt – 1.000 Coins Strafe",
+  "foragingplanner.protected.blocked": "Geschützter Baum! Schlag blockiert (Schleichen = trotzdem)",
+  "foragingplanner.settings.protected_block": "Schläge blockieren",
+  "foragingplanner.settings.protected_block.hint": "Stoppt Schläge und Axe Toss auf geschützte Bäume. Schleichen hebt das auf."
 }

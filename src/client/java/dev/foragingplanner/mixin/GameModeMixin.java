@@ -17,6 +17,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /** Misclick protection: protected item drops and Huntrap clicks. */
 @Mixin(MultiPlayerGameMode.class)
 public abstract class GameModeMixin {
+    @Inject(method = "startDestroyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z", at = @At("HEAD"), cancellable = true)
+    private void foragingplanner$startDestroy(net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side, CallbackInfoReturnable<Boolean> cir) {
+        if (dev.foragingplanner.mc.TreeWarnings.blockHit(pos)) cir.setReturnValue(false);
+    }
+
+    @Inject(method = "continueDestroyBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z", at = @At("HEAD"), cancellable = true)
+    private void foragingplanner$continueDestroy(net.minecraft.core.BlockPos pos, net.minecraft.core.Direction side, CallbackInfoReturnable<Boolean> cir) {
+        if (dev.foragingplanner.mc.TreeWarnings.blockHit(pos)) cir.setReturnValue(false);
+    }
+
+    @Inject(method = "useItem(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;", at = @At("HEAD"), cancellable = true)
+    private void foragingplanner$useItem(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        if (dev.foragingplanner.mc.TreeWarnings.blockUse()) cir.setReturnValue(InteractionResult.FAIL);
+    }
+
     @Inject(method = "dropItem(Lnet/minecraft/client/player/LocalPlayer;Z)V", at = @At("HEAD"), cancellable = true)
     private void foragingplanner$drop(LocalPlayer player, boolean all, CallbackInfo ci) {
         if (Safeguard.blockDrop(player.getMainHandItem())) ci.cancel();
