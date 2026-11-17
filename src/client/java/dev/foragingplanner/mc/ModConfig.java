@@ -84,6 +84,8 @@ public final class ModConfig {
     public boolean confetti = true;
     public boolean treeFallEffect = true;
     public boolean comboFire = true;
+    /** Draw /hotf with the mod's own menu (hold Alt for the original). */
+    public boolean customHotf = true;
     /** Custom axe look: off, moonblade, rootcleaver, emberbit. Only visible to this player. */
     public String axeSkin = "off";
     /** Also every other SkyBlock axe, not only foraging axes. */

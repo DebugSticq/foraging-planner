@@ -86,6 +86,13 @@ public final class Commands {
         root.then(ClientCommands.literal("perf")
                 .executes(context -> { Perf.report(context.getSource()::sendFeedback); return SUCCESS; })
                 .then(ClientCommands.literal("reset").executes(context -> { Perf.reset(); say(context.getSource(), "perf.reset_done"); return SUCCESS; })));
+        root.then(ClientCommands.literal("settings")
+                .then(ClientCommands.literal("export").executes(context -> { SettingsShare.exportToClipboard(); say(context.getSource(), "share.copied_text"); return SUCCESS; }))
+                .then(ClientCommands.literal("import").executes(context -> {
+                    int n = SettingsShare.importFromClipboard();
+                    context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal(n < 0 ? "§c[FP] " + Planner.tr("share.bad_text") : "§a[FP] §f" + Planner.tr("share.imported_text", n)));
+                    return SUCCESS; }))
+                .then(ClientCommands.literal("undo").executes(context -> { say(context.getSource(), SettingsShare.undo() ? "share.undone" : "share.no_backup"); return SUCCESS; })));
         root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("help").executes(context -> { Help.show(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("setup").executes(context -> { SettingsScreen.requestSetup(); return SUCCESS; }));

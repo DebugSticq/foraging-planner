@@ -125,7 +125,7 @@ public final class TreeWarnings {
 			// Where the axe went: the block in the crosshair, else the nearest nametag zone, else a bit ahead.
 			Vec3 at = null;
 			HitResult hit = client.player.pick(40, 0, false);
-			if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) at = Vec3.atCenterOf(block.getBlockPos());
+			if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK && treeBlock(block.getBlockPos())) at = Vec3.atCenterOf(block.getBlockPos());
 			if (at == null) at = client.player.getEyePosition().add(client.player.getLookAngle().scale(8));
 			Zone added = add(at.x, at.y, at.z, 'f');
 			Planner.LOGGER.info("[FP] Protected tree fine at {} ({})", at, added != null ? "new" : "known");
@@ -163,12 +163,28 @@ public final class TreeWarnings {
 		if (changed) save();
 	}
 
+	/** Logs, wood, leaves and roots: the parts of a tree. Walls, floors and fences are not. */
+	private static boolean treeBlock(net.minecraft.core.BlockPos pos) {
+		var level = Minecraft.getInstance().level;
+		if (level == null) return false;
+		var state = level.getBlockState(pos);
+		return state.is(net.minecraft.tags.BlockTags.LOGS) || state.is(net.minecraft.tags.BlockTags.LEAVES)
+				|| state.is(net.minecraft.world.level.block.Blocks.MANGROVE_ROOTS) || state.is(net.minecraft.world.level.block.Blocks.MUDDY_MANGROVE_ROOTS);
+	}
+
+	/** True when the crosshair is on a block of a protected tree (not on something in front of it). */
+	private static boolean aimingAtProtected(Minecraft client) {
+		HitResult hit = client.player.pick(40, 0, false);
+		if (!(hit instanceof BlockHitResult block) || hit.getType() != HitResult.Type.BLOCK) return false;
+		return treeBlock(block.getBlockPos()) && protectedAt(Vec3.atCenterOf(block.getBlockPos()), 6);
+	}
+
 	/** Called by the hit hooks: true stops the hit on a protected tree. Sneaking hits anyway. */
 	public static boolean blockHit(net.minecraft.core.BlockPos pos) {
 		if (!Planner.config.protectedTrees || !Planner.config.protectedBlock) return false;
 		var player = Minecraft.getInstance().player;
 		if (player == null || player.isShiftKeyDown()) return false;
-		if (!protectedAt(Vec3.atCenterOf(pos), 6)) return false;
+		if (!treeBlock(pos) || !protectedAt(Vec3.atCenterOf(pos), 6)) return false;
 		warnBlocked();
 		return true;
 	}
@@ -178,9 +194,7 @@ public final class TreeWarnings {
 		if (!Planner.config.protectedTrees || !Planner.config.protectedBlock) return false;
 		Minecraft client = Minecraft.getInstance();
 		if (client.player == null || client.player.isShiftKeyDown() || !holdingAxe(client)) return false;
-		HitResult hit = client.player.pick(40, 0, false);
-		if (!(hit instanceof BlockHitResult block) || hit.getType() != HitResult.Type.BLOCK) return false;
-		if (!protectedAt(Vec3.atCenterOf(block.getBlockPos()), 6)) return false;
+		if (!aimingAtProtected(client)) return false;
 		warnBlocked();
 		return true;
 	}
@@ -254,10 +268,7 @@ public final class TreeWarnings {
 
 		// Aim: what a thrown axe would hit, and whether that tree is protected.
 		if (Planner.config.protectedTrees && holdingAxe(client)) {
-			HitResult aim = client.player.pick(40, 0, false);
-			if (aim instanceof BlockHitResult block && aim.getType() == HitResult.Type.BLOCK && protectedAt(Vec3.atCenterOf(block.getBlockPos()), 6)) {
-				warning = "⚠ " + Planner.tr("protected.aim");
-			}
+			if (aimingAtProtected(client)) warning = "⚠ " + Planner.tr("protected.aim");
 		}
 
 		// Regrowing tree around the player.

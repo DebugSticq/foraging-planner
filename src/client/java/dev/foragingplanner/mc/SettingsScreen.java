@@ -400,6 +400,7 @@ public final class SettingsScreen extends Screen {
 				});
 			}
 			case "planner" -> {
+				new ToggleRow("custom_hotf", Items.OAK_SAPLING, () -> c.customHotf, value -> c.customHotf = value);
 				new ActionRow("perk_tree", "open", Items.OAK_SAPLING, () -> minecraft.gui.setScreen(new PerkTreeScreen(this)));
 				new ActionRow("gear", "open", Items.IRON_CHESTPLATE, () -> minecraft.gui.setScreen(new GearScreen(this)));
 				new ActionRow("stats", "open", Items.SPYGLASS, () -> minecraft.gui.setScreen(new StatsScreen(this)));
@@ -465,6 +466,26 @@ public final class SettingsScreen extends Screen {
 					if (!value) Leaderboard.forget();
 				});
 				sub(board, () -> new ActionRow("leaderboard_open", "open", Items.GOLD_INGOT, () -> minecraft.gui.setScreen(new StatsScreen(this, 11))));
+				Row share = new GroupRow("group_share", Items.WRITABLE_BOOK);
+				sub(share, () -> {
+					new ActionRow("share_export", "copy", Items.PAPER, () -> {
+						SettingsShare.exportToClipboard();
+						Toasts.show(Toasts.Kind.INFO, "paper", Planner.tr("share.copied"), Planner.tr("share.copied_text"));
+					});
+					new ActionRow("share_import", "paste", Items.WRITABLE_BOOK, () -> {
+						int n = SettingsShare.importFromClipboard();
+						if (n < 0) Toasts.show(Toasts.Kind.ALARM, "barrier", Planner.tr("share.bad"), Planner.tr("share.bad_text"));
+						else {
+							Toasts.show(Toasts.Kind.INFO, "writable_book", Planner.tr("share.imported"), Planner.tr("share.imported_text", n));
+							minecraft.gui.setScreen(new SettingsScreen(null));
+						}
+					});
+					new ActionRow("share_undo", "reset", Items.CLOCK, () -> {
+						boolean ok = SettingsShare.undo();
+						Toasts.show(ok ? Toasts.Kind.INFO : Toasts.Kind.ALARM, "clock", Planner.tr(ok ? "share.undone" : "share.no_backup"), "");
+						if (ok) minecraft.gui.setScreen(new SettingsScreen(null));
+					});
+				});
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
 				sub(advanced, () -> {
 					new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);

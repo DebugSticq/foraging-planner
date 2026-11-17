@@ -9,7 +9,8 @@
     "EntityRenderMixin",
     "DisplayAccessor",
     "GameModeMixin",
-    "ItemModelMixin"
+    "ItemModelMixin",
+    "ContainerScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
