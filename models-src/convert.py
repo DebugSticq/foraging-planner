@@ -15,16 +15,20 @@ def convert(obj, mtlpath, out, scale=0.85, shift=0.2):
     mats = mtl(mtlpath)
     names = list(mats)
     v, n, tris, cur = [], [], [], None
+    parts, part = [], 0
     for line in open(obj):
         p = line.split()
         if not p: continue
         if p[0] == "v": v.append(tuple(map(float, p[1:4])))
         elif p[0] == "vn": n.append(tuple(map(float, p[1:4])))
         elif p[0] == "usemtl": cur = names.index(p[1])
+        elif p[0] == "o":
+            if p[1] not in parts: parts.append(p[1])
+            part = parts.index(p[1])
         elif p[0] == "f":
             idx = [tuple(int(x) if x else 0 for x in c.split("/")) for c in p[1:]]
             for k in range(1, len(idx) - 1):
-                tris.append((cur, idx[0], idx[k], idx[k + 1]))
+                tris.append((cur, part, idx[0], idx[k], idx[k + 1]))
     c, s = math.cos(math.radians(-45)), math.sin(math.radians(-45))
     def place(x, y, z):
         x, y, z = x * scale, y * scale, z * scale
@@ -32,23 +36,27 @@ def convert(obj, mtlpath, out, scale=0.85, shift=0.2):
     def rot(x, y, z):
         return (x * c - y * s, x * s + y * c, z)
     with open(out, "wb") as f:
-        f.write(b"FPM1")
+        f.write(b"FPM2")
         f.write(struct.pack(">i", len(names)))
         for name in names:
             kd, ke = mats[name]["kd"], mats[name]["ke"]
             glow = max(ke)
             f.write(struct.pack(">4f", kd[0], kd[1], kd[2], glow))
+        f.write(struct.pack(">i", len(parts)))
+        for name in parts:
+            raw = name.encode("utf-8")
+            f.write(struct.pack(">H", len(raw)) + raw)
         f.write(struct.pack(">i", len(tris)))
         lo = [9e9] * 3; hi = [-9e9] * 3
-        for m, *corners in tris:
-            f.write(struct.pack(">i", m))
+        for m, pt, *corners in tris:
+            f.write(struct.pack(">ii", m, pt))
             for vi, _, ni in corners:
                 px, py, pz = place(*v[vi - 1])
                 for i, val in enumerate((px, py, pz)):
                     lo[i] = min(lo[i], val); hi[i] = max(hi[i], val)
                 nx, ny, nz = rot(*n[ni - 1]) if ni else (0, 0, 1)
                 f.write(struct.pack(">7f", px, py, pz, nx, ny, nz, v[vi - 1][1]))
-    print(out, len(names), "materials", len(tris), "tris", [round(x, 3) for x in lo], [round(x, 3) for x in hi])
+    print(out, len(names), "materials", len(parts), "parts", len(tris), "tris", [round(x, 3) for x in lo], [round(x, 3) for x in hi])
 
 if __name__ == "__main__":
     U = "/mnt/user-data/uploads/"
