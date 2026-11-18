@@ -1215,5 +1215,10 @@
   "foragingplanner.settings.copy": "Kopieren",
   "foragingplanner.settings.paste": "Einfügen",
   "foragingplanner.settings.axe_skin_mesh": "3D-Modell",
-  "foragingplanner.settings.axe_skin_mesh.hint": "Low-Poly-3D-Modell in der Hand, im Inventar die Pixel-Version."
+  "foragingplanner.settings.axe_skin_mesh.hint": "Low-Poly-3D-Modell in der Hand, im Inventar die Pixel-Version.",
+  "foragingplanner.bazaar.title": "Bazaar: %1$s",
+  "foragingplanner.bazaar.text": "Gold markiert führt dich zum Sofortkauf, %1$s wird eingetragen.",
+  "foragingplanner.bazaar.hint_pick": "Klick auf %1$s",
+  "foragingplanner.bazaar.hint_buy": "Klick auf „Buy Instantly“",
+  "foragingplanner.bazaar.hint_amount": "Klick auf „Custom Amount“ – %1$s wird eingetragen"
 }

@@ -19,6 +19,11 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Share settings**: copy all settings as one line of text and paste them elsewhere (Settings > Online or `/fp settings export|import|undo`). Personal data is left out, a backup is made before pasting
 
 ### Fixed
+- Clicking a shard or Bazaar item in the gear menu now opens the Bazaar directly: the item, "Buy Instantly" and "Custom Amount" are marked in gold and the needed amount is typed into the sign (nothing is bought automatically). Auction items open the auction search
+- Gear menu icons use the real item looks from the Hypixel resource pack
+- More gear in the advisor: Leaflet set, Mole Hat, Kelly's T-Shirt, Charlie's Trousers, Melody's Shoes, Bee Mask, Frog Mask, Spruce Axe
+- Owned shards are recognised in the Hunting Box also when the entries are not called "... Shard"
+- A thrown axe no longer marks the tree you are cutting as protected; only the "Tree Protection Order" sign marks a tree, and wrongly saved places are removed
 - Protected trees are found from the "Tree Protection Order" nametag and from the fine message, even when the tree is not in the tree list
 - Protected trees get a red label; hits and Axe Toss on them are blocked (sneak to hit anyway, can be turned off)
 - The protected-tree warning only shows when you aim at the tree itself, not at a wall in front of it

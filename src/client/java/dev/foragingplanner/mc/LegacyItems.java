@@ -149,6 +149,18 @@ public final class LegacyItems {
 		return found != null && modelExists(found.toString()) ? found : null;
 	}
 
+	/** An icon that uses the Hypixel resource pack model for a SkyBlock id, or null when the pack has none. */
+	public static ItemStack packIcon(String skyblockId, Item fallback) {
+		if (skyblockId == null) return null;
+		Identifier model = packModel(skyblockId);
+		if (model == null && skyblockId.startsWith("SHARD_")) model = packModel(skyblockId.substring(6) + "_SHARD");
+		if (model == null && skyblockId.startsWith("ENCHANTMENT_")) return null;
+		if (model == null) return null;
+		ItemStack stack = new ItemStack(fallback);
+		stack.set(DataComponents.ITEM_MODEL, model);
+		return stack;
+	}
+
 	private static Map<String, Identifier> buildPackIndex() {
 		Map<String, Identifier> out = new java.util.HashMap<>();
 		try {

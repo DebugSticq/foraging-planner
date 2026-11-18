@@ -65,6 +65,7 @@ public final class TreeWarnings {
 			Progress.changed();
 		}
 		for (String line : Progress.get().protectedZones) {
+			if (line.endsWith("|f")) continue; // places guessed from fines were often wrong
 			String[] p = line.split("\\|");
 			if (p.length < 6) continue;
 			try {
@@ -122,14 +123,10 @@ public final class TreeWarnings {
 			if (!FINE.matcher(text).find()) return;
 			Minecraft client = Minecraft.getInstance();
 			if (client.player == null) return;
-			// Where the axe went: the block in the crosshair, else the nearest nametag zone, else a bit ahead.
-			Vec3 at = null;
-			HitResult hit = client.player.pick(40, 0, false);
-			if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK && treeBlock(block.getBlockPos())) at = Vec3.atCenterOf(block.getBlockPos());
-			if (at == null) at = client.player.getEyePosition().add(client.player.getLookAngle().scale(8));
-			Zone added = add(at.x, at.y, at.z, 'f');
-			Planner.LOGGER.info("[FP] Protected tree fine at {} ({})", at, added != null ? "new" : "known");
-			if (added != null) Toasts.show(Toasts.Kind.ALARM, "barrier", Planner.tr("protected.learned"), Planner.tr("protected.learned_text"));
+			// The crosshair is no proof: with Axe Toss it still points at your own tree. Only the
+			// "Tree Protection Order" sign marks a tree, so look for it now.
+			scanNametags(client);
+			Planner.LOGGER.info("[FP] Protected tree fine; {} protected places known nearby", ZONES.size());
 		});
 	}
 
@@ -156,7 +153,7 @@ public final class TreeWarnings {
 				z.seenMs = now;
 				return false;
 			}
-			if (z.source == 'f') return now - z.seenMs > FINE_KEEP_MS;
+			if (z.source == 'f') return true;
 			boolean near = z.area.equals(SkyBlockReader.area()) && z.pos().distanceTo(me) < 40;
 			return near && now - z.seenMs > GONE_MS;
 		});

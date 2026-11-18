@@ -329,22 +329,46 @@ public final class MenuReaders {
 
 	// Hunting Box and attributes
 
+	private static final java.util.Set<String> DUMPED = new java.util.HashSet<>();
+
+	/** Writes a menu to the log once per session, so its format can be read exactly later. */
+	private static void dump(AbstractContainerScreen<?> menu, String kind) {
+		String title = Planner.strip(menu.getTitle().getString());
+		if (!DUMPED.add(kind + "|" + title)) return;
+		var player = net.minecraft.client.Minecraft.getInstance().player;
+		for (Slot slot : menu.getMenu().slots) {
+			if (player != null && slot.container == player.getInventory()) continue;
+			ItemStack stack = slot.getItem();
+			if (stack.isEmpty()) continue;
+			Planner.LOGGER.info("[FP-Menu] {} '{}' slot {}: '{}' x{} {}", kind, title, slot.index, name(stack), stack.getCount(), lore(stack));
+		}
+	}
+
+	/** Shard id for a menu entry: "Ember Shard", "Ember", "12x Ember" all work, as long as the shard is known. */
+	private static String shardIdFor(String name) {
+		String clean = name.replaceAll("^\\d+x\\s*", "").replaceAll("(?i)\\s+shards?$", "").trim();
+		for (GearData.Shard s : GearData.get().shards) if (s.name.equalsIgnoreCase(clean)) return s.id;
+		return name.toLowerCase(Locale.ROOT).contains("shard") ? Hunting.shardId(name.replaceAll("^\\d+x\\s*", "")) : null;
+	}
+
 	private static void readHuntingBox(AbstractContainerScreen<?> menu) {
 		Progress p = Progress.get();
 		Map<String, Long> found = new HashMap<>();
+		dump(menu, "huntingbox");
 
 		for (Slot slot : menu.getMenu().slots) {
 			ItemStack stack = slot.getItem();
 			if (stack.isEmpty()) continue;
 			String name = name(stack).replaceAll("^\\d+x\\s*", "");
-			if (!name.toLowerCase(Locale.ROOT).contains("shard")) continue;
+			String id = shardIdFor(name);
+			if (id == null) continue;
 
 			long owned = stack.getCount();
 			for (String line : lore(stack)) {
 				Matcher m = OWNED.matcher(line);
 				if (m.find()) { owned = Long.parseLong(m.group(1).replace(",", "")); break; }
 			}
-			found.merge(Hunting.shardId(name), owned, Math::max);
+			found.merge(id, owned, Math::max);
 		}
 
 		if (found.isEmpty()) return;
@@ -356,6 +380,7 @@ public final class MenuReaders {
 	private static void readAttributes(AbstractContainerScreen<?> menu) {
 		Progress p = Progress.get();
 		boolean changed = false;
+		dump(menu, "attributes");
 
 		for (Slot slot : menu.getMenu().slots) {
 			ItemStack stack = slot.getItem();

@@ -30,7 +30,7 @@ public final class UpgradeAdvisor {
 	/** One thing that can be done to a piece of gear. */
 	public record Option(String slot, String piece, String kind, String title, String detail,
 						 double sweep, double fortune, double wisdom, Double gainPercent, Double price,
-						 String search, boolean done, String icon) {
+						 String search, boolean done, String icon, String itemId) {
 		public double perMillion() {
 			return gainPercent == null || price == null || price <= 0 ? 0 : gainPercent / (price / 1e6);
 		}
@@ -170,7 +170,7 @@ public final class UpgradeAdvisor {
 				double ds = r.stat(rarity, "sweep") - cs, df = r.stat(rarity, "fortune") - cf, dw = r.stat(rarity, "wisdom") - cw;
 				if (current == r) {
 					out.add(new Option(slot, piece, "reforge", Planner.tr("upgrade.has_reforge", r.name), stats(r.stat(rarity, "sweep"), r.stat(rarity, "fortune"), r.stat(rarity, "wisdom")),
-							0, 0, 0, null, null, null, true, icon));
+							0, 0, 0, null, null, null, true, icon, id));
 					continue;
 				}
 				double gain = GearAdvisor.gainPercent(ds, df, dw);
@@ -180,7 +180,7 @@ public final class UpgradeAdvisor {
 				String how = r.stone == null ? Planner.tr("upgrade.blacksmith") : Planner.tr("upgrade.stone", r.stoneName, GearScreenFormat.coins(r.apply));
 				Option o = new Option(slot, piece, "reforge", Planner.tr("upgrade.reforge_to", r.name, Planner.tr("rarity." + rarity.toLowerCase(Locale.ROOT))),
 						stats(ds, df, dw) + "  ·  " + how, ds, df, dw, gain, cost,
-						r.stone == null ? null : "/bz " + r.stoneName, false, icon);
+						r.stone == null ? null : "/bz " + r.stoneName, false, icon, r.stone != null ? r.stone : id);
 				if (best == null || better(o, best)) best = o;
 			}
 			if (best != null) out.add(best);
@@ -199,10 +199,10 @@ public final class UpgradeAdvisor {
 					Double gain = current == null ? null : GearAdvisor.gainPercent(ds, df, dw);
 					out.add(new Option(slot, piece, "recomb", Planner.tr("upgrade.recomb_to", Planner.tr("rarity." + next.toLowerCase(Locale.ROOT))),
 							(current == null ? Planner.tr("upgrade.recomb_hint") : stats(ds, df, dw) + "  ·  " + Planner.tr("upgrade.recomb_base")),
-							ds, df, dw, gain, price("RECOMBOBULATOR_3000"), "/ahs Recombobulator 3000", false, "nether_star"));
+							ds, df, dw, gain, price("RECOMBOBULATOR_3000"), "/ahs Recombobulator 3000", false, "nether_star", "RECOMBOBULATOR_3000"));
 				}
 			} else {
-				out.add(new Option(slot, piece, "recomb", Planner.tr("upgrade.recomb_done"), "", 0, 0, 0, null, null, null, true, "nether_star"));
+				out.add(new Option(slot, piece, "recomb", Planner.tr("upgrade.recomb_done"), "", 0, 0, 0, null, null, null, true, "nether_star", "RECOMBOBULATOR_3000"));
 			}
 
 			// Enchantments for this slot.
@@ -212,7 +212,7 @@ public final class UpgradeAdvisor {
 				String key = e.id.toLowerCase(Locale.ROOT);
 				int level = enchants.getIntOr(key, 0);
 				if (level >= e.max) {
-					out.add(new Option(slot, piece, "enchant", e.name + " " + roman(level), "", 0, 0, 0, null, null, null, true, "enchanted_book"));
+					out.add(new Option(slot, piece, "enchant", e.name + " " + roman(level), "", 0, 0, 0, null, null, null, true, "enchanted_book", null));
 					continue;
 				}
 				if (e.tiered) {
@@ -220,7 +220,7 @@ public final class UpgradeAdvisor {
 					String detail = level == 0 ? Planner.tr("upgrade.absorb_missing") : e.note;
 					out.add(new Option(slot, piece, "enchant", e.name + " " + (level == 0 ? "–" : roman(level)) + " → " + roman(e.max), detail,
 							0, e.fortunePerLevel * (e.max - level), e.wisdomPerLevel * (e.max - level), null,
-							level == 0 ? price("ENCHANTMENT_" + e.id + "_1") : null, level == 0 ? "/bz " + e.name + " I" : null, false, "enchanted_book"));
+							level == 0 ? price("ENCHANTMENT_" + e.id + "_1") : null, level == 0 ? "/bz " + e.name + " I" : null, false, "enchanted_book", null));
 					continue;
 				}
 				String other = null;
@@ -231,7 +231,7 @@ public final class UpgradeAdvisor {
 				Double gain = ds + df + dw > 0 ? GearAdvisor.gainPercent(ds, df, dw) : null;
 				String detail = Planner.tr("enchant." + key) + (other != null ? "  ·  §c" + Planner.tr("upgrade.replaces_ultimate", pretty(other)) : "");
 				out.add(new Option(slot, piece, "enchant", e.name + " " + (level == 0 ? "" : roman(level) + " → ") + roman(e.max), detail,
-						ds, df, dw, gain, price("ENCHANTMENT_" + e.id + "_" + e.max), "/bz " + e.name + " " + roman(e.max), false, "enchanted_book"));
+						ds, df, dw, gain, price("ENCHANTMENT_" + e.id + "_" + e.max), "/bz " + e.name + " " + roman(e.max), false, "enchanted_book", null));
 			}
 		}
 

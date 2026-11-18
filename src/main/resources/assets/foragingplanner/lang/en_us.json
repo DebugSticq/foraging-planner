@@ -1215,5 +1215,10 @@
   "foragingplanner.settings.copy": "Copy",
   "foragingplanner.settings.paste": "Paste",
   "foragingplanner.settings.axe_skin_mesh": "3D model",
-  "foragingplanner.settings.axe_skin_mesh.hint": "Low-poly 3D model in the hand, the pixel version in the inventory."
+  "foragingplanner.settings.axe_skin_mesh.hint": "Low-poly 3D model in the hand, the pixel version in the inventory.",
+  "foragingplanner.bazaar.title": "Bazaar: %1$s",
+  "foragingplanner.bazaar.text": "Follow the gold marks to instant buy, %1$s will be filled in.",
+  "foragingplanner.bazaar.hint_pick": "Click %1$s",
+  "foragingplanner.bazaar.hint_buy": "Click \"Buy Instantly\"",
+  "foragingplanner.bazaar.hint_amount": "Click \"Custom Amount\" – %1$s will be filled in"
 }

@@ -170,6 +170,32 @@ public final class GearScreen extends Screen {
 		});
 	}
 
+	private final Map<String, ItemStack> packIcons = new HashMap<>();
+	private final Map<String, Long> packMisses = new HashMap<>();
+
+	/** The real Hypixel look of a SkyBlock item when the resource pack has it, else the plain icon. */
+	private ItemStack icon(String skyblockId, String fallback) {
+		if (skyblockId == null || skyblockId.isEmpty()) return icon(fallback);
+		ItemStack found = packIcons.get(skyblockId);
+		if (found != null) return found;
+		long now = System.currentTimeMillis();
+		if (now - packMisses.getOrDefault(skyblockId, 0L) > 5_000) {
+			ItemStack pack = LegacyItems.packIcon(skyblockId, icon(fallback).getItem());
+			if (pack != null) {
+				packIcons.put(skyblockId, pack);
+				return pack;
+			}
+			packMisses.put(skyblockId, now);
+		}
+		return icon(fallback);
+	}
+
+	private void iconTile(GuiGraphicsExtractor g, String skyblockId, String fallback, int x, int y, int h, double a) {
+		int top = y + (h - 22) / 2;
+		round(g, x + 8, top, 22, 22, 5, alpha(UI_TILE, a));
+		if (a > 0.5) g.item(icon(skyblockId, fallback), x + 11, top + 3);
+	}
+
 	private static int rarityColor(String rarity) {
 		return switch (rarity == null ? "" : rarity) {
 			case "UNCOMMON" -> 0xFF55FF55;
@@ -382,7 +408,7 @@ public final class GearScreen extends Screen {
 			roundOutline(g, x, y, contentW, h, 7, alpha(UI_AMBER, a * pulse));
 		}
 
-		iconTile(g, item.icon, x, y, h, a);
+		iconTile(g, item.id, item.icon, x, y, h, a);
 
 		// Right column: price, improvement, value-for-money bar.
 		String price = pick.price() != null ? coins(pick.price())
@@ -468,7 +494,7 @@ public final class GearScreen extends Screen {
 		}
 
 		GearAdvisor.Pick pick = plan.get(index - 1);
-		iconTile(g, pick.item().icon, x, y, h, a);
+		iconTile(g, pick.item().id, pick.item().icon, x, y, h, a);
 		String price = coins(pick.price());
 		String gain = "+" + String.format(Locale.US, "%.1f", pick.gainPercent()) + "%";
 		int right = x + contentW - 10;
@@ -485,7 +511,7 @@ public final class GearScreen extends Screen {
 		GearData.Item item = pick.item();
 		int h = rowHeight();
 		double dim = a * 0.6;
-		iconTile(g, item.icon, x, y, h, dim);
+		iconTile(g, item.id, item.icon, x, y, h, dim);
 
 		String need = tr("requires", item.foraging);
 		int right = x + contentW - 10;
@@ -503,7 +529,7 @@ public final class GearScreen extends Screen {
 	private void drawGear(GuiGraphicsExtractor g, String slot, int x, int y, double a) {
 		GearData.Item item = gear.get(slot);
 		int h = rowHeight();
-		iconTile(g, item != null ? item.icon : "barrier", x, y, h, item != null ? a : a * 0.5);
+		iconTile(g, item != null ? item.id : null, item != null ? item.icon : "barrier", x, y, h, item != null ? a : a * 0.5);
 
 		g.text(font, tr("slot." + slot), x + 38, y + 8, alpha(UI_MUTED, a), false);
 
@@ -548,7 +574,7 @@ public final class GearScreen extends Screen {
 
 	private void drawShard(GuiGraphicsExtractor g, GearData.Shard shard, int x, int y, double a) {
 		int h = rowHeight();
-		iconTile(g, "amethyst_shard", x, y, h, a);
+		iconTile(g, shard.id, "amethyst_shard", x, y, h, a);
 
 		Double each = GearAdvisor.bazaarPrice(shard.id);
 		long owned = Progress.get().huntingBox.getOrDefault(shard.id, 0L);
@@ -584,7 +610,7 @@ public final class GearScreen extends Screen {
 		UpgradeAdvisor.Option o = upgrades.get(index);
 		int h = rowHeight();
 		double dim = o.done() ? a * 0.55 : a;
-		iconTile(g, o.icon(), x, y, h, dim);
+		iconTile(g, o.itemId(), o.icon(), x, y, h, dim);
 		int right = x + contentW - 10;
 
 		String value = o.done() ? "✔" : o.gainPercent() == null ? tr("upgrade_info") : String.format(Locale.US, "+%.1f%%", o.gainPercent());
@@ -604,7 +630,7 @@ public final class GearScreen extends Screen {
 
 	private void drawTip(GuiGraphicsExtractor g, GearData.Tip tip, int x, int y, double a) {
 		int h = rowHeight();
-		iconTile(g, tip.icon, x, y, h, a);
+		iconTile(g, tip.id, tip.icon, x, y, h, a);
 
 		Double price = GearAdvisor.bazaarPrice(tip.id);
 		if (price == null) price = AuctionPrices.get(tip.id);
@@ -664,7 +690,21 @@ public final class GearScreen extends Screen {
 
 	/** Puts a search into the chat box. The player sends it themselves. */
 	private void search(String command) {
-		minecraft.gui.setScreen(new ChatScreen(command, false));
+		search(command, 0);
+	}
+
+	/** "/bz Name" goes to the Bazaar with the helper (amount filled in), "/ahs Name" opens the auction search. */
+	private void search(String command, long amount) {
+		if (command == null) return;
+		if (command.startsWith("/bz ")) BazaarHelper.open(command.substring(4), amount);
+		else if (command.startsWith("/ahs ")) BazaarHelper.auction(command.substring(5));
+		else minecraft.gui.setScreen(new ChatScreen(command, false));
+	}
+
+	private long shardMissing(GearData.Shard shard) {
+		long owned = Progress.get().huntingBox.getOrDefault(shard.id, 0L);
+		Integer level = Progress.get().attributeLevels.get(shard.ability);
+		return level != null && level >= 10 ? 0 : Math.max(0, shard.toMax - owned);
 	}
 
 	@Override
@@ -725,8 +765,8 @@ public final class GearScreen extends Screen {
 							search(pick.bazaar() ? "/bz " + pick.item().name : "/ahs " + pick.item().name);
 						}
 					}
-					case 3 -> search(upgrades.get(i).search());
-					case 4 -> search("/bz " + GearData.get().shards.get(i).name + " Shard");
+					case 3 -> search(upgrades.get(i).search(), upgrades.get(i).search().startsWith("/bz ") ? 1 : 0);
+					case 4 -> search("/bz " + GearData.get().shards.get(i).name + " Shard", Math.max(1, shardMissing(GearData.get().shards.get(i))));
 					case 5 -> search("/bz " + GearData.get().tips.get(i).name);
 					default -> { }
 				}
