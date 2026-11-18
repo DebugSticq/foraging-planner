@@ -31,6 +31,12 @@ public final class Progress {
 	public List<ContestRecord> contests = new ArrayList<>();
 	public List<Long> contestStarts = new ArrayList<>();
 	public List<Drop> drops = new ArrayList<>();
+	/** Item names seen in gifts, catches and on the ground, with their SkyBlock id ("" when unknown). */
+	public Map<String, String> seenItems = new LinkedHashMap<>();
+	/** Mob names seen near the player. */
+	public List<String> seenMobs = new ArrayList<>();
+	/** First-steps hints that were already shown. */
+	public List<String> hintsSeen = new ArrayList<>();
 	public double giftsAtLastRare = -1;
 	public Set<String> milestones = new LinkedHashSet<>();
 	public boolean milestonesPrimed;
@@ -180,6 +186,9 @@ public final class Progress {
 		if (p.contests == null) p.contests = new ArrayList<>();
 		if (p.contestStarts == null) p.contestStarts = new ArrayList<>();
 		if (p.drops == null) p.drops = new ArrayList<>();
+		if (p.seenItems == null) p.seenItems = new LinkedHashMap<>();
+		if (p.seenMobs == null) p.seenMobs = new ArrayList<>();
+		if (p.hintsSeen == null) p.hintsSeen = new ArrayList<>();
 		if (p.milestones == null) p.milestones = new LinkedHashSet<>();
 		if (p.watches == null) p.watches = new ArrayList<>();
 		if (p.huntingBox == null) p.huntingBox = new LinkedHashMap<>();

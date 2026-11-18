@@ -149,6 +149,12 @@ public final class LegacyItems {
 		return found != null && modelExists(found.toString()) ? found : null;
 	}
 
+	/** How many pack models are known; 0 when the Hypixel pack is not loaded (or not indexed yet). */
+	public static int packIndexSize() {
+		if (packIndex.isEmpty()) packModel("DUMMY_ITEM");
+		return packIndex.size();
+	}
+
 	/** An icon that uses the Hypixel resource pack model for a SkyBlock id, or null when the pack has none. */
 	public static ItemStack packIcon(String skyblockId, Item fallback) {
 		if (skyblockId == null) return null;

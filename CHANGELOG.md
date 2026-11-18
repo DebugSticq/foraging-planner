@@ -16,6 +16,17 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
   - "3D model" switches to the pixel version everywhere, "All axes" applies the look to every SkyBlock axe
 - **Custom /hotf menu**: perks as cards in Hypixel's own layout with levels, the planner's top three upgrades in gold and a detail panel. Clicks go to the real menu; hold Alt or press "Original" for the normal one
 - **Enchants & reforges** page in the gear menu: best foraging reforge per piece (Moonglade, Moil, Toil, Groovy, Marshy, Majestic, ...), Recombobulator and axe enchantments (First Impression, Karma, Petalfall, Missile, Absorb), each with stat change, gain for your goal and price
+- **Pick lists instead of typing**: rare drops, protected items, Safari ground items, critters, muted mobs, vendors and honey names are chosen from a searchable list with icons and prices, filled from your drops, gift rewards, catches, ground items, shards, seen mobs and the Bazaar. Rare drops have three states: always, never or automatic by value (`/fp rare`)
+- Click a drop in Statistics > Drops to switch it between auto, always and never
+- **Detection check** (`/fp check`, Settings > Display): shows what the mod could read (SkyBlock, stats, HOTF, Hunting Box, attributes, armor, Bazaar, resource pack, ...) with a tip for each gap, and copies a report
+- **Automatic backups** of statistics and settings at start and every 30 minutes (newest 10 kept), restore with two clicks or `/fp backup now|list|restore`
+- Full description of a setting when resting the mouse on it
+- One-time first steps tips in Galatea, the Safari and at the first contest
+- **HUD editor**: cards snap to screen edges, the center and other cards with guide lines, 10 px grid (G), snapping on/off (S), Shift for free moving, R resets a card
+- **HUD layout per place**: Galatea, Safari, Hub and other islands can each switch to their own layout automatically
+- **Calmer cards**: priority per kind (rare drops first), identical cards merge into "×N", each kind can be turned off, and during a contest only rare drops and alarms show
+- New key bindings (unbound by default): statistics, gear, detection check, tree navigator on/off, HUD on/off
+- Session chart in Statistics can show XP/h, logs/h, gifts/h or coins/h, with a trend line, average and comparison of the last session
 - **Share settings**: copy all settings as one line of text and paste them elsewhere (Settings > Online or `/fp settings export|import|undo`). Personal data is left out, a backup is made before pasting
 
 ### Fixed

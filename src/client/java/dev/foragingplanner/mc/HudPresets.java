@@ -58,8 +58,37 @@ public final class HudPresets {
 		PlannerHud.rebuild();
 	}
 
+	public static final List<String> PLACES = List.of("galatea", "safari", "hub", "other");
+	private static String lastPlace = "";
+
+	/** Where the player is, for layouts per place. */
+	public static String place() {
+		if (!SkyBlockReader.inSkyBlock()) return "";
+		if (Safari.inside()) return "safari";
+		String area = SkyBlockReader.area() == null ? "" : SkyBlockReader.area().toLowerCase(java.util.Locale.ROOT);
+		if (area.contains("galatea") || SkyBlockReader.inForagingArea()) return "galatea";
+		if (area.contains("hub") || area.contains("village")) return "hub";
+		return "other";
+	}
+
+	/** Switches to the layout chosen for the place the player just entered. */
+	private static void locationTick() {
+		String place = place();
+		if (place.isEmpty() || place.equals(lastPlace)) return;
+		lastPlace = place;
+		if (beforeContest != null) return;
+		String preset = Planner.config.locationPresets.getOrDefault(place, "");
+		if (preset.isEmpty() || preset.equals(Planner.config.activePreset)) return;
+		// Keep what the player changed in the layout that is being left.
+		String active = Planner.config.activePreset;
+		if (active != null && NAMES.contains(active)) Planner.config.presets.put(active, copy(Planner.config.modules));
+		apply(preset);
+		Toasts.show(Toasts.Kind.INFO, "painting", Planner.tr("preset.switched"), Planner.tr("preset." + preset) + " · " + Planner.tr("preset.place_" + place));
+	}
+
 	/** Called once a second. */
 	public static void tick() {
+		locationTick();
 		if (!Planner.config.contestPreset) return;
 		boolean active = ContestTracker.active();
 

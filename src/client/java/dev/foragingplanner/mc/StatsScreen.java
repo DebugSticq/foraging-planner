@@ -306,7 +306,24 @@ public final class StatsScreen extends ForestScreen {
 		List<Journal.Session> chart = new ArrayList<>(history.subList(0, Math.min(20, history.size())));
 		java.util.Collections.reverse(chart);
 		if (j.current.elapsedMs >= 60_000) chart.add(j.current);
-		out.add(new Line(96, (g, x, y, w, a, h) -> drawSessionChart(g, x, y, w, 96, a, chart), null));
+		String[] metrics = {"xp", "logs", "gifts", "coins"};
+		String[] labels = new String[metrics.length];
+		Runnable[] pick = new Runnable[metrics.length];
+		for (int i = 0; i < metrics.length; i++) {
+			String m = metrics[i];
+			labels[i] = (m.equals(chartMetric) ? "● " : "") + tr("chart_metric_" + m);
+			pick[i] = () -> chartMetric = m;
+		}
+		out.add(buttons(labels, pick));
+		out.add(new Line(110, (g, x, y, w, a, h) -> drawSessionChart(g, x, y, w, 110, a, chart), null));
+		if (chart.size() >= 2) {
+			double avg = chart.stream().mapToDouble(StatsScreen::chartValue).average().orElse(0);
+			double best = chart.stream().mapToDouble(StatsScreen::chartValue).max().orElse(0);
+			double last = chartValue(chart.get(chart.size() - 1));
+			String fmt = chartMetric.equals("coins") ? coins(avg) : Planner.whole(avg);
+			out.add(text(tr("chart_summary", fmt, chartMetric.equals("coins") ? coins(best) : Planner.whole(best),
+					avg > 0 ? (last >= avg ? "+" : "") + Math.round((last / avg - 1) * 100) + "%" : "–"), UI_MUTED));
+		}
 
 		out.add(header(tr("chart_current")));
 		List<Journal.Sample> samples = j.current.samples;
@@ -326,6 +343,19 @@ public final class StatsScreen extends ForestScreen {
 		return row(current ? "clock" : "paper", left, sub, right, current ? UI_ACCENT : UI_TEXT, null);
 	}
 
+	private static String chartMetric = "xp";
+
+	/** The chosen metric of a session, per hour. */
+	private static double chartValue(Journal.Session s) {
+		double hours = Math.max(1, s.elapsedMs) / 3_600_000.0;
+		return switch (chartMetric) {
+			case "logs" -> s.value("logs") / hours;
+			case "gifts" -> s.value("gifts") / hours;
+			case "coins" -> coinsPerHour(s);
+			default -> s.rate("xp");
+		};
+	}
+
 	private void drawSessionChart(GuiGraphicsExtractor g, int x, int y, int w, int h, double a, List<Journal.Session> sessions) {
 		round(g, x, y, w, h, 6, alpha(UI_ROW, a));
 		if (sessions.isEmpty()) {
@@ -334,8 +364,8 @@ public final class StatsScreen extends ForestScreen {
 		}
 
 		double max = 1;
-		for (Journal.Session s : sessions) max = Math.max(max, s.rate("xp"));
-		int left = x + 40, bottom = y + h - 14, top = y + 10;
+		for (Journal.Session s : sessions) max = Math.max(max, chartValue(s));
+		int left = x + 40, bottom = y + h - 14, top = y + 12;
 		int slot = Math.max(4, (w - 52) / Math.max(1, sessions.size()));
 		double grow = animated() ? easeOut((System.nanoTime() - pageStartNs()) / 500e6) : 1;
 
@@ -346,15 +376,38 @@ public final class StatsScreen extends ForestScreen {
 			g.text(font, label, left - 4 - font.width(label), ly - 4, alpha(UI_DIM, a), false);
 		}
 
+		// Bars, then a line through their tops and a dashed average.
+		int prevX = -1, prevY = -1;
+		double sum = 0;
 		for (int i = 0; i < sessions.size(); i++) {
 			Journal.Session s = sessions.get(i);
-			int bh = (int) Math.round((bottom - top) * s.rate("xp") / max * grow);
+			double v = chartValue(s);
+			sum += v;
+			int bh = (int) Math.round((bottom - top) * v / max * grow);
 			int bx = left + i * slot + 2;
+			int bw = Math.max(2, slot - 4);
 			boolean current = s == JournalStore.journal.current;
-			round(g, bx, bottom - bh, Math.max(2, slot - 4), Math.max(1, bh), 2, alpha(current ? UI_AMBER : UI_ACCENT, a));
+			round(g, bx, bottom - bh, bw, Math.max(1, bh), 2, alpha(current ? UI_AMBER : UI_ACCENT_SOFT, a));
+			int cx = bx + bw / 2, cy = bottom - bh;
+			if (prevX >= 0) line(g, prevX, prevY, cx, cy, alpha(UI_ACCENT, a));
+			g.fill(cx - 1, cy - 1, cx + 2, cy + 2, alpha(current ? UI_AMBER : UI_ACCENT, a));
+			prevX = cx;
+			prevY = cy;
 		}
+		int avgY = bottom - (int) Math.round((bottom - top) * (sum / sessions.size()) / max * grow);
+		for (int dx = left; dx < x + w - 8; dx += 6) g.fill(dx, avgY, Math.min(dx + 3, x + w - 8), avgY + 1, alpha(0x66FFFFFF, a));
 
-		g.text(font, "XP/h", x + w - 8 - font.width("XP/h"), y + 3, alpha(UI_DIM, a), false);
+		String unit = tr("chart_metric_" + chartMetric);
+		g.text(font, unit, x + w - 8 - font.width(unit), y + 2, alpha(UI_DIM, a), false);
+	}
+
+	private static void line(GuiGraphicsExtractor g, int x0, int y0, int x1, int y1, int color) {
+		int steps = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+		for (int i = 0; i <= steps; i++) {
+			int px = x0 + (x1 - x0) * i / Math.max(1, steps);
+			int py = y0 + (y1 - y0) * i / Math.max(1, steps);
+			g.fill(px, py, px + 1, py + 1, color);
+		}
 	}
 
 	private void drawSampleChart(GuiGraphicsExtractor g, int x, int y, int w, int h, double a, List<Journal.Sample> samples) {
@@ -605,11 +658,19 @@ public final class StatsScreen extends ForestScreen {
 		double total = p.drops.stream().mapToDouble(d -> d.value).sum();
 		out.add(text(tr("drops_total", p.drops.size(), coins(total)), UI_MUTED));
 
+		out.add(button(tr("drops_edit"), () -> minecraft.gui.setScreen(PickerScreen.rare(this))));
 		out.add(header(tr("drops_list")));
+		out.add(text(tr("drops_click"), UI_DIM));
 		if (p.drops.isEmpty()) out.add(text(tr("drops_none"), UI_DIM));
 		for (Progress.Drop d : p.drops) {
 			String sub = date(d.time) + (d.giftsSince >= 0 ? " · " + tr("drops_after", d.giftsSince) : "");
-			out.add(row("gold_ingot", (d.count > 1 ? d.count + "× " : "") + d.name, sub, d.value > 0 ? coins(d.value) : "?", UI_AMBER, null));
+			int state = PickerScreen.rareState(d.name);
+			String right = (d.value > 0 ? coins(d.value) : "?") + " · " + PickerScreen.stateLabel(state);
+			out.add(row("gold_ingot", (d.count > 1 ? d.count + "× " : "") + d.name, sub, right, PickerScreen.stateColor(state) == UI_MUTED ? UI_AMBER : PickerScreen.stateColor(state),
+					(lx, w, button) -> {
+						int next = PickerScreen.cycleRare(d.name, button != 1);
+						Toasts.show(Toasts.Kind.INFO, "gold_ingot", d.name, tr("drop_state", PickerScreen.stateLabel(next)));
+					}));
 		}
 		return out;
 	}

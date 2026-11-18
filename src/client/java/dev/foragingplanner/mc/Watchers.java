@@ -339,6 +339,7 @@ public final class Watchers {
 
 	/** Called for every reward item of a tree gift. */
 	public static void reward(String id, String name, long count, boolean bonus) {
+		SeenNames.item(id, name);
 		double value = value(id, count);
 		ModConfig c = Planner.config;
 		if (matches(name, c.rareIgnore)) return;

@@ -243,9 +243,14 @@ public final class SettingsScreen extends Screen {
 		switch (PAGES[target]) {
 			case "display" -> {
 				new ActionRow("setup", "open", Items.NETHER_STAR, () -> minecraft.gui.setScreen(new SetupScreen(this)));
+				new ActionRow("check", "open", Items.SPYGLASS, () -> minecraft.gui.setScreen(new CheckScreen(this)));
 				Row hud = new ToggleRow("hud", Items.PAINTING, () -> c.hudEnabled, value -> c.hudEnabled = value);
 				sub(hud, () -> {
-					new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+					Row position = new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));
+					sub(position, () -> {
+						new ToggleRow("hud_snap", Items.LODESTONE, () -> c.hudSnap, value -> c.hudSnap = value);
+						new ToggleRow("hud_grid", Items.MAP, () -> c.hudGrid, value -> c.hudGrid = value);
+					});
 					new ToggleRow("animations", Items.GLOW_BERRIES, () -> c.animations, value -> c.animations = value);
 					new ToggleRow("rates", Items.EXPERIENCE_BOTTLE, () -> c.showRates, value -> c.showRates = value);
 					new ActionRow("session", "reset", Items.CLOCK, SessionRates::reset);
@@ -264,6 +269,14 @@ public final class SettingsScreen extends Screen {
 					sub(preset, () -> {
 						new ActionRow("preset_save", "save", Items.WRITABLE_BOOK, () -> HudPresets.save(c.activePreset));
 						new ToggleRow("preset_contest", Items.GOLDEN_HOE, () -> c.contestPreset, value -> c.contestPreset = value);
+						List<String> choices = new ArrayList<>(List.of("none"));
+						choices.addAll(HudPresets.NAMES);
+						for (String place : HudPresets.PLACES) {
+							new CycleRow("preset_place_" + place, Items.FILLED_MAP, () -> {
+								String v = c.locationPresets.getOrDefault(place, "");
+								return v.isEmpty() ? "none" : v;
+							}, value -> c.locationPresets.put(place, value.equals("none") ? "" : value), choices);
+						}
 					});
 					Row fun = new GroupRow("group_fun", Items.FIREWORK_ROCKET);
 				sub(fun, () -> {
@@ -275,6 +288,9 @@ public final class SettingsScreen extends Screen {
 					});
 					new ToggleRow("tree_fall_effect", Items.OAK_LEAVES, () -> c.treeFallEffect, value -> c.treeFallEffect = value);
 				});
+				new ToggleRow("hover_details", Items.SPYGLASS, () -> c.hoverDetails, value -> c.hoverDetails = value);
+				Row steps = new ToggleRow("first_steps", Items.BOOK, () -> c.firstSteps, value -> c.firstSteps = value);
+				sub(steps, () -> new ActionRow("hints_reset", "reset", Items.BOOK, FirstSteps::reset));
 				Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
 					sub(afk, () -> new SliderRow("afk_minutes", Items.CLOCK, 1, 15, 1, " min", () -> c.afkMinutes, value -> c.afkMinutes = value));
 				});
@@ -311,7 +327,7 @@ public final class SettingsScreen extends Screen {
 			}
 			case "galatea" -> {
 				Row critters = new ToggleRow("critters", Items.SPYGLASS, () -> c.critterHighlight, value -> c.critterHighlight = value);
-				sub(critters, () -> new TextRow("critter_names", Items.NAME_TAG, () -> c.critterNames, value -> c.critterNames = value));
+				sub(critters, () -> new ListRow("critter_names", Items.NAME_TAG, () -> c.critterNames.size(), () -> PickerScreen.mobs(this, "critter_names", () -> c.critterNames, value -> c.critterNames = value, new ModConfig().critterNames)));
 				new ToggleRow("invisibug", Items.GLOW_BERRIES, () -> c.invisibugHelper, value -> c.invisibugHelper = value);
 				Row strider = new ToggleRow("strider", Items.STRING, () -> c.striderCounter, value -> c.striderCounter = value);
 				sub(strider, () -> new SliderRow("strider_min", Items.STRING, 1, 10, 1, "", () -> c.striderMin, value -> c.striderMin = value));
@@ -322,7 +338,7 @@ public final class SettingsScreen extends Screen {
 				Row protection = new GroupRow("group_protection", Items.SHIELD);
 				sub(protection, () -> {
 					Row drop = new ToggleRow("drop_protection", Items.GOLD_NUGGET, () -> c.dropProtection, value -> c.dropProtection = value);
-					sub(drop, () -> new TextRow("protected_items", Items.NAME_TAG, () -> c.protectedItems, value -> c.protectedItems = value));
+					sub(drop, () -> new ListRow("protected_items", Items.NAME_TAG, () -> c.protectedItems.size(), () -> PickerScreen.items(this, "protected_items", () -> c.protectedItems, value -> c.protectedItems = value)));
 					new ToggleRow("huntrap_protection", Items.TRIPWIRE_HOOK, () -> c.huntrapProtection, value -> c.huntrapProtection = value);
 				});
 			}
@@ -343,13 +359,13 @@ public final class SettingsScreen extends Screen {
 				new ToggleRow("safari_milestones", Items.OAK_SAPLING, () -> c.safariMilestones, value -> c.safariMilestones = value);
 				new ToggleRow("ticket_reminder", Items.PAPER, () -> c.ticketReminder, value -> c.ticketReminder = value);
 				Row ground = new ToggleRow("safari_ground", Items.HOPPER, () -> c.safariGroundItems, value -> c.safariGroundItems = value);
-				sub(ground, () -> new TextRow("safari_rare_items", Items.NAME_TAG, () -> c.safariRareItems, value -> c.safariRareItems = value));
+				sub(ground, () -> new ListRow("safari_rare_items", Items.NAME_TAG, () -> c.safariRareItems.size(), () -> PickerScreen.items(this, "safari_rare_items", () -> c.safariRareItems, value -> c.safariRareItems = value)));
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
 				sub(advanced, () -> {
 					Row honey = new ToggleRow("honey_helix", Items.HONEYCOMB, () -> c.honeyHelix, value -> c.honeyHelix = value);
-					sub(honey, () -> new TextRow("honey_names", Items.NAME_TAG, () -> c.honeyNames, value -> c.honeyNames = value));
+					sub(honey, () -> new ListRow("honey_names", Items.NAME_TAG, () -> c.honeyNames.size(), () -> PickerScreen.mobs(this, "honey_names", () -> c.honeyNames, value -> c.honeyNames = value, new ModConfig().honeyNames)));
 					Row vendors = new ToggleRow("vendor_tracker", Items.EMERALD, () -> c.vendorTracker, value -> c.vendorTracker = value);
-					sub(vendors, () -> new TextRow("vendor_names", Items.NAME_TAG, () -> c.vendorNames, value -> c.vendorNames = value));
+					sub(vendors, () -> new ListRow("vendor_names", Items.NAME_TAG, () -> c.vendorNames.size(), () -> PickerScreen.mobs(this, "vendor_names", () -> c.vendorNames, value -> c.vendorNames = value, new ModConfig().vendorNames)));
 					new ToggleRow("safari_debug", Items.WRITABLE_BOOK, () -> c.safariDebug, value -> c.safariDebug = value);
 				});
 			}
@@ -369,11 +385,19 @@ public final class SettingsScreen extends Screen {
 				sub(toasts, () -> {
 					new ToggleRow("toast_sound", Items.BELL, () -> c.toastSound, value -> c.toastSound = value);
 					new ToggleRow("toast_chat", Items.PAPER, () -> c.toastChat, value -> c.toastChat = value);
+					new ToggleRow("toast_quiet_contest", Items.GOLDEN_HOE, () -> c.toastQuietContest, value -> c.toastQuietContest = value);
+					Row kinds = new GroupRow("toast_kinds", Items.ITEM_FRAME);
+					sub(kinds, () -> {
+						new ToggleRow("toast_rare", Items.GOLD_INGOT, () -> c.toastRare, value -> c.toastRare = value);
+						new ToggleRow("toast_alarm", Items.BELL, () -> c.toastAlarm, value -> c.toastAlarm = value);
+						new ToggleRow("toast_milestone", Items.EXPERIENCE_BOTTLE, () -> c.toastMilestone, value -> c.toastMilestone = value);
+						new ToggleRow("toast_goal", Items.SLIME_BALL, () -> c.toastGoal, value -> c.toastGoal = value);
+						new ToggleRow("toast_info", Items.PAPER, () -> c.toastInfo, value -> c.toastInfo = value);
+					});
 				});
 				Row rare = new GroupRow("group_rare", Items.GOLD_INGOT);
 				sub(rare, () -> {
-					new TextRow("rare_items", Items.NAME_TAG, () -> c.rareItems, value -> c.rareItems = value);
-					new TextRow("rare_ignore", Items.BARRIER, () -> c.rareIgnore, value -> c.rareIgnore = value);
+					new ListRow("rare_items", Items.NAME_TAG, () -> c.rareItems.size() + c.rareIgnore.size(), () -> PickerScreen.rare(this));
 					new NumberRow("rare_value", Items.GOLD_NUGGET, c.rareValue, 0, 10_000_000_000.0, true, value -> c.rareValue = (long) value, () -> true);
 					new ToggleRow("rare_bonus", Items.CHEST, () -> c.rareBonus, value -> c.rareBonus = value);
 					new ToggleRow("confetti", Items.FIREWORK_ROCKET, () -> c.confetti, value -> c.confetti = value);
@@ -392,7 +416,7 @@ public final class SettingsScreen extends Screen {
 				});
 				new ToggleRow("mute_phantoms", Items.PHANTOM_MEMBRANE, () -> c.mutePhantoms, value -> c.mutePhantoms = value);
 				Row mobs = new ToggleRow("mute_mobs", Items.DEAD_BUSH, () -> c.muteMobs, value -> c.muteMobs = value);
-				sub(mobs, () -> new TextRow("muted_mobs", Items.NAME_TAG, () -> c.mutedMobs, value -> c.mutedMobs = value));
+				sub(mobs, () -> new ListRow("muted_mobs", Items.NAME_TAG, () -> c.mutedMobs.size(), () -> PickerScreen.mobs(this, "muted_mobs", () -> c.mutedMobs, value -> c.mutedMobs = value, new ModConfig().mutedMobs)));
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
 				sub(advanced, () -> {
 					new ToggleRow("mute_tree_break", Items.NOTE_BLOCK, () -> c.muteTreeBreak, value -> c.muteTreeBreak = value);
@@ -442,6 +466,8 @@ public final class SettingsScreen extends Screen {
 					new NumberRow("speed", Items.SUGAR, c.manualSpeed, 0, 100_000, false, value -> c.manualSpeed = value, on);
 				});
 				EXPANDED.add("stats/manual");
+				Row backup = new ToggleRow("auto_backup", Items.CHEST, () -> c.autoBackup, value -> c.autoBackup = value);
+				sub(backup, () -> new ActionRow("backups", "open", Items.CHEST, () -> minecraft.gui.setScreen(new CheckScreen(this, 1))));
 			}
 			case "style" -> {
 				new SliderRow("hud_radius", Items.SNOWBALL, 0, 12, 1, "px", () -> c.hudRadius, value -> c.hudRadius = value);
@@ -786,10 +812,54 @@ public final class SettingsScreen extends Screen {
 			}
 
 			row.drawControl(g, x + w - 10, y + ROW_HEIGHT / 2, rowA, mouseX, mouseY, dt, delta, now);
+			if (hovered && mouseX < x + w - 10 - row.controlWidth() - chevron - 4) {
+				tipCandidate = row;
+				tipX = x + 36;
+				tipY = y + ROW_HEIGHT + 2;
+			}
 		}
 
 		g.disableScissor();
 		drawScrollbar(g, mouseX, mouseY, dt, open);
+		drawTip(g, now, open);
+	}
+
+	private Row tipRow, tipCandidate;
+	private long tipSince;
+	private int tipX, tipY;
+
+	/** After a short rest on a row, its full name and description (and what is inside it). */
+	private void drawTip(GuiGraphicsExtractor g, long now, double open) {
+		Row hovered = tipCandidate;
+		tipCandidate = null;
+		if (hovered != tipRow) {
+			tipRow = hovered;
+			tipSince = now;
+		}
+		if (tipRow == null || !Planner.config.hoverDetails || now - tipSince < 550_000_000L || open < 0.99) return;
+
+		String hint = Planner.tr("settings." + tipRow.name + ".hint");
+		String more = Planner.tr("settings." + tipRow.name + ".more");
+		if (more.equals("settings." + tipRow.name + ".more") || more.endsWith(".more")) more = "";
+		StringBuilder kids = new StringBuilder();
+		for (Row child : tipRow.children) kids.append(kids.isEmpty() ? "" : ", ").append(text(child.name).getString());
+		int maxW = Math.min(240, contentW - 40);
+		List<net.minecraft.util.FormattedCharSequence> lines = new ArrayList<>(font.split(Component.literal(hint), maxW));
+		if (!more.isEmpty()) lines.addAll(font.split(Component.literal("§7" + more), maxW));
+		if (!kids.isEmpty()) lines.addAll(font.split(Component.literal("§8" + Planner.tr("settings.tip_inside", kids)), maxW));
+		String title = text(tipRow.name).getString();
+		int w = font.width(title);
+		for (var l : lines) w = Math.max(w, font.width(l));
+		w += 14;
+		int h = 18 + lines.size() * 10;
+		int x = Math.min(tipX, width - w - 6);
+		int y = tipY + h > height - 4 ? tipY - ROW_HEIGHT - h - 4 : tipY;
+		double a = animated() ? Math.clamp((now - tipSince - 550_000_000L) / 120e6, 0, 1) : 1;
+		ForestTheme.shadow(g, x, y, w, h, 6, a);
+		round(g, x, y, w, h, 6, alpha(ForestTheme.UI_PANEL, a * 0.97));
+		ForestTheme.roundOutline(g, x, y, w, h, 6, alpha(UI_ACCENT, a * 0.5));
+		g.text(font, title, x + 7, y + 6, alpha(UI_AMBER, a), false);
+		for (int i = 0; i < lines.size(); i++) g.text(font, lines.get(i), x + 7, y + 17 + i * 10, alpha(UI_TEXT, a), false);
 	}
 
 	private void drawScrollbar(GuiGraphicsExtractor g, int mouseX, int mouseY, double dt, double open) {
@@ -1306,6 +1376,44 @@ public final class SettingsScreen extends Screen {
 		@Override
 		boolean click(double mouseX, double mouseY, int right, int midY) {
 			setFocused(box);
+			return false;
+		}
+	}
+
+	/** Opens a picker for a name list and shows how many entries it has. */
+	private final class ListRow extends Row {
+		private final java.util.function.IntSupplier count;
+		private final java.util.function.Supplier<Screen> open;
+
+		ListRow(String name, Item icon, java.util.function.IntSupplier count, java.util.function.Supplier<Screen> open) {
+			super(name, icon);
+			this.count = count;
+			this.open = open;
+		}
+
+		private String label() {
+			return Planner.tr("settings.choose_count", count.getAsInt()) + "  ›";
+		}
+
+		@Override
+		int controlWidth() {
+			return font.width(label()) + 16;
+		}
+
+		@Override
+		void drawControl(GuiGraphicsExtractor g, int right, int midY, double a, int mouseX, int mouseY, double dt, float delta, long now) {
+			String label = label();
+			int w = font.width(label) + 16;
+			int x = right - w;
+			int lift = (int) Math.round(hover);
+			round(g, x, midY - 8 - lift, w, 16, 5, alpha(mixArgb(0x26FFFFFF, UI_ACCENT_DARK | 0xFF000000, hover), a));
+			g.text(font, label, x + 8, midY - 4 - lift, alpha(mixArgb(UI_TEXT, 0xFFFFFFFF, hover), a), false);
+		}
+
+		@Override
+		boolean click(double mouseX, double mouseY, int right, int midY) {
+			if (!usable()) return false;
+			minecraft.gui.setScreen(open.get());
 			return false;
 		}
 	}

@@ -28,6 +28,7 @@ public final class RareDrops {
 			}
 			String name = m.group(2).trim().replaceFirst("(?i)shards$", "Shard");
 			long count = m.group(1) == null ? 1 : Long.parseLong(m.group(1));
+			SeenNames.item(ObservationParser.itemId(name), name);
 			ModConfig c = Planner.config;
 			if (!Watchers.matches(name, c.rareItems) || Watchers.matches(name, c.rareIgnore)) return;
 			String id = ObservationParser.itemId(name);

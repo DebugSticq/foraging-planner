@@ -181,6 +181,17 @@ public final class ModConfig {
     public boolean contestCountdown = true;
     public boolean contestCountdownSound = true;
     public boolean contestPreset = false;
+    /** Card kinds that may show: goal, milestone, rare, alarm, info. */
+    public boolean toastGoal = true, toastMilestone = true, toastRare = true, toastAlarm = true, toastInfo = true;
+    /** During a Jacob-style contest only rare drops and alarms may show. */
+    public boolean toastQuietContest = true;
+    /** HUD layout per place: galatea, safari, hub, other; "" keeps the current layout. */
+    public Map<String, String> locationPresets = new LinkedHashMap<>();
+    public boolean hudSnap = true;
+    public boolean hudGrid = true;
+    public boolean autoBackup = true;
+    public boolean hoverDetails = true;
+    public boolean firstSteps = true;
     public String activePreset = "farm";
     public Map<String, Map<String, HudLayout>> presets = new LinkedHashMap<>();
     public static class HudLayout {
@@ -227,6 +238,7 @@ public final class ModConfig {
                     config.modules.values().removeIf(java.util.Objects::isNull);
                     config.modules.values().forEach(m -> m.scale = Double.isFinite(m.scale) ? Math.clamp(m.scale, .5, 2) : 1);
                     if (config.presets == null) config.presets = new LinkedHashMap<>();
+                    if (config.locationPresets == null) config.locationPresets = new LinkedHashMap<>();
                     if (config.activePreset == null) config.activePreset = "farm";
                     if (config.perkSlots == null) config.perkSlots = new LinkedHashMap<>();
                     if (config.perkCurrencies == null) config.perkCurrencies = new LinkedHashMap<>();

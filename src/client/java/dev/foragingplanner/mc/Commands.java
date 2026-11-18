@@ -94,6 +94,21 @@ public final class Commands {
                     return SUCCESS; }))
                 .then(ClientCommands.literal("undo").executes(context -> { say(context.getSource(), SettingsShare.undo() ? "share.undone" : "share.no_backup"); return SUCCESS; })));
         root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
+        root.then(ClientCommands.literal("check").executes(context -> { Keys.openLater(() -> new CheckScreen(null)); return SUCCESS; }));
+        root.then(ClientCommands.literal("rare").executes(context -> { Keys.openLater(() -> PickerScreen.rare(null)); return SUCCESS; }));
+        root.then(ClientCommands.literal("backup")
+                .executes(context -> { Keys.openLater(() -> new CheckScreen(null, 1)); return SUCCESS; })
+                .then(ClientCommands.literal("now").executes(context -> {
+                    String name = Backups.make("manual");
+                    say(context.getSource(), name == null ? "check.backup_failed" : "check.backup_done_chat", name == null ? "" : Backups.pretty(name));
+                    return SUCCESS; }))
+                .then(ClientCommands.literal("list").executes(context -> {
+                    for (String name : Backups.list()) context.getSource().sendFeedback(Component.literal("§7 - §f" + name + " §8(" + Backups.pretty(name) + ")"));
+                    return SUCCESS; }))
+                .then(ClientCommands.literal("restore").then(ClientCommands.argument("name", StringArgumentType.word()).executes(context -> {
+                    String name = StringArgumentType.getString(context, "name");
+                    say(context.getSource(), Backups.restore(name) ? "check.restored" : "check.restore_failed");
+                    return SUCCESS; }))));
         root.then(ClientCommands.literal("help").executes(context -> { Help.show(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("setup").executes(context -> { SettingsScreen.requestSetup(); return SUCCESS; }));
         root.then(ClientCommands.literal("top").executes(context -> { StatsScreen.requestOpen(11); return SUCCESS; }));

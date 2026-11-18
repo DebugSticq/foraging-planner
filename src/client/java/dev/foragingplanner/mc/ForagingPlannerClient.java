@@ -37,6 +37,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
         NpcPrices.load();
         HuntingTracker.register();
 		SettingsScreen.register();
+		Keys.register();
         TreeAssistant.register();
 
 		HotfMenuReader.register();
@@ -72,6 +73,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 			SettingsScreen.tick(client);
             TreeAssistant.keys();
             MiniMap.keys();
+            Keys.tick(client);
             Perf.run("hunting", () -> HuntingTracker.tick(client));
             int scan = Perf.scanTicks();
             if (ticks % scan == 0) Perf.run("trees", () -> TreeTracker.tick(client));
@@ -102,6 +104,9 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				UpdateChecker.tick(client);
 				if (!Planner.config.setupDone && SkyBlockReader.inSkyBlock() && client.gui.screen() == null) client.gui.setScreen(new SetupScreen(null));
 				HudPresets.tick();
+				SeenNames.tick(client);
+				FirstSteps.tick(client);
+				Backups.tick();
                 JournalStore.tick(SkyBlockReader.inForagingArea() && client.player != null && !Afk.idle());
 				if (SkyBlockReader.inForagingArea() || SkyBlockReader.inSkyBlock()) BazaarPrices.refreshIfDue();
 				PlannerHud.rebuild();

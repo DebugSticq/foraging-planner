@@ -29,16 +29,95 @@ import net.minecraft.world.item.Items;
 public final class Toasts {
 	public enum Kind { GOAL, MILESTONE, RARE, ALARM, INFO }
 
-	private record Toast(Kind kind, ItemStack icon, String title, String text, int color, long durationMs) {}
+	private static final class Toast {
+		final Kind kind;
+		final ItemStack icon;
+		final String title, text;
+		final int color;
+		final long durationMs;
+		int count = 1;
 
-	private static final Deque<Toast> QUEUE = new ArrayDeque<>();
+		Toast(Kind kind, ItemStack icon, String title, String text, int color, long durationMs) {
+			this.kind = kind;
+			this.icon = icon;
+			this.title = title;
+			this.text = text;
+			this.color = color;
+			this.durationMs = durationMs;
+		}
+
+		Kind kind() { return kind; }
+		ItemStack icon() { return icon; }
+		String title() { return count > 1 ? title + " §7×" + count : title; }
+		String text() { return text; }
+		int color() { return color; }
+		long durationMs() { return durationMs; }
+
+		boolean same(Kind k, String t, String x) {
+			return kind == k && title.equals(t) && text.equals(x);
+		}
+	}
+
+	private static final int MAX_QUEUE = 6;
+	private static final java.util.List<Toast> QUEUE = new java.util.ArrayList<>();
 	private static Toast showing;
 	private static long shownAt;
 
 	private Toasts() {}
 
+	/** Higher shows first: rare drops, then alarms, milestones, goals and plain info. */
+	private static int priority(Kind kind) {
+		return switch (kind) {
+			case RARE -> 4;
+			case ALARM -> 3;
+			case MILESTONE -> 2;
+			case GOAL -> 1;
+			default -> 0;
+		};
+	}
+
+	static boolean allowed(Kind kind) {
+		ModConfig c = Planner.config;
+		boolean on = switch (kind) {
+			case RARE -> c.toastRare;
+			case ALARM -> c.toastAlarm;
+			case MILESTONE -> c.toastMilestone;
+			case GOAL -> c.toastGoal;
+			default -> c.toastInfo;
+		};
+		if (!on) return false;
+		// Do not disturb during a contest: only what is worth looking away for.
+		return !(c.toastQuietContest && ContestTracker.active() && kind != Kind.RARE && kind != Kind.ALARM);
+	}
+
 	public static void show(Kind kind, String icon, String title, String text) {
+		show(kind, icon, title, text, false);
+	}
+
+	/** A first-steps tip: always shown (when cards are on) and a little longer. */
+	public static void hint(String icon, String title, String text) {
+		show(Kind.INFO, icon, title, text, true);
+	}
+
+	private static void show(Kind kind, String icon, String title, String text, boolean hint) {
 		if (!Planner.config.toasts) return;
+		if (Planner.config.toastChat) JournalStore.notify(title + " §7" + text);
+		if (!hint && !allowed(kind)) return;
+
+		long now = System.currentTimeMillis();
+		// The same card again: count it instead of queueing a copy.
+		if (showing != null && showing.same(kind, title, text)) {
+			showing.count++;
+			shownAt = Math.max(shownAt, now - 500);
+			return;
+		}
+		for (Toast t : QUEUE) {
+			if (t.same(kind, title, text)) {
+				t.count++;
+				return;
+			}
+		}
+
 		int color = switch (kind) {
 			case RARE -> 0xFFFFAA00;
 			case MILESTONE -> 0xFFC266FF;
@@ -47,8 +126,16 @@ public final class Toasts {
 			default -> 0xFF8FB8E0;
 		};
 		var item = BuiltInRegistries.ITEM.getOptional(Identifier.withDefaultNamespace(icon)).orElse(Items.PAPER);
-		QUEUE.add(new Toast(kind, new ItemStack(item), title, text, color, kind == Kind.RARE ? 7000 : 5000));
-		if (Planner.config.toastChat) JournalStore.notify(title + " §7" + text);
+		Toast toast = new Toast(kind, new ItemStack(item), title, text, color, hint ? 9000 : kind == Kind.RARE ? 7000 : 5000);
+		int at = QUEUE.size();
+		while (at > 0 && priority(QUEUE.get(at - 1).kind) < priority(kind)) at--;
+		QUEUE.add(at, toast);
+		// Too many waiting: drop the least important, oldest first.
+		while (QUEUE.size() > MAX_QUEUE) {
+			int low = QUEUE.size() - 1;
+			for (int i = QUEUE.size() - 1; i >= 0; i--) if (priority(QUEUE.get(i).kind) <= priority(QUEUE.get(low).kind)) low = i;
+			QUEUE.remove(low);
+		}
 	}
 
 	private static void sound(Kind kind) {
@@ -66,7 +153,7 @@ public final class Toasts {
 
 		if (showing != null && now - shownAt > showing.durationMs()) showing = null;
 		if (showing == null && !QUEUE.isEmpty()) {
-			showing = QUEUE.poll();
+			showing = QUEUE.remove(0);
 			shownAt = now;
 			sound(showing.kind());
 		}
