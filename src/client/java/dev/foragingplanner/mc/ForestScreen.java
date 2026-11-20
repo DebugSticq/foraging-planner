@@ -293,7 +293,8 @@ public abstract class ForestScreen extends Screen {
 		g.fill(x + 1, y - lift, x + 3, y + h - lift, alpha(UI_ACCENT, hover * 0.8 * a));
 	}
 
-	protected Line row(String icon, String title, String sub, String right, int rightColor, Clicker click) {
+	protected Line row(String icon, String titleText, String sub, String right, int rightColor, Clicker click) {
+		String title = titleText == null ? "" : titleText;
 		return new Line(32, (g, x, y, w, a, h) -> {
 			card(g, x, y, w, 32, a, h);
 			int lift = (int) Math.round(h * 1.5);
@@ -309,7 +310,10 @@ public abstract class ForestScreen extends Screen {
 		}, click, null, searchable(title, sub, right));
 	}
 
-	protected Line bar(String icon, String title, String right, double fraction, int color, Clicker click) {
+	protected Line bar(String icon, String titleText, String rightText, double fraction, int color, Clicker click) {
+		// Other mods hook Font.width and break on null, so missing texts become empty ones.
+		String title = titleText == null ? "" : titleText;
+		String right = rightText == null ? "" : rightText;
 		String key = "bar:" + title;
 		return new Line(32, (g, x, y, w, a, h) -> {
 			card(g, x, y, w, 32, a, h);

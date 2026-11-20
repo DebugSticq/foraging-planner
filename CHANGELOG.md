@@ -14,6 +14,7 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - "What's new" card for this version with jumps to the new settings (`/fp news`)
 
 ### Fixed
+- Crash when opening a statistics page together with mods that change text widths (e.g. Odin's name replacer): rows with an empty value no longer pass a missing text
 - **Profit tracker counts sacks correctly**:
   - Logs from sack messages are no longer lost when chat is open or when the message arrives a while after you stopped chopping (it covers the last 10–30 seconds)
   - Logs moved between inventory and sacks in a menu (sack bag, storage, selling) no longer count as income or cancel out real logs
