@@ -126,7 +126,10 @@ public final class SetupScreen extends Screen {
 		Planner.config.setupDone = true;
 		Planner.config.save();
 		PlannerHud.rebuild();
-		minecraft.gui.setScreen(parent);
+		// Then the five checks, unless everything is found already.
+		boolean allDone = true;
+		for (int i = 0; i < 5; i++) if (WizardScreen.state(i) < 1) allDone = false;
+		minecraft.gui.setScreen(allDone ? parent : new WizardScreen(parent));
 	}
 
 	@Override

@@ -522,6 +522,7 @@ public abstract class ForestScreen extends Screen {
 		drawFooter(g, mouseX, mouseY, dt, open);
 		drawOverlay(g, mouseX, mouseY, open);
 		pose.popMatrix();
+		Why.draw(g, font, width, height);
 	}
 
 	/** Extra drawing on top of everything, for subclasses. */
@@ -688,6 +689,10 @@ public abstract class ForestScreen extends Screen {
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
 		if (closingNs != 0) return true;
+		if (Why.isOpen()) {
+			Why.close();
+			return true;
+		}
 		double mx = event.x(), my = event.y();
 		int button = event.button();
 
@@ -748,6 +753,10 @@ public abstract class ForestScreen extends Screen {
 	public boolean keyPressed(KeyEvent event) {
 		int key = event.key();
 		boolean typing = getFocused() instanceof EditBox;
+		if (Why.isOpen() && key == InputConstants.KEY_ESCAPE) {
+			Why.close();
+			return true;
+		}
 
 		if (event.hasControlDown() && key == InputConstants.KEY_F && searchBox != null) {
 			setFocused(searchBox);
@@ -796,6 +805,7 @@ public abstract class ForestScreen extends Screen {
 
 	private void finishClose() {
 		closingNs = 0;
+		Why.close();
 		closed();
 		minecraft.gui.setScreen(parent);
 	}

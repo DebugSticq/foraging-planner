@@ -42,6 +42,10 @@ public final class PerkTreeScreen extends Screen {
         addRenderableWidget(new ForestButton(dx + 6, dy + dh - 24, Math.min(dw - 12, 160), 19, Component.literal(tr("target_perk")), b -> {
             if (selected != null) TargetProgress.perk(selected, Math.min(selected.maxLevel, Planner.config.perkLevels.getOrDefault(selected.name, 0) + 1));
         }, () -> false));
+        int whyX = dx + 6 + Math.min(dw - 12, 160) + 4;
+        if (whyX + 40 <= dx + dw - 4) addRenderableWidget(new ForestButton(whyX, dy + dh - 24, Math.min(60, dx + dw - 4 - whyX), 19, Component.literal(Planner.tr("why.button")), b -> {
+            if (selected != null) Why.perk(selected);
+        }, () -> false));
     }
     @Override public void extractRenderState(GuiGraphicsExtractor g, int mx, int my, float delta) {
         g.fill(0, 0, width, height, 0xDC09150F);
@@ -101,9 +105,11 @@ public final class PerkTreeScreen extends Screen {
         g.disableScissor();
         g.text(font, font.plainSubstrByWidth(tr("graph_controls"), pw - 170), left + 93, top + ph - 19, ForestTheme.MUTED);
         super.extractRenderState(g, mx, my, delta);
+        Why.draw(g, font, width, height);
     }
     private boolean inGraph(double x, double y) { return x >= gx && x < gx + gw && y >= gy && y < gy + gh; }
     @Override public boolean mouseClicked(MouseButtonEvent e, boolean twice) {
+        if (Why.isOpen()) { Why.close(); return true; }
         if (super.mouseClicked(e, twice)) return true;
         if (e.button() == InputConstants.MOUSE_BUTTON_LEFT && inGraph(e.x(), e.y())) { dragging = true; moved = false; dragX = e.x(); dragY = e.y(); dragPanX = panX; dragPanY = panY; setDragging(true); return true; }
         return false;
@@ -135,6 +141,7 @@ public final class PerkTreeScreen extends Screen {
         panX = mx - gx - (mx - gx - panX) * zoom / old; panY = my - gy - (my - gy - panY) * zoom / old; return true;
     }
     @Override public boolean keyPressed(KeyEvent e) {
+        if (Why.isOpen() && e.key() == InputConstants.KEY_ESCAPE) { Why.close(); return true; }
         switch (e.key()) {
             case InputConstants.KEY_LEFT -> panX += 30; case InputConstants.KEY_RIGHT -> panX -= 30; case InputConstants.KEY_UP -> panY += 30; case InputConstants.KEY_DOWN -> panY -= 30;
             case InputConstants.KEY_EQUALS -> zoom = Math.min(1.6, zoom + .1); case InputConstants.KEY_MINUS -> zoom = Math.max(.45, zoom - .1);
@@ -143,5 +150,5 @@ public final class PerkTreeScreen extends Screen {
     }
     @Override public void extractBackground(GuiGraphicsExtractor g, int x, int y, float delta) {}
     @Override public boolean isPauseScreen() { return false; }
-    @Override public void onClose() { minecraft.gui.setScreen(parent); }
+    @Override public void onClose() { Why.close(); minecraft.gui.setScreen(parent); }
 }

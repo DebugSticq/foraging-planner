@@ -3,7 +3,7 @@
 #
 # Modrinth upload (optional):
 #   Settings > Secrets and variables > Actions
-#   - secret   MODRINTH_TOKEN    a Modrinth personal access token with "Create versions"
+#   - secret   MODRINTH_TOKEN    a Modrinth personal access token with "Create versions" and "Read projects"
 #   - variable MODRINTH_PROJECT  the project slug or id (default: foraging-planner)
 name: release
 
@@ -94,7 +94,12 @@ jobs:
             exit 0
           fi
           UA="LootingVI/foraging-planner (GitHub Actions)"
-          PROJECT_ID=$(curl -fsS -H "User-Agent: $UA" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT" | jq -r .id)
+          # With the token, so a project that is still a draft or under review is found too.
+          PROJECT_ID=$(curl -fsS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT" | jq -r .id)
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "::error::Modrinth project '$MODRINTH_PROJECT' not found. Check the MODRINTH_PROJECT variable and that the token has 'Read projects'."
+            exit 1
+          fi
           DATA=$(jq -n \
             --arg name "Foraging Planner ${{ steps.version.outputs.mod }}" \
             --arg number "${{ steps.version.outputs.mod }}+${{ steps.version.outputs.mc }}" \

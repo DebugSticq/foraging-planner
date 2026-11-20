@@ -51,8 +51,8 @@ import net.minecraft.world.item.Items;
  * auction house search into the chat box; the player still presses Enter themselves.
  */
 public final class GearScreen extends Screen {
-	private static final String[] TABS = {"picks", "plan", "gear", "upgrades", "shards", "tips"};
-	private static final net.minecraft.world.item.Item[] TAB_ICONS = {Items.NETHER_STAR, Items.GOLD_INGOT, Items.IRON_CHESTPLATE, Items.ENCHANTED_BOOK, Items.AMETHYST_SHARD, Items.BOOK};
+	private static final String[] TABS = {"picks", "plan", "gear", "upgrades", "shards", "tips", "whatif"};
+	private static final net.minecraft.world.item.Item[] TAB_ICONS = {Items.NETHER_STAR, Items.GOLD_INGOT, Items.IRON_CHESTPLATE, Items.ENCHANTED_BOOK, Items.AMETHYST_SHARD, Items.BOOK, Items.COMPARATOR};
 	private static final int RADIUS = 10;
 	private static final int NAV_HEIGHT = 26;
 	private static final int NAV_STEP = 30;
@@ -83,6 +83,11 @@ public final class GearScreen extends Screen {
 	public GearScreen(Screen parent) {
 		super(Component.literal("Foraging Planner"));
 		this.parent = parent;
+	}
+
+	public GearScreen(Screen parent, int tab) {
+		this(parent);
+		this.tab = Math.clamp(tab, 0, TABS.length - 1);
 	}
 
 	public static void requestOpen() {
@@ -140,7 +145,7 @@ public final class GearScreen extends Screen {
 	// Rows
 
 	private int rowHeight() {
-		return tab <= 3 ? 46 : 38;
+		return tab <= 3 || tab == 6 ? 46 : 38;
 	}
 
 	private int rowCount() {
@@ -150,6 +155,7 @@ public final class GearScreen extends Screen {
 			case 2 -> GearAdvisor.SLOTS.size();
 			case 3 -> Math.max(1, upgrades.size());
 			case 4 -> GearData.get().shards.size();
+			case 6 -> WHATIF_EXTRA + GearAdvisor.SLOTS.size();
 			default -> GearData.get().tips.size();
 		};
 	}
@@ -258,6 +264,7 @@ public final class GearScreen extends Screen {
 		drawRows(g, mouseX, mouseY, dt, now, open);
 		drawFooter(g, mouseX, mouseY, dt, open);
 		pose.popMatrix();
+		Why.draw(g, font, width, height);
 	}
 
 	private void drawSidebar(GuiGraphicsExtractor g, int mouseX, int mouseY, double dt, double open) {
@@ -372,7 +379,12 @@ public final class GearScreen extends Screen {
 				case 2 -> drawGear(g, GearAdvisor.SLOTS.get(i), x, y, a);
 				case 3 -> drawUpgrade(g, i, x, y, a);
 				case 4 -> drawShard(g, GearData.get().shards.get(i), x, y, a);
+				case 6 -> drawWhatIf(g, i, x, y, a);
 				default -> drawTip(g, GearData.get().tips.get(i), x, y, a);
+			}
+			if (hasWhy(i)) {
+				int bx = x + 23, by = y + h - 17;
+				Why.badge(g, font, bx, by, a, inside(mouseX, mouseY, bx - 1, by - 1, 12, 12));
 			}
 		}
 
@@ -684,6 +696,7 @@ public final class GearScreen extends Screen {
 			case 1 -> index == 0 || index - 1 < plan.size();
 			case 3 -> index < upgrades.size() && upgrades.get(index).search() != null;
 			case 4, 5 -> true;
+			case 6 -> index > 0;
 			default -> false;
 		};
 	}
@@ -709,6 +722,22 @@ public final class GearScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+		if (Why.isOpen()) {
+			Why.close();
+			return true;
+		}
+		if (event.button() == InputConstants.MOUSE_BUTTON_LEFT && inside(event.x(), event.y(), contentX, viewTop, contentW, viewBottom - viewTop)) {
+			boolean shift = InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) || InputConstants.isKeyDown(InputConstants.KEY_RSHIFT);
+			for (int i = 0; i < rowCount(); i++) {
+				int y = rowY(i);
+				if (event.y() < y || event.y() >= y + rowHeight() || !hasWhy(i)) continue;
+				int bx = contentX + 23, by = y + rowHeight() - 17;
+				if (shift || inside(event.x(), event.y(), bx - 2, by - 2, 14, 14)) {
+					openWhy(i);
+					return true;
+				}
+			}
+		}
 		if (event.button() == InputConstants.MOUSE_BUTTON_RIGHT && tab == 0 && inside(event.x(), event.y(), contentX, viewTop, contentW, viewBottom - viewTop)) {
 			for (int i = 0; i < picks.size(); i++) {
 				int y = rowY(i);
@@ -721,7 +750,7 @@ public final class GearScreen extends Screen {
 			}
 		}
 
-		boolean planBudget = event.button() == InputConstants.MOUSE_BUTTON_RIGHT && tab == 1;
+		boolean planBudget = event.button() == InputConstants.MOUSE_BUTTON_RIGHT && (tab == 1 || tab == 6);
 		if (event.button() != InputConstants.MOUSE_BUTTON_LEFT && !planBudget) return super.mouseClicked(event, doubled);
 		double mx = event.x();
 		double my = event.y();
@@ -768,6 +797,7 @@ public final class GearScreen extends Screen {
 					case 3 -> search(upgrades.get(i).search(), upgrades.get(i).search().startsWith("/bz ") ? 1 : 0);
 					case 4 -> search("/bz " + GearData.get().shards.get(i).name + " Shard", Math.max(1, shardMissing(GearData.get().shards.get(i))));
 					case 5 -> search("/bz " + GearData.get().tips.get(i).name);
+					case 6 -> whatIfClick(i, event.button() != InputConstants.MOUSE_BUTTON_RIGHT);
 					default -> { }
 				}
 
@@ -791,6 +821,10 @@ public final class GearScreen extends Screen {
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		int pressed = event.key();
+		if (Why.isOpen() && pressed == InputConstants.KEY_ESCAPE) {
+			Why.close();
+			return true;
+		}
 
 		if (pressed >= InputConstants.KEY_1 && pressed < InputConstants.KEY_1 + TABS.length) {
 			switchTab(pressed - InputConstants.KEY_1);
@@ -812,6 +846,207 @@ public final class GearScreen extends Screen {
 
 	@Override
 	public void onClose() {
+		Why.close();
 		minecraft.gui.setScreen(parent);
+	}
+
+	// Why?
+
+	private boolean hasWhy(int i) {
+		return switch (tab) {
+			case 0 -> i < picks.size();
+			case 1 -> i >= 1 && i - 1 < plan.size();
+			case 3 -> i < upgrades.size() && (upgrades.get(i).sweep() != 0 || upgrades.get(i).fortune() != 0 || upgrades.get(i).wisdom() != 0);
+			default -> false;
+		};
+	}
+
+	private void openWhy(int i) {
+		switch (tab) {
+			case 0 -> Why.pick(picks.get(i));
+			case 1 -> Why.pick(plan.get(i - 1));
+			case 3 -> Why.upgrade(upgrades.get(i));
+			default -> { }
+		}
+	}
+
+	// What if
+
+	private static final int WHATIF_EXTRA = 5;
+	private static final int[] PERK_STEPS = {1, 5, 10, 25};
+	private final Map<String, GearData.Item> whatGear = new java.util.LinkedHashMap<>();
+	private final java.util.Set<String> whatTouched = new java.util.HashSet<>();
+	private int whatPerk = -1, whatPerkStep = 0, whatUpgrade = -1;
+
+	private List<GearData.Item> slotOptions(String slot) {
+		List<GearData.Item> out = new java.util.ArrayList<>();
+		for (GearData.Item item : GearData.get().items) if (slot.equals(item.slot)) out.add(item);
+		return out;
+	}
+
+	private List<dev.foragingplanner.core.GameData.Perk> valuedPerks() {
+		List<dev.foragingplanner.core.GameData.Perk> out = new java.util.ArrayList<>();
+		for (var perk : Planner.data.hotf.perks) {
+			int level = Planner.config.perkLevels.getOrDefault(perk.name, 0);
+			if (perk.hasValuedEffects() && level < perk.maxLevel) out.add(perk);
+		}
+		return out;
+	}
+
+	private List<UpgradeAdvisor.Option> valuedUpgrades() {
+		List<UpgradeAdvisor.Option> out = new java.util.ArrayList<>();
+		for (UpgradeAdvisor.Option o : upgrades) if (!o.done() && (o.sweep() != 0 || o.fortune() != 0 || o.wisdom() != 0)) out.add(o);
+		return out;
+	}
+
+	/** Total stat change and cost of everything chosen on the page: {sweep, fortune, wisdom, coins, whispers}. */
+	private double[] whatIfTotals() {
+		Map<String, GearData.Item> changes = new java.util.LinkedHashMap<>();
+		double coinsCost = 0;
+		for (String slot : whatTouched) {
+			GearData.Item item = whatGear.get(slot);
+			if (item == null) continue;
+			changes.put(slot, item);
+			Double price = GearAdvisor.price(item.id);
+			if (price != null) coinsCost += price;
+		}
+		double[] d = changes.isEmpty() ? new double[3] : GearAdvisor.gearDelta(changes);
+		double whispers = 0;
+		var perks = valuedPerks();
+		if (whatPerk >= 0 && whatPerk < perks.size()) {
+			var perk = perks.get(whatPerk);
+			int level = Planner.config.perkLevels.getOrDefault(perk.name, 0);
+			int count = Math.min(PERK_STEPS[whatPerkStep], perk.maxLevel - level);
+			var stats = SkyBlockReader.stats();
+			var after = dev.foragingplanner.core.HotfPlanner.advance(Planner.data, Planner.config.perkLevels, stats, perk, count);
+			d[0] += after.sweep() - stats.sweep();
+			d[1] += after.fortune() - stats.fortune();
+			d[2] += after.wisdom() - stats.wisdom();
+			whispers = dev.foragingplanner.core.PerkMath.costBetween(perk, level, level + count);
+		}
+		var ups = valuedUpgrades();
+		if (whatUpgrade >= 0 && whatUpgrade < ups.size()) {
+			UpgradeAdvisor.Option o = ups.get(whatUpgrade);
+			d[0] += o.sweep();
+			d[1] += o.fortune();
+			d[2] += o.wisdom();
+			if (o.price() != null) coinsCost += o.price();
+		}
+		return new double[] {d[0], d[1], d[2], coinsCost, whispers};
+	}
+
+	private void whatIfClick(int index, boolean forward) {
+		int slots = GearAdvisor.SLOTS.size();
+		if (index >= 1 && index <= slots) {
+			String slot = GearAdvisor.SLOTS.get(index - 1);
+			List<GearData.Item> options = slotOptions(slot);
+			if (options.isEmpty()) return;
+			GearData.Item chosen = whatTouched.contains(slot) ? whatGear.get(slot) : null;
+			int at = chosen == null ? -1 : options.indexOf(chosen);
+			at = forward ? at + 1 : at - 1;
+			if (at >= options.size()) at = -1;
+			if (at < -1) at = options.size() - 1;
+			if (at < 0) {
+				whatGear.remove(slot);
+				whatTouched.remove(slot);
+			} else {
+				whatGear.put(slot, options.get(at));
+				whatTouched.add(slot);
+			}
+			return;
+		}
+		int extra = index - slots - 1;
+		switch (extra) {
+			case 0 -> whatPerk = cycle(whatPerk, valuedPerks().size(), forward);
+			case 1 -> whatPerkStep = Math.floorMod(whatPerkStep + (forward ? 1 : -1), PERK_STEPS.length);
+			case 2 -> whatUpgrade = cycle(whatUpgrade, valuedUpgrades().size(), forward);
+			case 3 -> {
+				whatGear.clear();
+				whatTouched.clear();
+				whatPerk = whatUpgrade = -1;
+				whatPerkStep = 0;
+			}
+			default -> { }
+		}
+	}
+
+	/** -1 (nothing) then 0..size-1, wrapping around. */
+	private static int cycle(int value, int size, boolean forward) {
+		if (size <= 0) return -1;
+		int next = value + (forward ? 1 : -1);
+		if (next >= size) return -1;
+		if (next < -1) return size - 1;
+		return next;
+	}
+
+	private void drawWhatIf(GuiGraphicsExtractor g, int index, int x, int y, double a) {
+		int slots = GearAdvisor.SLOTS.size();
+		int right = x + contentW - 10;
+		if (index == 0) {
+			double[] t = whatIfTotals();
+			Why.Estimate e = Why.estimate(t[0], t[1], t[2]);
+			roundOutline(g, x, y, contentW, rowHeight(), 7, alpha(UI_AMBER, a * 0.7));
+			iconTile(g, "comparator", x, y, rowHeight(), a);
+			g.text(font, fit(font, tr("whatif_total", Why.stats(t[0], t[1], t[2])), contentW - 150), x + 38, y + 7, alpha(UI_TEXT, a), false);
+			Why.Rates r = e.rates();
+			String rates = r.known()
+					? tr("whatif_rates", Planner.whole(r.logs() * e.logsRatio()), Why.percent(e.logsRatio()), coins(r.coins() * e.logsRatio()), Planner.whole(r.xp() * e.xpRatio()), Why.percent(e.xpRatio()))
+					: tr("whatif_per_hit", Planner.decimal(e.dropsAfter()), Why.percent(e.logsRatio()), Planner.decimal(e.xpAfter()), Why.percent(e.xpRatio()));
+			g.text(font, fit(font, rates, contentW - 50), x + 38, y + 19, alpha(UI_ACCENT, a), false);
+			String cost = tr("whatif_cost", coins(t[3]), Planner.whole(t[4]), String.format(Locale.US, "%+.2f", e.goalPercent()));
+			g.text(font, fit(font, cost, contentW - 50), x + 38, y + 31, alpha(UI_DIM, a), false);
+			return;
+		}
+		if (index <= slots) {
+			String slot = GearAdvisor.SLOTS.get(index - 1);
+			GearData.Item now = gear.get(slot);
+			boolean touched = whatTouched.contains(slot);
+			GearData.Item chosen = touched ? whatGear.get(slot) : null;
+			GearData.Item shown = chosen != null ? chosen : now;
+			iconTile(g, shown == null ? null : shown.id, shown == null ? "barrier" : shown.icon, x, y, rowHeight(), a);
+			g.text(font, tr("slot." + slot), x + 38, y + 7, alpha(UI_MUTED, a), false);
+			String line = (now == null ? tr("whatif_nothing") : now.name) + (chosen != null ? "  →  " + chosen.name : "");
+			g.text(font, fit(font, line, contentW - 150), x + 38, y + 19, alpha(chosen != null ? rarityColor(chosen.rarity) : UI_TEXT, a), false);
+			if (chosen != null) {
+				double[] d = GearAdvisor.gearDelta(Map.of(slot, chosen));
+				g.text(font, fit(font, Why.stats(d[0], d[1], d[2]), contentW - 150), x + 38, y + 31, alpha(0xFFFFFFFF, a), false);
+				Double price = GearAdvisor.price(chosen.id);
+				String p = price == null ? "?" : coins(price);
+				g.text(font, p, right - font.width(p), y + 7, alpha(UI_AMBER, a), false);
+				String gain = String.format(Locale.US, "%+.1f%%", GearAdvisor.gainPercent(d[0], d[1], d[2]));
+				g.text(font, gain, right - font.width(gain), y + 19, alpha(UI_ACCENT, a), false);
+			} else {
+				g.text(font, tr("whatif_click"), x + 38, y + 31, alpha(UI_DIM, a), false);
+			}
+			return;
+		}
+		int extra = index - slots - 1;
+		switch (extra) {
+			case 0 -> {
+				var perks = valuedPerks();
+				String name = whatPerk >= 0 && whatPerk < perks.size() ? perks.get(whatPerk).name : tr("whatif_none");
+				iconTile(g, "oak_sapling", x, y, rowHeight(), a);
+				g.text(font, tr("whatif_perk"), x + 38, y + 7, alpha(UI_MUTED, a), false);
+				g.text(font, fit(font, name, contentW - 60), x + 38, y + 19, alpha(UI_TEXT, a), false);
+				g.text(font, tr("whatif_click"), x + 38, y + 31, alpha(UI_DIM, a), false);
+			}
+			case 1 -> {
+				iconTile(g, "experience_bottle", x, y, rowHeight(), a);
+				g.text(font, tr("whatif_perk_levels"), x + 38, y + 7, alpha(UI_MUTED, a), false);
+				g.text(font, "+" + PERK_STEPS[whatPerkStep], x + 38, y + 19, alpha(UI_TEXT, a), false);
+			}
+			case 2 -> {
+				var ups = valuedUpgrades();
+				String name = whatUpgrade >= 0 && whatUpgrade < ups.size() ? ups.get(whatUpgrade).piece() + " · " + ups.get(whatUpgrade).title() : tr("whatif_none");
+				iconTile(g, "enchanted_book", x, y, rowHeight(), a);
+				g.text(font, tr("whatif_upgrade"), x + 38, y + 7, alpha(UI_MUTED, a), false);
+				g.text(font, fit(font, name, contentW - 60), x + 38, y + 19, alpha(UI_TEXT, a), false);
+				g.text(font, tr("whatif_click"), x + 38, y + 31, alpha(UI_DIM, a), false);
+			}
+			default -> {
+				iconTile(g, "barrier", x, y, rowHeight(), a);
+				g.text(font, tr("whatif_reset"), x + 38, y + 19, alpha(UI_TEXT, a), false);
+			}
+		}
 	}
 }

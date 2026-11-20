@@ -30,7 +30,7 @@ public final class SettingsShare {
 			"perkLevels", "perkSlots", "perkCurrencies", "requirements", "requiredTiers",
 			"whispers", "desertWhispers", "tokens", "hotfTier",
 			"manualStats", "manualSweep", "manualFortune", "manualWisdom", "manualStrength", "manualSpeed",
-			"leaderboardShare", "leaderboardUuid", "setupDone");
+			"leaderboardShare", "leaderboardUuid", "setupDone", "lastSeenVersion");
 
 	private SettingsShare() {}
 

@@ -94,6 +94,13 @@ public final class Commands {
                     return SUCCESS; }))
                 .then(ClientCommands.literal("undo").executes(context -> { say(context.getSource(), SettingsShare.undo() ? "share.undone" : "share.no_backup"); return SUCCESS; })));
         root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
+        root.then(ClientCommands.literal("report").executes(context -> {
+            String file = BugReport.copy();
+            say(context.getSource(), "report.copied", file);
+            return SUCCESS; }));
+        root.then(ClientCommands.literal("news").executes(context -> { Keys.openLater(() -> new WhatsNewScreen(null)); return SUCCESS; }));
+        root.then(ClientCommands.literal("timeline").executes(context -> { StatsScreen.requestOpen(12); return SUCCESS; }));
+        root.then(ClientCommands.literal("wizard").executes(context -> { Keys.openLater(() -> new WizardScreen(null)); return SUCCESS; }));
         root.then(ClientCommands.literal("check").executes(context -> { Keys.openLater(() -> new CheckScreen(null)); return SUCCESS; }));
         root.then(ClientCommands.literal("rare").executes(context -> { Keys.openLater(() -> PickerScreen.rare(null)); return SUCCESS; }));
         root.then(ClientCommands.literal("backup")

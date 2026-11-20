@@ -342,6 +342,18 @@ public final class HotfGui {
 				g.text(font, fit(font, Planner.tr("hotfgui.rank", rank, String.format(Locale.US, "%.2f", gains.getOrDefault(perk.name, 0.0))), w), x, y, alpha(UI_AMBER, open), false);
 				y += 11;
 			}
+			if (level < perk.maxLevel) {
+				try {
+					var stats = SkyBlockReader.stats();
+					var after = dev.foragingplanner.core.HotfPlanner.advance(Planner.data, Planner.config.perkLevels, stats, perk, 1);
+					String change = Why.stats(after.sweep() - stats.sweep(), after.fortune() - stats.fortune(), after.wisdom() - stats.wisdom());
+					long cost = dev.foragingplanner.core.PerkMath.costToReach(perk, level + 1);
+					g.text(font, fit(font, Planner.tr("hotfgui.why", change, Planner.whole(cost)), w), x, y, alpha(UI_MUTED, open), false);
+					y += 11;
+				} catch (RuntimeException ignored) {
+					// Data still loading.
+				}
+			}
 			y += 3;
 		}
 		// The item's own description, word-wrapped, with Hypixel's colours.

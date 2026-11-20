@@ -41,9 +41,9 @@ import dev.foragingplanner.core.TreeReport;
  * alarms and routes.
  */
 public final class StatsScreen extends ForestScreen {
-	static final String[] TABS = {"overview", "goals", "sessions", "contests", "drops", "collections", "selling", "trees", "alarms", "routes", "chapters", "leaderboard"};
+	static final String[] TABS = {"overview", "goals", "sessions", "contests", "drops", "collections", "selling", "trees", "alarms", "routes", "chapters", "leaderboard", "timeline"};
 	private static final net.minecraft.world.item.Item[] ICONS = {Items.SPYGLASS, Items.SLIME_BALL, Items.CLOCK, Items.GOLDEN_HOE,
-			Items.GOLD_INGOT, Items.CHEST, Items.EMERALD, Items.OAK_SAPLING, Items.BELL, Items.MAP, Items.WRITABLE_BOOK, Items.GOLDEN_HOE};
+			Items.GOLD_INGOT, Items.CHEST, Items.EMERALD, Items.OAK_SAPLING, Items.BELL, Items.MAP, Items.WRITABLE_BOOK, Items.GOLDEN_HOE, Items.CLOCK};
 	private static final DateTimeFormatter DATE = DateTimeFormatter.ofPattern("dd.MM. HH:mm").withZone(ZoneId.systemDefault());
 	private static final double BAZAAR_TAX = 0.0125;
 
@@ -117,6 +117,7 @@ public final class StatsScreen extends ForestScreen {
 			case 8 -> alarms();
 			case 9 -> routes();
 			case 10 -> chapters();
+			case 12 -> timeline();
 			default -> leaderboard();
 		};
 	}
@@ -766,6 +767,68 @@ public final class StatsScreen extends ForestScreen {
 		return out.toString();
 	}
 
+	// Timeline
+
+	private static String timelineFilter = "all";
+	private static final DateTimeFormatter DAY = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy").withZone(ZoneId.systemDefault());
+	private static final DateTimeFormatter CLOCK = DateTimeFormatter.ofPattern("HH:mm").withZone(ZoneId.systemDefault());
+
+	private List<Line> timeline() {
+		List<Line> out = new ArrayList<>();
+		subtitle = tr("about.timeline");
+		String[] filters = {"all", "drop", "level", "perk", "shard", "contest", "milestone"};
+		String[] labels = new String[filters.length];
+		Runnable[] pick = new Runnable[filters.length];
+		for (int i = 0; i < filters.length; i++) {
+			String f = filters[i];
+			labels[i] = (f.equals(timelineFilter) ? "● " : "") + tr("timeline_" + f);
+			pick[i] = () -> timelineFilter = f;
+		}
+		out.add(buttons(labels, pick));
+
+		List<Timeline.Entry> entries = Timeline.entries();
+		String day = "";
+		int shown = 0;
+		for (Timeline.Entry e : entries) {
+			if (!matches(e.kind())) continue;
+			if (++shown > 400) break;
+			String d = DAY.format(Instant.ofEpochMilli(e.time()));
+			if (!d.equals(day)) {
+				day = d;
+				out.add(header(d));
+			}
+			String time = CLOCK.format(Instant.ofEpochMilli(e.time()));
+			out.add(new Line(24, (g, x, y, w, a, h) -> {
+				g.fill(x + 9, y, x + 10, y + 24, alpha(0x33FFFFFF, a));
+				round(g, x + 6, y + 8, 8, 8, 4, alpha(e.color(), a));
+				if (a > 0.5) {
+					var pose = g.pose();
+					pose.pushMatrix();
+					pose.translate(x + 20, y + 4);
+					pose.scale(0.75f, 0.75f);
+					g.item(icon(e.icon()), 0, 0);
+					pose.popMatrix();
+				}
+				g.text(font, time, x + 36, y + 8, alpha(UI_DIM, a), false);
+				int tx = x + 36 + font.width("00:00") + 8;
+				int sw = e.sub().isEmpty() ? 0 : font.width(e.sub()) + 10;
+				g.text(font, fit(font, e.text(), w - (tx - x) - sw - 6), tx, y + 8, alpha(UI_TEXT, a), false);
+				if (sw > 0) g.text(font, e.sub(), x + w - 6 - font.width(e.sub()), y + 8, alpha(e.color(), a), false);
+			}, null, null, (e.text() + " " + e.sub()).toLowerCase(Locale.ROOT)));
+		}
+		if (shown == 0) out.add(text(tr("timeline_empty"), UI_DIM));
+		return out;
+	}
+
+	private static boolean matches(String kind) {
+		return switch (timelineFilter) {
+			case "all" -> true;
+			case "shard" -> kind.equals("shard") || kind.equals("attribute");
+			case "milestone" -> kind.equals("milestone") || kind.equals("goal") || kind.equals("collection");
+			default -> kind.equals(timelineFilter);
+		};
+	}
+
 	// Trees
 
 	private List<Line> trees() {
@@ -798,7 +861,8 @@ public final class StatsScreen extends ForestScreen {
 				int half = (w - 50) / 2;
 				miniBar(g, tx, y + 30, half - 6, coinsHit / cm, UI_AMBER, coins(coinsHit) + " /" + tr("hit"), a);
 				miniBar(g, tx + half, y + 30, half - 6, r.xpPerHit() / xm, UI_ACCENT, Planner.decimal(r.xpPerHit()) + " XP /" + tr("hit"), a);
-			}, null));
+				Why.badge(g, font, x + w - 14, y + 4, a, h > 0.5);
+			}, (lx, w, button) -> Why.tree(r, rows)));
 		}
 
 		out.add(header(tr("spots")));

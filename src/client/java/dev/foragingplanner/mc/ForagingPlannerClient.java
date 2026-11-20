@@ -107,13 +107,18 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				SeenNames.tick(client);
 				FirstSteps.tick(client);
 				Backups.tick();
+				Timeline.tick();
+				WhatsNew.tick(client);
                 JournalStore.tick(SkyBlockReader.inForagingArea() && client.player != null && !Afk.idle());
 				if (SkyBlockReader.inForagingArea() || SkyBlockReader.inSkyBlock()) BazaarPrices.refreshIfDue();
 				PlannerHud.rebuild();
 				Perf.add("refresh", System.nanoTime() - refreshStart);
 			} catch (RuntimeException e) {
 				// A changed Hypixel layout must never crash the game. Log it once and try again next second.
-				if (!refreshFailureLogged) Planner.LOGGER.warn("Refresh failed", e);
+				if (!refreshFailureLogged) {
+					Planner.LOGGER.warn("Refresh failed", e);
+					BugReport.noticed(e);
+				}
 				refreshFailureLogged = true;
 			}
 		});

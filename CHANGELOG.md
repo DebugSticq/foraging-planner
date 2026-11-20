@@ -27,6 +27,12 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Calmer cards**: priority per kind (rare drops first), identical cards merge into "×N", each kind can be turned off, and during a contest only rare drops and alarms show
 - New key bindings (unbound by default): statistics, gear, detection check, tree navigator on/off, HUD on/off
 - Session chart in Statistics can show XP/h, logs/h, gifts/h or coins/h, with a trend line, average and comparison of the last session
+- **"Why?" explanations**: an ⓘ on every gear suggestion, reforge and enchant, every tree in Statistics > Trees and a "Why?" button in the perk tree show the numbers behind the advice: stat change, gain for your goal, drops and XP per hit, logs/coins/XP per hour from your sessions, price, gain per million coins and payback time. The custom /hotf menu shows the next level's stats and cost
+- **What-if calculator** (gear menu): try other gear per slot, extra perk levels and a reforge or enchant and see the combined stat change, logs/h, coins/h, XP/h and the cost before buying anything
+- **Timeline** in Statistics (`/fp timeline`): Foraging levels, perk levels, attributes, new shards, collection tiers, milestones, contests and rare drops by day, with filters
+- **Setup assistant** in five live-checked steps: SkyBlock, stats from the tab list, /hotf, Hunting Box and attributes, resource pack (`/fp wizard`, also after the first setup)
+- **Bug report in one click** (detection check or `/fp report`): versions, check results, other mods, settings code and the mod's log lines, with player name, UUID, IPs and user folders removed; copied and saved as a file. When something fails the mod suggests it once
+- **What's new** after an update: a card and a chat link once, the full list with jumps to each setting on `/fp news`
 - **Share settings**: copy all settings as one line of text and paste them elsewhere (Settings > Online or `/fp settings export|import|undo`). Personal data is left out, a backup is made before pasting
 
 ### Fixed

@@ -192,6 +192,8 @@ public final class ModConfig {
     public boolean autoBackup = true;
     public boolean hoverDetails = true;
     public boolean firstSteps = true;
+    /** Mod version whose "What's new" card was shown; empty on a fresh install. */
+    public String lastSeenVersion = "";
     public String activePreset = "farm";
     public Map<String, Map<String, HudLayout>> presets = new LinkedHashMap<>();
     public static class HudLayout {

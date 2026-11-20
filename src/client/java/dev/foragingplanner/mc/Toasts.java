@@ -100,6 +100,9 @@ public final class Toasts {
 	}
 
 	private static void show(Kind kind, String icon, String title, String text, boolean hint) {
+		if (!hint && (kind == Kind.MILESTONE || kind == Kind.GOAL)) {
+			Timeline.add(kind == Kind.GOAL ? "goal" : "milestone", icon, Planner.strip(title) + (text.isEmpty() ? "" : " · " + Planner.strip(text)));
+		}
 		if (!Planner.config.toasts) return;
 		if (Planner.config.toastChat) JournalStore.notify(title + " §7" + text);
 		if (!hint && !allowed(kind)) return;

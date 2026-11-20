@@ -37,6 +37,10 @@ public final class Progress {
 	public List<String> seenMobs = new ArrayList<>();
 	/** First-steps hints that were already shown. */
 	public List<String> hintsSeen = new ArrayList<>();
+	/** Progress events for the timeline (levels, perks, attributes, shards, collections, milestones). */
+	public List<Event> timeline = new ArrayList<>();
+	/** Last known values the timeline compares against, e.g. "perk:Sweep Mastery" -> 4. */
+	public Map<String, Integer> timelineSeen = new LinkedHashMap<>();
 	public double giftsAtLastRare = -1;
 	public Set<String> milestones = new LinkedHashSet<>();
 	public boolean milestonesPrimed;
@@ -138,6 +142,14 @@ public final class Progress {
 		public List<int[]> samples = new ArrayList<>();
 	}
 
+	public static final class Event {
+		public long time;
+		/** level, perk, attribute, shard, collection, milestone, goal, contest. */
+		public String kind = "";
+		public String icon = "paper";
+		public String text = "";
+	}
+
 	public static final class Drop {
 		public String id = "";
 		public String name = "";
@@ -189,6 +201,8 @@ public final class Progress {
 		if (p.seenItems == null) p.seenItems = new LinkedHashMap<>();
 		if (p.seenMobs == null) p.seenMobs = new ArrayList<>();
 		if (p.hintsSeen == null) p.hintsSeen = new ArrayList<>();
+		if (p.timeline == null) p.timeline = new ArrayList<>();
+		if (p.timelineSeen == null) p.timelineSeen = new LinkedHashMap<>();
 		if (p.milestones == null) p.milestones = new LinkedHashSet<>();
 		if (p.watches == null) p.watches = new ArrayList<>();
 		if (p.huntingBox == null) p.huntingBox = new LinkedHashMap<>();

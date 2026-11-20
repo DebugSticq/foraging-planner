@@ -110,6 +110,15 @@ public final class SettingsScreen extends Screen {
 		this.parent = parent;
 	}
 
+	private String initialQuery;
+
+	/** Opens the settings with a search for one setting, e.g. from the "What's new" card. */
+	public static SettingsScreen showing(Screen parent, String settingName) {
+		SettingsScreen screen = new SettingsScreen(parent);
+		screen.initialQuery = Planner.tr("settings." + settingName);
+		return screen;
+	}
+
 	public static void register() {
 		ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
 			if (screen instanceof TitleScreen || screen instanceof PauseScreen) {
@@ -168,6 +177,12 @@ public final class SettingsScreen extends Screen {
 				pageNs = System.nanoTime();
 				init();
 			});
+		}
+		if (initialQuery != null) {
+			String q = initialQuery;
+			initialQuery = null;
+			searchBox.setValue(q);
+			return;
 		}
 		addWidget(searchBox);
 		rows.clear();
@@ -244,6 +259,8 @@ public final class SettingsScreen extends Screen {
 			case "display" -> {
 				new ActionRow("setup", "open", Items.NETHER_STAR, () -> minecraft.gui.setScreen(new SetupScreen(this)));
 				new ActionRow("check", "open", Items.SPYGLASS, () -> minecraft.gui.setScreen(new CheckScreen(this)));
+				new ActionRow("wizard", "open", Items.COMPASS, () -> minecraft.gui.setScreen(new WizardScreen(this)));
+				new ActionRow("whats_new", "open", Items.WRITABLE_BOOK, () -> minecraft.gui.setScreen(new WhatsNewScreen(this)));
 				Row hud = new ToggleRow("hud", Items.PAINTING, () -> c.hudEnabled, value -> c.hudEnabled = value);
 				sub(hud, () -> {
 					Row position = new ActionRow("position", "move", Items.COMPASS, () -> minecraft.gui.setScreen(new HudEditorScreen(this)));

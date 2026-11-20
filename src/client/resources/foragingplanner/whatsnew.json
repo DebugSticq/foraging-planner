@@ -1,0 +1,15 @@
+{
+  "1.0.5": [
+    {"icon": "name_tag", "open": "rare", "de": "Seltene Drops aus einer Liste mit Preisen wählen: immer, nie oder automatisch nach Wert", "en": "Choose rare drops from a list with prices: always, never or automatic by value"},
+    {"icon": "spyglass", "open": "check", "de": "Erkennungs-Check zeigt, was die Mod lesen kann, und erstellt Fehlerberichte", "en": "Detection check shows what the mod can read and makes bug reports"},
+    {"icon": "compass", "open": "wizard", "de": "Einrichtungs-Assistent in fünf Schritten", "en": "Setup assistant in five steps"},
+    {"icon": "comparator", "open": "gear:6", "de": "Was-wäre-wenn-Rechner in der Ausrüstung: Teile, Perks und Reforges probeweise tauschen", "en": "What-if calculator in the gear menu: try parts, perks and reforges"},
+    {"icon": "book", "open": "gear:0", "de": "ⓘ an jedem Vorschlag erklärt die Rechnung dahinter", "en": "ⓘ on every suggestion explains the numbers behind it"},
+    {"icon": "clock", "open": "stats:12", "de": "Zeitleiste mit Levels, Perks, Shards, Contests und seltenen Drops", "en": "Timeline with levels, perks, shards, contests and rare drops"},
+    {"icon": "chest", "open": "setting:auto_backup", "de": "Automatische Backups von Statistiken und Einstellungen", "en": "Automatic backups of statistics and settings"},
+    {"icon": "filled_map", "open": "setting:preset_place_galatea", "de": "HUD-Layout pro Ort, Einrasten und Raster im HUD-Editor", "en": "HUD layout per place, snapping and grid in the HUD editor"},
+    {"icon": "golden_hoe", "open": "setting:toast_quiet_contest", "de": "Ruhigere Karten: Priorität, ×N statt Kopien, Ruhe im Contest", "en": "Calmer cards: priority, ×N instead of copies, quiet during contests"},
+    {"icon": "iron_axe", "open": "setting:axe_skin", "de": "Eigene 3D-Axt-Looks mit Animationen", "en": "Custom animated 3D axe looks"},
+    {"icon": "oak_sapling", "open": "setting:custom_hotf", "de": "Eigenes /hotf-Menü mit den besten Upgrades in Gold", "en": "Custom /hotf menu with the best upgrades in gold"}
+  ]
+}

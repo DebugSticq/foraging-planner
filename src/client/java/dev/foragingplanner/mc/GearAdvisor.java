@@ -465,6 +465,24 @@ public final class GearAdvisor {
 		return new Result(picks, locked, level, totalCost, combinedGain, bySlot);
 	}
 
+	/** Stat change {sweep, fortune, wisdom} from swapping the given slots (slot to item, null = take off). */
+	public static double[] gearDelta(Map<String, GearData.Item> changes) {
+		Map<String, GearData.Item> now = current();
+		Map<String, GearData.Item> after = new LinkedHashMap<>(now);
+		changes.forEach((slot, item) -> {
+			if (item == null) after.remove(slot);
+			else after.put(slot, item);
+		});
+		int digits = GearData.get().assumptions.mangroveDigits;
+		PlayerStats a = statsFromGear(now, digits), b = statsFromGear(after, digits);
+		return new double[] {b.sweep() - a.sweep(), b.fortune() - a.fortune(), b.wisdom() - a.wisdom()};
+	}
+
+	/** Price of one item: Bazaar first, then the auction house; null when unknown. */
+	public static Double price(String id) {
+		return priceOf(id);
+	}
+
 	/** Improvement of the goal in percent for a change of the player's stats (Jade Dragon scaling included). */
 	public static double gainPercent(double sweep, double fortune, double wisdom) {
 		GearData data = GearData.get();

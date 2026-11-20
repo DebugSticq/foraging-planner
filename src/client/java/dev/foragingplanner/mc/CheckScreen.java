@@ -61,13 +61,8 @@ public final class CheckScreen extends ForestScreen {
 		return page == 0 ? check() : backups();
 	}
 
-	/** ok = 1 green, 0 amber (works, but could be better), -1 red (missing). */
-	private Line status(String icon, String key, int ok, String detail) {
-		String mark = ok > 0 ? "✔" : ok == 0 ? "!" : "✘";
-		int color = ok > 0 ? UI_ACCENT : ok == 0 ? UI_AMBER : UI_DANGER;
-		String sub = ok > 0 ? detail : tr(key + "_fix") + (detail.isEmpty() ? "" : " · " + detail);
-		return row(icon, tr(key), sub, mark, color, null);
-	}
+	/** One checked thing. ok = 1 green, 0 amber (works, but could be better), -1 red (missing); section starts a group. */
+	record Status(String section, String icon, String key, int ok, String detail) {}
 
 	private static String age(long ms) {
 		if (ms <= 0) return tr("never");
@@ -77,53 +72,75 @@ public final class CheckScreen extends ForestScreen {
 		return tr("days_ago", min / 1440);
 	}
 
-	private List<Line> check() {
-		List<Line> out = new ArrayList<>();
-		subtitle = tr("about");
+	static List<Status> statuses() {
+		List<Status> out = new ArrayList<>();
 		Minecraft mc = Minecraft.getInstance();
 		Progress p = Progress.get();
 		ModConfig c = Planner.config;
 
-		out.add(header(tr("section_game")));
 		boolean sky = SkyBlockReader.inSkyBlock();
-		out.add(status("grass_block", "skyblock", sky ? 1 : -1, sky ? String.valueOf(SkyBlockReader.area()) : ""));
+		out.add(new Status("section_game", "grass_block", "skyblock", sky ? 1 : -1, sky ? String.valueOf(SkyBlockReader.area()) : ""));
 		boolean forest = SkyBlockReader.inForagingArea();
-		out.add(status("oak_log", "area", forest ? 1 : 0, forest ? HudPresets.place() : ""));
+		out.add(new Status(null, "oak_log", "area", forest ? 1 : 0, forest ? HudPresets.place() : ""));
 		boolean stats = SkyBlockReader.statsKnown();
-		out.add(status("iron_axe", "stats", stats ? 1 : -1, stats ? tr("stats_value", Planner.whole(SkyBlockReader.stats().sweep()), Planner.whole(SkyBlockReader.stats().fortune())) : ""));
-		out.add(status("sunflower", "profile", ProfileStore.label().isEmpty() ? 0 : 1, ProfileStore.label()));
+		out.add(new Status(null, "iron_axe", "stats", stats ? 1 : -1, stats ? tr("stats_value", Planner.whole(SkyBlockReader.stats().sweep()), Planner.whole(SkyBlockReader.stats().fortune())) : ""));
+		String profile = ProfileStore.label() == null ? "" : ProfileStore.label();
+		out.add(new Status(null, "sunflower", "profile", profile.isEmpty() ? 0 : 1, profile));
 
-		out.add(header(tr("section_menus")));
-		out.add(status("oak_sapling", "hotf", c.perkLevels.isEmpty() ? -1 : 1, tr("count_age", c.perkLevels.size(), age(p.hotfRead))));
-		out.add(status("chest", "hunting_box", p.huntingBoxRead == 0 ? -1 : 1, tr("count_age", p.huntingBox.size(), age(p.huntingBoxRead))));
-		out.add(status("prismarine_shard", "attributes", p.attributeLevels.isEmpty() ? -1 : 1, tr("count", p.attributeLevels.size())));
+		out.add(new Status("section_menus", "oak_sapling", "hotf", c.perkLevels.isEmpty() ? -1 : 1, tr("count_age", c.perkLevels.size(), age(p.hotfRead))));
+		out.add(new Status(null, "chest", "hunting_box", p.huntingBoxRead == 0 ? -1 : 1, tr("count_age", p.huntingBox.size(), age(p.huntingBoxRead))));
+		out.add(new Status(null, "prismarine_shard", "attributes", p.attributeLevels.isEmpty() ? -1 : 1, tr("count", p.attributeLevels.size())));
 		int worn = 0;
 		if (mc.player != null) {
 			for (EquipmentSlot slot : new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
 				if (!GearAdvisor.itemId(mc.player.getItemBySlot(slot)).isEmpty()) worn++;
 			}
 		}
-		out.add(status("iron_chestplate", "armor", worn == 4 ? 1 : 0, tr("count", worn)));
-		out.add(status("book", "collections", p.collections.isEmpty() ? -1 : 1, tr("count", p.collections.size())));
+		out.add(new Status(null, "iron_chestplate", "armor", worn == 4 ? 1 : 0, tr("count", worn)));
+		out.add(new Status(null, "book", "collections", p.collections.isEmpty() ? -1 : 1, tr("count", p.collections.size())));
 
-		out.add(header(tr("section_data")));
 		int bz = BazaarPrices.BUY.size();
-		out.add(status("emerald", "bazaar", bz > 100 ? 1 : bz > 0 ? 0 : -1, tr("count", bz)));
+		out.add(new Status("section_data", "emerald", "bazaar", bz > 100 ? 1 : bz > 0 ? 0 : -1, tr("count", bz)));
 		int pack = LegacyItems.packIndexSize();
-		out.add(status("painting", "pack", pack > 0 ? 1 : 0, tr("count", pack)));
-		out.add(status("name_tag", "seen", p.seenItems.size() + p.seenMobs.size() > 0 ? 1 : 0, tr("seen_value", p.seenItems.size(), p.seenMobs.size())));
-		out.add(status("gold_ingot", "leaderboard", !c.leaderboardShare ? 1 : Leaderboard.verified() ? 1 : 0,
+		out.add(new Status(null, "painting", "pack", pack > 0 ? 1 : 0, tr("count", pack)));
+		out.add(new Status(null, "name_tag", "seen", p.seenItems.size() + p.seenMobs.size() > 0 ? 1 : 0, tr("seen_value", p.seenItems.size(), p.seenMobs.size())));
+		out.add(new Status(null, "gold_ingot", "leaderboard", !c.leaderboardShare ? 1 : Leaderboard.verified() ? 1 : 0,
 				c.leaderboardShare ? (Leaderboard.verified() ? tr("verified") : "") : tr("off")));
-		out.add(status("feather", "perf", Perf.light() ? 0 : 1, Perf.light() ? tr("light_on") : tr("light_off")));
+		out.add(new Status(null, "feather", "perf", Perf.light() ? 0 : 1, Perf.light() ? tr("light_on") : tr("light_off")));
 		List<String> backups = Backups.list();
-		out.add(status("chest", "backup", backups.isEmpty() ? (c.autoBackup ? 0 : -1) : 1, backups.isEmpty() ? "" : Backups.pretty(backups.get(0))));
+		out.add(new Status(null, "chest", "backup", backups.isEmpty() ? (c.autoBackup ? 0 : -1) : 1, backups.isEmpty() ? "" : Backups.pretty(backups.get(0))));
+		return out;
+	}
 
+	/** Plain text lines for the bug report. */
+	static List<String> reportLines() {
+		List<String> out = new ArrayList<>();
+		for (Status st : statuses()) {
+			String mark = st.ok() > 0 ? "OK" : st.ok() == 0 ? "WARN" : "MISSING";
+			out.add(mark + " " + Planner.strip(tr(st.key())) + (st.detail().isEmpty() ? "" : ": " + Planner.strip(st.detail())));
+		}
+		return out;
+	}
+
+	private Line status(Status st) {
+		String mark = st.ok() > 0 ? "✔" : st.ok() == 0 ? "!" : "✘";
+		int color = st.ok() > 0 ? UI_ACCENT : st.ok() == 0 ? UI_AMBER : UI_DANGER;
+		String sub = st.ok() > 0 ? st.detail() : tr(st.key() + "_fix") + (st.detail().isEmpty() ? "" : " · " + st.detail());
+		return row(st.icon(), tr(st.key()), sub, mark, color, null);
+	}
+
+	private List<Line> check() {
+		List<Line> out = new ArrayList<>();
+		subtitle = tr("about");
+		for (Status st : statuses()) {
+			if (st.section() != null) out.add(header(tr(st.section())));
+			out.add(status(st));
+		}
 		out.add(spacer(4));
-		out.add(button(tr("copy_report"), () -> {
-			StringBuilder b = new StringBuilder("Foraging Planner " + ModVersion.get() + " check\n");
-			for (Line line : check()) if (line.key() != null) b.append(line.key().trim()).append('\n');
-			Minecraft.getInstance().keyboardHandler.setClipboard(b.toString());
-			Toasts.show(Toasts.Kind.INFO, "paper", tr("copied"), "");
+		out.add(button(tr("open_wizard"), () -> minecraft.gui.setScreen(new WizardScreen(this))));
+		out.add(button(tr("bug_report"), () -> {
+			String file = BugReport.copy();
+			Toasts.show(Toasts.Kind.INFO, "writable_book", tr("bug_report_copied"), file.isEmpty() ? "" : tr("bug_report_saved", file));
 		}));
 		return out;
 	}
