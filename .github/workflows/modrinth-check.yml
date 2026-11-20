@@ -18,17 +18,13 @@ jobs:
             echo "::error::Secret MODRINTH_TOKEN is missing (Settings > Secrets and variables > Actions)."
             exit 1
           fi
-          USER=$(curl -sS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" https://api.modrinth.com/v2/user | jq -r '.username // empty')
-          if [ -z "$USER" ]; then
-            echo "::error::Modrinth does not accept the token. Create a new one with 'Create versions' and 'Read projects'."
-            exit 1
-          fi
-          echo "Token OK, Modrinth user: $USER"
-          PROJECT=$(curl -sS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT")
-          ID=$(echo "$PROJECT" | jq -r '.id // empty')
-          if [ -z "$ID" ]; then
-            echo "::error::Project '$MODRINTH_PROJECT' not found. Create it on Modrinth or set the MODRINTH_PROJECT variable to its slug."
-            exit 1
-          fi
-          echo "$PROJECT" | jq '{id, slug, title, status, loaders, game_versions}'
-          echo "Everything is ready for release.bat."
+          # Only scopes the release needs are used (no "Read user data"), so check with the project itself.
+          CODE=$(curl -sS -o project.json -w "%{http_code}" -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT")
+          case "$CODE" in
+            200) ;;
+            401) echo "::error::Modrinth does not accept the token (invalid or expired). Create a new one with 'Create versions' and 'Read projects'."; exit 1 ;;
+            404) echo "::error::Project '$MODRINTH_PROJECT' not found. Create it on Modrinth or set the MODRINTH_PROJECT variable to its slug. (Without 'Read projects' a draft is not found either.)"; exit 1 ;;
+            *) echo "::error::Modrinth answered HTTP $CODE"; cat project.json; exit 1 ;;
+          esac
+          jq '{id, slug, title, status, loaders, game_versions}' project.json
+          echo "Token and project OK. Everything is ready for release.bat."
