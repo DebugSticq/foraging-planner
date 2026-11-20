@@ -268,7 +268,6 @@ public final class SettingsScreen extends Screen {
 						new ToggleRow("hud_snap", Items.LODESTONE, () -> c.hudSnap, value -> c.hudSnap = value);
 						new ToggleRow("hud_grid", Items.MAP, () -> c.hudGrid, value -> c.hudGrid = value);
 					});
-					new ToggleRow("animations", Items.GLOW_BERRIES, () -> c.animations, value -> c.animations = value);
 					new ToggleRow("rates", Items.EXPERIENCE_BOTTLE, () -> c.showRates, value -> c.showRates = value);
 					new ActionRow("session", "reset", Items.CLOCK, SessionRates::reset);
 				});
@@ -487,6 +486,21 @@ public final class SettingsScreen extends Screen {
 				sub(backup, () -> new ActionRow("backups", "open", Items.CHEST, () -> minecraft.gui.setScreen(new CheckScreen(this, 1))));
 			}
 			case "style" -> {
+				Row motion = new ToggleRow("animations", Items.GLOW_BERRIES, () -> c.animations, value -> c.animations = value);
+				sub(motion, () -> {
+					new ToggleRow("anim_pages", Items.PAPER, () -> c.animPages, value -> c.animPages = value);
+					new ToggleRow("anim_numbers", Items.CLOCK, () -> c.animNumbers, value -> c.animNumbers = value);
+					new ToggleRow("anim_bars", Items.EXPERIENCE_BOTTLE, () -> c.animBars, value -> c.animBars = value);
+					new ToggleRow("anim_checks", Items.SLIME_BALL, () -> c.animChecks, value -> c.animChecks = value);
+				});
+				Row sounds = new ToggleRow("ui_sounds", Items.NOTE_BLOCK, () -> c.uiSounds, value -> c.uiSounds = value);
+				sub(sounds, () -> {
+					new SliderRow("ui_sound_volume", Items.JUKEBOX, 0, 100, 10, "%", () -> c.uiSoundVolume, value -> c.uiSoundVolume = value);
+					new ToggleRow("ui_hover_sounds", Items.FEATHER, () -> c.uiHoverSounds, value -> c.uiHoverSounds = value);
+					new ActionRow("ui_sound_test", "play", Items.BELL, () -> {
+						UiSound.success();
+					});
+				});
 				new SliderRow("hud_radius", Items.SNOWBALL, 0, 12, 1, "px", () -> c.hudRadius, value -> c.hudRadius = value);
 				new SliderRow("hud_opacity", Items.SPYGLASS, 0, 100, 5, "%", () -> c.hudOpacity, value -> c.hudOpacity = value);
 				new ColorRow("hud_color", Items.INK_SAC, BACKGROUNDS, () -> c.hudColor, value -> c.hudColor = value);
@@ -607,7 +621,7 @@ public final class SettingsScreen extends Screen {
 	}
 
 	private void playClick() {
-		AbstractWidget.playButtonClickSound(minecraft.getSoundManager());
+		UiSound.click();
 	}
 
 	private static boolean inside(double mx, double my, int x, int y, int w, int h) {
@@ -735,7 +749,7 @@ public final class SettingsScreen extends Screen {
 	}
 
 	private void drawHeader(GuiGraphicsExtractor g, long now, double open) {
-		double appear = animated() ? easeOut((now - pageNs) / 220e6) : 1;
+		double appear = Motion.pages() ? easeOut((now - pageNs) / 220e6) : 1;
 		int shift = (int) Math.round((1 - appear) * 8);
 		double a = open * appear;
 
@@ -789,7 +803,7 @@ public final class SettingsScreen extends Screen {
 		for (Row row : shown) {
 			int y = rowY(row);
 			boolean inView = y + ROW_HEIGHT > viewTop && y < viewBottom;
-			double appear = (animated() ? easeOut((now - pageNs - row.index * 35e6) / 240e6) : 1) * row.reveal;
+			double appear = (Motion.pages() ? easeOut((now - pageNs - row.index * 35e6) / 240e6) : 1) * row.reveal;
 			double edge = Math.clamp(Math.min((y + ROW_HEIGHT - viewTop) / 14.0, (viewBottom - y) / 14.0), 0.0, 1.0);
 			double a = open * appear * edge;
 			row.hide(!inView || a < 0.6);
@@ -801,6 +815,12 @@ public final class SettingsScreen extends Screen {
 			int x = contentX + indent + (int) Math.round((1 - appear) * 14);
 			boolean hovered = !draggingBar && row.usable() && inside(mouseX, mouseY, contentX + indent, Math.max(y, viewTop), w,
 					Math.min(y + ROW_HEIGHT, viewBottom) - Math.max(y, viewTop));
+			if (hovered && hoverSoundRow != row) {
+				hoverSoundRow = row;
+				UiSound.hover();
+			} else if (!hovered && hoverSoundRow == row) {
+				hoverSoundRow = null;
+			}
 			row.hover = animated() ? approach(row.hover, hovered ? 1 : 0, dt, 16) : hovered ? 1 : 0;
 			boolean expanded = EXPANDED.contains(row.key);
 			row.turn = animated() ? approach(row.turn, expanded ? 1 : 0, dt, 16) : expanded ? 1 : 0;
@@ -841,7 +861,7 @@ public final class SettingsScreen extends Screen {
 		drawTip(g, now, open);
 	}
 
-	private Row tipRow, tipCandidate;
+	private Row tipRow, tipCandidate, hoverSoundRow;
 	private long tipSince;
 	private int tipX, tipY;
 
@@ -1072,7 +1092,7 @@ public final class SettingsScreen extends Screen {
 		for (int i = 0; i < PAGES.length; i++) {
 			if (inside(mx, my, panelX + 10, navTop + i * NAV_STEP, sideW - 12, NAV_HEIGHT)) {
 				if (i != page) {
-					playClick();
+					UiSound.page();
 					switchPage(i);
 				}
 
@@ -1105,8 +1125,9 @@ public final class SettingsScreen extends Screen {
 
 				if (!(row instanceof NumberRow) && !(row instanceof TextRow)) setFocused(null);
 
+				long before = UiSound.stamp();
 				if (row.click(mx, my, contentX + contentW - 10, y + ROW_HEIGHT / 2)) {
-					playClick();
+					if (UiSound.stamp() == before) playClick();
 					markDirty();
 					PlannerHud.rebuild();
 				}
@@ -1305,13 +1326,19 @@ public final class SettingsScreen extends Screen {
 			int x = right - 28;
 			int y = midY - 7;
 			round(g, x, y, 28, 14, 7, alpha(mixArgb(UI_SWITCH_OFF, UI_ACCENT, knob), a));
-			int knobX = x + 2 + (int) Math.round(knob * 14);
-			round(g, knobX, y + 2, 10, 10, 5, alpha(UI_KNOB, a));
+			// The knob grows a little while it travels to "on", and a tick fades in behind it.
+			double grow = on && Motion.checks() ? 1 + 0.3 * Math.sin(Math.clamp(knob, 0, 1) * Math.PI) : 1;
+			int ks = (int) Math.round(10 * grow);
+			int knobX = x + 2 + (int) Math.round(knob * 14) - (ks - 10) / 2;
+			if (knob > 0.6) g.text(font, "✓", x + 4, y + 3, alpha(0xFFFFFFFF, a * (knob - 0.6) / 0.4), false);
+			round(g, knobX, y + 2 - (ks - 10) / 2, ks, ks, ks / 2, alpha(UI_KNOB, a));
 		}
 
 		@Override
 		boolean click(double mouseX, double mouseY, int right, int midY) {
-			set.accept(!get.getAsBoolean());
+			boolean next = !get.getAsBoolean();
+			set.accept(next);
+			UiSound.toggle(next);
 			return true;
 		}
 	}

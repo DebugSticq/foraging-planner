@@ -33,6 +33,8 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Setup assistant** in five live-checked steps: SkyBlock, stats from the tab list, /hotf, Hunting Box and attributes, resource pack (`/fp wizard`, also after the first setup)
 - **Bug report in one click** (detection check or `/fp report`): versions, check results, other mods, settings code and the mod's log lines, with player name, UUID, IPs and user folders removed; copied and saved as a file. When something fails the mod suggests it once
 - **What's new** after an update: a card and a chat link once, the full list with jumps to each setting on `/fp news`
+- **Smoother menus**: pages and rows slide in, numbers count up when a page opens, bars fill with a shimmer, ticks and switches pop. Each can be turned off (Settings > Style > Animations)
+- **Menu sounds**: quiet click, page turn, switch, success and error sounds in all mod menus, with volume and an optional very quiet hover tick (Settings > Style > Menu sounds)
 - **Share settings**: copy all settings as one line of text and paste them elsewhere (Settings > Online or `/fp settings export|import|undo`). Personal data is left out, a backup is made before pasting
 
 ### Fixed

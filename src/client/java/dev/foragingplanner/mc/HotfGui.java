@@ -416,7 +416,7 @@ public final class HotfGui {
 	}
 
 	private static void sound() {
-		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.35f));
+		UiSound.click();
 	}
 
 	private static boolean inside(double mx, double my, int x, int y, int w, int h) {

@@ -1531,5 +1531,21 @@
   "foragingplanner.settings.wizard": "Einrichtungs-Assistent",
   "foragingplanner.settings.wizard.hint": "Fünf Schritte: SkyBlock, Werte, HOTF, Hunting Box, Paket.",
   "foragingplanner.settings.whats_new": "Was ist neu",
-  "foragingplanner.settings.whats_new.hint": "Neuerungen dieser Version mit Sprung zur Einstellung."
+  "foragingplanner.settings.whats_new.hint": "Neuerungen dieser Version mit Sprung zur Einstellung.",
+  "foragingplanner.settings.anim_pages": "Seiten gleiten hinein",
+  "foragingplanner.settings.anim_pages.hint": "Neue Seiten und Zeilen gleiten nacheinander ins Bild.",
+  "foragingplanner.settings.anim_numbers": "Zahlen zählen hoch",
+  "foragingplanner.settings.anim_numbers.hint": "Werte zählen beim Öffnen einer Seite kurz von 0 hoch.",
+  "foragingplanner.settings.anim_bars": "Balken füllen sich",
+  "foragingplanner.settings.anim_bars.hint": "Fortschrittsbalken füllen sich weich, mit Lichtschimmer.",
+  "foragingplanner.settings.anim_checks": "Häkchen ploppen",
+  "foragingplanner.settings.anim_checks.hint": "Häkchen und Schalter springen kurz auf, wenn sie angehen.",
+  "foragingplanner.settings.ui_sounds": "Menü-Sounds",
+  "foragingplanner.settings.ui_sounds.hint": "Leise Klick-, Seiten-, Schalter- und Erfolgs-Töne in den Mod-Menüs.",
+  "foragingplanner.settings.ui_sound_volume": "Lautstärke",
+  "foragingplanner.settings.ui_sound_volume.hint": "Wie laut die Menü-Sounds sind.",
+  "foragingplanner.settings.ui_hover_sounds": "Ton beim Drüberfahren",
+  "foragingplanner.settings.ui_hover_sounds.hint": "Ein ganz leises Ticken, wenn die Maus auf etwas Klickbares kommt.",
+  "foragingplanner.settings.ui_sound_test": "Sound testen",
+  "foragingplanner.settings.ui_sound_test.hint": "Spielt den Erfolgs-Ton mit der eingestellten Lautstärke."
 }

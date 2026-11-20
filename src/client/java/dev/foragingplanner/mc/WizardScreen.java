@@ -79,11 +79,16 @@ public final class WizardScreen extends ForestScreen {
 		return tr("footer");
 	}
 
+	/** Last known state per step, so finishing a step while the screen is open gets a little sound. */
+	private final int[] lastStates = {-2, -2, -2, -2, -2};
+
 	@Override
 	protected List<Line> build(int page) {
 		List<Line> out = new ArrayList<>();
 		String step = STEPS[page];
 		int st = state(page);
+		if (lastStates[page] != -2 && lastStates[page] < 1 && st == 1) UiSound.success();
+		lastStates[page] = st;
 		subtitle = tr("about_" + step);
 
 		String mark = st > 0 ? "✔" : st == 0 ? "!" : "✘";

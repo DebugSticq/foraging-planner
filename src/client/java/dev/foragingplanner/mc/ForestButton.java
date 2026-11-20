@@ -31,6 +31,17 @@ public final class ForestButton extends Button {
         return this;
     }
 
+    @Override
+    public void playDownSound(net.minecraft.client.sounds.SoundManager manager) {
+        // The mod's own quieter click; with menu sounds off, the normal Minecraft click.
+        if (Planner.config.uiSounds) {
+            if (toggle) UiSound.toggle(!selected.getAsBoolean());
+            else UiSound.click();
+        } else {
+            super.playDownSound(manager);
+        }
+    }
+
     public ForestButton toggle() { toggle = true; return this; }
     public ForestButton navigation() { navigation = true; return this; }
 

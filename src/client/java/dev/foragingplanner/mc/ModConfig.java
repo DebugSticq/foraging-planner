@@ -19,6 +19,12 @@ public final class ModConfig {
 	public int hudX = 4;
 	public int hudY = 40;
     public boolean animations = true;
+    /** Pages slide in, numbers count up, bars fill, ticks pop (each only while animations are on). */
+    public boolean animPages = true, animNumbers = true, animBars = true, animChecks = true;
+    /** Quiet click, page, switch and success sounds in the mod's menus. */
+    public boolean uiSounds = true;
+    public int uiSoundVolume = 70;
+    public boolean uiHoverSounds = false;
     public boolean learnSweep = true;
     public boolean showRates = true;
     public boolean helixGuide = true;

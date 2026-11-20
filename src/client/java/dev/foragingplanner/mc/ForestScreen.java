@@ -211,11 +211,35 @@ public abstract class ForestScreen extends Screen {
 		ripples.clear();
 		setFocused(null);
 		rebuild();
-		click();
+		UiSound.page();
 	}
 
 	protected void click() {
-		minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.35f));
+		UiSound.click();
+	}
+
+	/** When a tick was first shown, so it pops in once. */
+	private final Map<String, Long> ticks = new HashMap<>();
+	private String hoverSoundKey = "";
+
+	/** The right-hand text of a row, counted up and with a popping tick. */
+	private void drawRight(GuiGraphicsExtractor g, String right, int rx, int y, int color, double a, String key) {
+		String text = Motion.countUp(right, pageNs);
+		if (right.startsWith("✔") && Motion.checks()) {
+			long since = ticks.computeIfAbsent(key, k -> Math.max(System.nanoTime(), pageNs + 120_000_000L));
+			double s = Motion.pop(since);
+			if (s <= 0.01) return;
+			var pose = g.pose();
+			pose.pushMatrix();
+			float cx = rx + font.width(right) / 2f, cy = y + 4;
+			pose.translate(cx, cy);
+			pose.scale((float) s, (float) s);
+			pose.translate(-cx, -cy);
+			g.text(font, text, rx, y, alpha(color, a));
+			pose.popMatrix();
+			return;
+		}
+		g.text(font, text, rx, y, alpha(color, a));
 	}
 
 	// Row helpers
@@ -281,7 +305,7 @@ public abstract class ForestScreen extends Screen {
 			int rw = right == null ? 0 : font.width(right) + 14;
 			g.text(font, fit(font, title, w - (tx - x) - rw - 4), tx, y + (sub == null ? 12 : 6) - lift, alpha(UI_TEXT, a));
 			if (sub != null) g.text(font, fit(font, sub, w - (tx - x) - rw - 4), tx, y + 18 - lift, alpha(UI_MUTED, a), false);
-			if (right != null) g.text(font, right, x + w - 9 - font.width(right), y + 12 - lift, alpha(rightColor, a));
+			if (right != null) drawRight(g, right, x + w - 9 - font.width(right), y + 12 - lift, rightColor, a, page + ":" + title);
 		}, click, null, searchable(title, sub, right));
 	}
 
@@ -293,14 +317,15 @@ public abstract class ForestScreen extends Screen {
 			tile(g, icon, x + 6, y + 5 - lift, a);
 			int bx = x + 35, bw = w - 44;
 			g.text(font, fit(font, title, bw - font.width(right) - 8), bx, y + 6 - lift, alpha(UI_TEXT, a));
-			g.text(font, right, x + w - 9 - font.width(right), y + 6 - lift, alpha(fraction >= 1 ? UI_ACCENT : UI_MUTED, a), false);
-			double shown = counter(key, Math.clamp(fraction, 0, 1), 5);
+			String shownRight = Motion.countUp(right, pageNs);
+			g.text(font, shownRight, x + w - 9 - font.width(right), y + 6 - lift, alpha(fraction >= 1 ? UI_ACCENT : UI_MUTED, a), false);
+			double shown = Motion.bars() ? counter(key, Math.clamp(fraction, 0, 1), 5) : Math.clamp(fraction, 0, 1);
 			round(g, bx, y + 20 - lift, bw, 5, 2, alpha(0x1FFFFFFF, a));
 			int fill = (int) Math.round(bw * shown);
 			if (fill > 0) {
 				round(g, bx, y + 20 - lift, fill, 5, 2, alpha(shown >= 0.999 ? UI_ACCENT : color, a));
 				// A soft light that runs along the filled part.
-				if (animated() && fill > 12) {
+				if (Motion.bars() && fill > 12) {
 					int glow = bx + (int) ((System.nanoTime() / 6e6) % (fill + 30)) - 15;
 					for (int i = 0; i < 12; i++) {
 						int gx = glow + i;
@@ -358,8 +383,15 @@ public abstract class ForestScreen extends Screen {
 			int sx = x + w - 40, sy = y + 10 - lift;
 			round(g, sx, sy, 28, 13, 6, alpha(mixArgb(UI_SWITCH_OFF, UI_ACCENT, on), a));
 			int kx = sx + 2 + (int) Math.round(on * 15);
-			round(g, kx, sy + 2, 9, 9, 4, alpha(0xFFFFFFFF, a));
-		}, (lx, w, button) -> set.accept(!get.getAsBoolean()), null, searchable(title, sub));
+			double knobPop = on > 0.5 && Motion.checks() ? 1 + 0.25 * Math.sin(Math.clamp((on - 0.5) * 2, 0, 1) * Math.PI) : 1;
+			int ks = (int) Math.round(9 * knobPop);
+			round(g, kx + (9 - ks) / 2, sy + 2 + (9 - ks) / 2, ks, ks, ks / 2, alpha(0xFFFFFFFF, a));
+			if (on > 0.6) g.text(font, "✓", sx + 4, sy + 3, alpha(0xFFFFFFFF, a * (on - 0.6) / 0.4), false);
+		}, (lx, w, button) -> {
+			boolean next = !get.getAsBoolean();
+			set.accept(next);
+			UiSound.toggle(next);
+		}, null, searchable(title, sub));
 	}
 
 	/** Tiles with big numbers that count up when they change. */
@@ -581,7 +613,7 @@ public abstract class ForestScreen extends Screen {
 	}
 
 	private void drawHeader(GuiGraphicsExtractor g, long now, double dt, double open) {
-		double appear = animated() ? easeOut((now - pageNs) / 260e6) : 1;
+		double appear = Motion.pages() ? easeOut((now - pageNs) / 260e6) : 1;
 		int shift = (int) Math.round((1 - appear) * 14 * direction);
 		double a = open * appear;
 		var pose = g.pose();
@@ -626,7 +658,7 @@ public abstract class ForestScreen extends Screen {
 				continue;
 			}
 
-			double appear = animated() ? easeOut((now - pageNs - Math.min(i, 16) * 28e6) / 280e6) : 1;
+			double appear = Motion.pages() ? easeOut((now - pageNs - Math.min(i, 16) * 28e6) / 280e6) : 1;
 			double edge = Math.clamp(Math.min((y + h - viewTop) / 14.0, (viewBottom - y) / 14.0), 0.0, 1.0);
 			double a = open * appear * edge;
 			if (a <= 0.01) continue;
@@ -634,6 +666,12 @@ public abstract class ForestScreen extends Screen {
 			String key = page + ":" + i;
 			boolean hovered = line.click() != null && closingNs == 0
 					&& inside(mouseX, mouseY, contentX, Math.max(y, viewTop), contentW, Math.min(y + h, viewBottom) - Math.max(y, viewTop));
+			if (hovered && !key.equals(hoverSoundKey)) {
+				hoverSoundKey = key;
+				UiSound.hover();
+			} else if (!hovered && key.equals(hoverSoundKey)) {
+				hoverSoundKey = "";
+			}
 			double hv = animated() ? approach(hover.getOrDefault(key, 0.0), hovered ? 1 : 0, dt, 18) : hovered ? 1 : 0;
 			hover.put(key, hv);
 			int x = contentX + (int) Math.round((1 - appear) * 18 * direction);
@@ -732,8 +770,10 @@ public abstract class ForestScreen extends Screen {
 				if (line.click() == null) break;
 				setFocused(null);
 				ripples.add(new Ripple(i, mx, my, System.nanoTime()));
-				click();
+				long before = UiSound.stamp();
 				line.click().click(mx - contentX, contentW, button);
+				// A row that made its own sound (a switch, a success) needs no click on top.
+				if (UiSound.stamp() == before) click();
 				rebuild();
 				return true;
 			}

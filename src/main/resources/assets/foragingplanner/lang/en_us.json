@@ -1531,5 +1531,21 @@
   "foragingplanner.settings.wizard": "Setup assistant",
   "foragingplanner.settings.wizard.hint": "Five steps: SkyBlock, stats, HOTF, Hunting Box, pack.",
   "foragingplanner.settings.whats_new": "What's new",
-  "foragingplanner.settings.whats_new.hint": "New things in this version with a jump to the setting."
+  "foragingplanner.settings.whats_new.hint": "New things in this version with a jump to the setting.",
+  "foragingplanner.settings.anim_pages": "Pages slide in",
+  "foragingplanner.settings.anim_pages.hint": "New pages and rows slide in one after another.",
+  "foragingplanner.settings.anim_numbers": "Numbers count up",
+  "foragingplanner.settings.anim_numbers.hint": "Values count up from 0 briefly when a page opens.",
+  "foragingplanner.settings.anim_bars": "Bars fill up",
+  "foragingplanner.settings.anim_bars.hint": "Progress bars fill smoothly, with a shimmer.",
+  "foragingplanner.settings.anim_checks": "Ticks pop",
+  "foragingplanner.settings.anim_checks.hint": "Ticks and switches bounce briefly when they turn on.",
+  "foragingplanner.settings.ui_sounds": "Menu sounds",
+  "foragingplanner.settings.ui_sounds.hint": "Quiet click, page, switch and success sounds in the mod's menus.",
+  "foragingplanner.settings.ui_sound_volume": "Volume",
+  "foragingplanner.settings.ui_sound_volume.hint": "How loud the menu sounds are.",
+  "foragingplanner.settings.ui_hover_sounds": "Sound on hover",
+  "foragingplanner.settings.ui_hover_sounds.hint": "A very quiet tick when the pointer reaches something clickable.",
+  "foragingplanner.settings.ui_sound_test": "Test sound",
+  "foragingplanner.settings.ui_sound_test.hint": "Plays the success sound at the set volume."
 }

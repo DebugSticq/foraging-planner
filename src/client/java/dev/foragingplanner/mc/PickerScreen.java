@@ -245,6 +245,7 @@ public final class PickerScreen extends ForestScreen {
 					if (n.isEmpty()) return;
 					set(n, 1);
 					pending = "";
+					UiSound.success();
 				}));
 				List<String> on = getOn.get();
 				out.add(header(Planner.tr("picker.page_" + key)));

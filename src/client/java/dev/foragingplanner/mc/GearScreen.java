@@ -140,6 +140,7 @@ public final class GearScreen extends Screen {
 		tab = target;
 		tabNs = System.nanoTime();
 		scroll = scrollTarget = 0;
+		UiSound.page();
 	}
 
 	// Rows
@@ -320,7 +321,7 @@ public final class GearScreen extends Screen {
 	}
 
 	private void drawHeader(GuiGraphicsExtractor g, long now, double open) {
-		double appear = animated() ? easeOut((now - tabNs) / 220e6) : 1;
+		double appear = Motion.pages() ? easeOut((now - tabNs) / 220e6) : 1;
 		int shift = (int) Math.round((1 - appear) * 8);
 		double a = open * appear;
 
@@ -360,7 +361,7 @@ public final class GearScreen extends Screen {
 			int y = rowY(i);
 			if (y + h <= viewTop || y >= viewBottom) continue;
 
-			double appear = animated() ? easeOut((now - tabNs - Math.min(i, 12) * 35e6) / 240e6) : 1;
+			double appear = Motion.pages() ? easeOut((now - tabNs - Math.min(i, 12) * 35e6) / 240e6) : 1;
 			double edge = Math.clamp(Math.min((y + h - viewTop) / 14.0, (viewBottom - y) / 14.0), 0.0, 1.0);
 			double a = open * appear * edge;
 			if (a <= 0.01) continue;
@@ -428,12 +429,12 @@ public final class GearScreen extends Screen {
 		String gain = "+" + String.format(Locale.US, "%.1f", pick.gainPercent()) + "%";
 		int colW = Math.max(74, Math.max(font.width(price), font.width(gain)) + 4);
 		int colX = right - colW;
-		g.text(font, price, right - font.width(price), y + 7, alpha(pick.price() == null ? UI_DIM : UI_AMBER, a), false);
-		g.text(font, gain, right - font.width(gain), y + 19, alpha(UI_ACCENT, a), false);
+		g.text(font, Motion.countUp(price, tabNs), right - font.width(price), y + 7, alpha(pick.price() == null ? UI_DIM : UI_AMBER, a), false);
+		g.text(font, Motion.countUp(gain, tabNs), right - font.width(gain), y + 19, alpha(UI_ACCENT, a), false);
 
 		String barKey = "bar" + item.id;
 		double target = maxPerMillion <= 0 ? 0 : pick.perMillion() / maxPerMillion;
-		double bar = animated() ? approach(bars.getOrDefault(barKey, 0.0), target, dt, 6) : target;
+		double bar = Motion.bars() ? approach(bars.getOrDefault(barKey, 0.0), target, dt, 6) : target;
 		bars.put(barKey, bar);
 		round(g, colX, y + 33, colW, 4, 2, alpha(0x1FFFFFFF, a));
 		int fill = (int) Math.round(colW * bar);
@@ -756,6 +757,7 @@ public final class GearScreen extends Screen {
 		double my = event.y();
 
 		if (inside(mx, my, doneX, doneY - 1, doneW, 19)) {
+			UiSound.click();
 			onClose();
 			return true;
 		}
@@ -773,6 +775,7 @@ public final class GearScreen extends Screen {
 			for (int i = 0; i < rowCount(); i++) {
 				int y = rowY(i);
 				if (my < y || my >= y + rowHeight() || !clickable(i)) continue;
+				UiSound.click();
 
 				switch (tab) {
 					case 0 -> {

@@ -140,6 +140,7 @@ public final class CheckScreen extends ForestScreen {
 		out.add(button(tr("open_wizard"), () -> minecraft.gui.setScreen(new WizardScreen(this))));
 		out.add(button(tr("bug_report"), () -> {
 			String file = BugReport.copy();
+			UiSound.success();
 			Toasts.show(Toasts.Kind.INFO, "writable_book", tr("bug_report_copied"), file.isEmpty() ? "" : tr("bug_report_saved", file));
 		}));
 		return out;
@@ -154,6 +155,7 @@ public final class CheckScreen extends ForestScreen {
 		}));
 		out.add(button(tr("backup_now"), () -> {
 			String name = Backups.make("manual");
+			if (name == null) UiSound.error(); else UiSound.success();
 			Toasts.show(name == null ? Toasts.Kind.ALARM : Toasts.Kind.INFO, "chest", tr(name == null ? "backup_failed" : "backup_done"),
 					name == null ? "" : Backups.pretty(name));
 		}));
@@ -168,6 +170,7 @@ public final class CheckScreen extends ForestScreen {
 						if (name.equals(armed) && System.currentTimeMillis() - armedAt <= 5_000) {
 							armed = "";
 							boolean ok = Backups.restore(name);
+							if (ok) UiSound.success(); else UiSound.error();
 							Toasts.show(ok ? Toasts.Kind.INFO : Toasts.Kind.ALARM, "chest", tr(ok ? "restored" : "restore_failed"), Backups.pretty(name));
 						} else {
 							armed = name;
