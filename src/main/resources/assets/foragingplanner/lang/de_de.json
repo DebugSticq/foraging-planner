@@ -184,7 +184,7 @@
   "foragingplanner.journal.difference": "Aktuell %s XP/h",
   "foragingplanner.journal.chart_wait": "Verlauf sammelt Messpunkte …",
   "foragingplanner.journal.chart_recent": "Letzte Messintervalle · XP/h",
-  "foragingplanner.journal.measurement_note": "Tempo zählt die Zeit auf der Foraging-Insel ab dem ersten Zuwachs. Sack- und Inventar-Logs werden verzögert zusammengezählt. Whispers zeigen erfasste Belohnungen. Preise sind Bazaar-Schätzungen vor Gebühren.",
+  "foragingplanner.journal.measurement_note": "Tempo zählt die Zeit auf der Foraging-Insel ab dem ersten Zuwachs. Logs aus Inventar und Sacks werden verzögert zusammengezählt; was du in Menüs zwischen Inventar und Sacks verschiebst, zählt nicht. Andere Sack-Items (Drops, Saplings, Sticks) zählen zum Wert, Geschenke nicht doppelt. Preise sind Bazaar-Schätzungen vor Gebühren.",
   "foragingplanner.journal.sacks_incomplete": "Sack-Meldung gekürzt: Es können Logs fehlen.",
   "foragingplanner.journal.since_tracking": "Seit Beginn der Erfassung",
   "foragingplanner.journal.gift_note": "Gezählt werden vom Server gemeldete Gifts und deren Beute. Frühere Gifts werden nicht rückwirkend ergänzt.",
@@ -1547,5 +1547,6 @@
   "foragingplanner.settings.ui_hover_sounds": "Ton beim Drüberfahren",
   "foragingplanner.settings.ui_hover_sounds.hint": "Ein ganz leises Ticken, wenn die Maus auf etwas Klickbares kommt.",
   "foragingplanner.settings.ui_sound_test": "Sound testen",
-  "foragingplanner.settings.ui_sound_test.hint": "Spielt den Erfolgs-Ton mit der eingestellten Lautstärke."
+  "foragingplanner.settings.ui_sound_test.hint": "Spielt den Erfolgs-Ton mit der eingestellten Lautstärke.",
+  "foragingplanner.journal.sacks_hidden": "Sack-Meldungen waren gekürzt: etwa %s Items wurden von Hypixel nicht einzeln aufgelistet und fehlen im Wert."
 }

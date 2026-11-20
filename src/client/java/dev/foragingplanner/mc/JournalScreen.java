@@ -162,7 +162,9 @@ public final class JournalScreen extends ForestScreen {
 
 		out.add(header(tr("history_chart")));
 		out.add(new Line(110, (g, x, y, w, a, h) -> chart(g, x, y, w, 110, a, s), null));
-		out.add(text(tr("measurement_note") + (JournalStore.sackIncomplete ? " " + tr("sacks_incomplete") : ""), UI_DIM));
+		double hidden = JournalStore.journal.current.value("sack_hidden");
+		String sackNote = hidden > 0 ? " " + tr("sacks_hidden", Planner.whole(hidden)) : JournalStore.sackIncomplete ? " " + tr("sacks_incomplete") : "";
+		out.add(text(tr("measurement_note") + sackNote, UI_DIM));
 
 		out.add(header(tr("history")));
 		if (journal.history.isEmpty()) out.add(text(tr("history_empty"), UI_DIM));

@@ -184,7 +184,7 @@
   "foragingplanner.journal.difference": "Current %s XP/h",
   "foragingplanner.journal.chart_wait": "Collecting chart samples …",
   "foragingplanner.journal.chart_recent": "Recent sampling intervals · XP/h",
-  "foragingplanner.journal.measurement_note": "Pace includes time on the foraging island after the first gain. Sack and inventory logs are reconciled with a delay. Whispers show captured rewards. Prices are Bazaar estimates before fees.",
+  "foragingplanner.journal.measurement_note": "Pace counts the time on the foraging island from the first gain. Logs from inventory and sacks are added up with a short delay; what you move between inventory and sacks in menus does not count. Other sack items (drops, saplings, sticks) count towards the value, gifts not twice. Prices are Bazaar estimates before fees.",
   "foragingplanner.journal.sacks_incomplete": "Truncated sack receipt: some logs may be missing.",
   "foragingplanner.journal.since_tracking": "Since tracking began",
   "foragingplanner.journal.gift_note": "Counts server-reported gifts and their loot. Earlier gifts are not backfilled.",
@@ -1547,5 +1547,6 @@
   "foragingplanner.settings.ui_hover_sounds": "Sound on hover",
   "foragingplanner.settings.ui_hover_sounds.hint": "A very quiet tick when the pointer reaches something clickable.",
   "foragingplanner.settings.ui_sound_test": "Test sound",
-  "foragingplanner.settings.ui_sound_test.hint": "Plays the success sound at the set volume."
+  "foragingplanner.settings.ui_sound_test.hint": "Plays the success sound at the set volume.",
+  "foragingplanner.journal.sacks_hidden": "Sack messages were shortened: about %s items were not listed one by one by Hypixel and are missing from the value."
 }

@@ -38,6 +38,11 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Share settings**: copy all settings as one line of text and paste them elsewhere (Settings > Online or `/fp settings export|import|undo`). Personal data is left out, a backup is made before pasting
 
 ### Fixed
+- **Profit tracker counts sacks correctly**:
+  - Logs from sack messages are no longer lost when chat is open or when the message arrives a while after you stopped chopping (it covers the last 10–30 seconds)
+  - Logs moved between inventory and sacks in a menu (sack bag, storage, selling) no longer count as income or cancel out real logs
+  - Other items from sack messages (drops, saplings, sticks, ...) now count towards the session value; gift rewards that also land in the sacks are not counted twice
+  - When Hypixel shortens a sack message ("and 3 other items"), the number of unlisted items is shown in the journal
 - Clicking a shard or Bazaar item in the gear menu now opens the Bazaar directly: the item, "Buy Instantly" and "Custom Amount" are marked in gold and the needed amount is typed into the sign (nothing is bought automatically). Auction items open the auction search
 - Gear menu icons use the real item looks from the Hypixel resource pack
 - More gear in the advisor: Leaflet set, Mole Hat, Kelly's T-Shirt, Charlie's Trousers, Melody's Shoes, Bee Mask, Frog Mask, Spruce Axe

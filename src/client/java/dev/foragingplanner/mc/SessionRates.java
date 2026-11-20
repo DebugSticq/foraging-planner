@@ -72,22 +72,116 @@ public final class SessionRates {
     }
 
     public static void reset() { flush(); JournalStore.journal.archive(); clearBaselines(); JournalStore.save(); }
-    public static void clearBaselines() { previousXp = previousCap = -1; lastPercent = null; lastXp = pendingSince = 0; INVENTORY.clear(); DELTAS.clear(); world = null; LootTracker.clear(); }
+    public static void clearBaselines() { previousXp = previousCap = -1; lastPercent = null; lastXp = pendingSince = 0; INVENTORY.clear(); DELTAS.clear(); TRANSFERS.clear(); REWARDS.clear(); world = null; LootTracker.clear(); }
     public static boolean recentActivity() { return System.currentTimeMillis() - lastXp < 12_000; }
     /** True while the player is clearly foraging, even if the XP line in the action bar is hidden by another mod. */
     static boolean foraging() { return recentActivity() || ContestTracker.active() || TreeProgress.recent(); }
+    /**
+     * Inventory changes that happened while a menu was open (or while not foraging), by item: moving
+     * logs between inventory and sacks shows up in both places and must not count as income.
+     */
+    private static final Map<String, Deque<long[]>> TRANSFERS = new HashMap<>();
+    /** When a container menu (sacks, storage, Bazaar, NPC) was last open. */
+    private static long lastContainerMs;
+
+    private static void transfer(String id, long delta, long now) {
+        if (delta == 0) return;
+        Deque<long[]> list = TRANSFERS.computeIfAbsent(id, k -> new ArrayDeque<>());
+        list.addLast(new long[] {now, delta});
+        while (!list.isEmpty() && now - list.peekFirst()[0] > 120_000) list.removeFirst();
+    }
+
+    /** Takes up to {@code wanted} of the recent transfers of {@code id} that point in the given direction. */
+    private static long consumeTransfer(String id, long wanted, boolean outOfInventory, long sinceMs) {
+        Deque<long[]> list = TRANSFERS.get(id);
+        if (list == null || wanted <= 0) return 0;
+        long taken = 0;
+        for (long[] t : list) {
+            if (t[0] < sinceMs || taken >= wanted) continue;
+            boolean out = t[1] < 0;
+            if (out != outOfInventory) continue;
+            long use = Math.min(wanted - taken, Math.abs(t[1]));
+            taken += use;
+            t[1] += out ? use : -use;
+        }
+        list.removeIf(t -> t[1] == 0);
+        return taken;
+    }
+
+    /** True if the player was foraging during a sack message's window (it arrives up to that many seconds later). */
+    private static boolean activeDuring(int windowSeconds) {
+        long now = System.currentTimeMillis();
+        return ContestTracker.active() || now - lastXp < (windowSeconds + 15) * 1000L || TreeProgress.recent();
+    }
+
+    /**
+     * One item of a "[Sacks]" message. Logs taken from or put into the sacks through a menu are
+     * matched against the inventory change and ignored; what is left came straight from chopping.
+     */
     public static void sack(String id, long delta, int window) {
         // A sack message right after a contest still holds logs cut during it.
         if (ContestTracker.inGrace()) ContestTracker.addLate(id, delta, window);
-        if (!foraging() || Minecraft.getInstance().gui.screen() != null) return;
-        // During a contest the sack message is the final word, so count it at once instead of after the usual delay.
-        if (ContestTracker.active() && delta > 0) {
-            long now = System.currentTimeMillis();
-            JournalStore.journal.add("logs", delta, now);
-            JournalStore.journal.item(id, delta, now);
+        if (delta == 0) return;
+        long now = System.currentTimeMillis();
+        long since = now - (window + 5) * 1000L;
+        long real;
+        if (delta > 0) {
+            // Logs put into the sacks from the inventory are no new logs.
+            real = delta - consumeTransfer(id, delta, true, since);
         } else {
-            addDelta(id, delta);
+            // Logs taken out of the sacks into the inventory: the inventory already saw them, nothing to do.
+            consumeTransfer(id, -delta, false, since);
+            return;
         }
+        if (real <= 0 || !activeDuring(window)) return;
+        // During a contest the sack message is the final word, so count it at once instead of after the usual delay.
+        if (ContestTracker.active()) {
+            JournalStore.journal.add("logs", real, now);
+            JournalStore.journal.item(id, real, now);
+        } else {
+            addDelta(id, real);
+        }
+    }
+
+    /** Gift rewards already counted from the gift message; they also show up in the next sack message. */
+    private static final Map<String, Deque<long[]>> REWARDS = new HashMap<>();
+
+    public static void rewarded(String id, long count) {
+        if (count <= 0) return;
+        long now = System.currentTimeMillis();
+        Deque<long[]> list = REWARDS.computeIfAbsent(id, k -> new ArrayDeque<>());
+        list.addLast(new long[] {now, count});
+        while (!list.isEmpty() && now - list.peekFirst()[0] > 120_000) list.removeFirst();
+    }
+
+    private static long consumeReward(String id, long wanted, long sinceMs) {
+        Deque<long[]> list = REWARDS.get(id);
+        if (list == null) return 0;
+        long taken = 0;
+        for (long[] r : list) {
+            if (r[0] < sinceMs || taken >= wanted) continue;
+            long use = Math.min(wanted - taken, r[1]);
+            taken += use;
+            r[1] -= use;
+        }
+        list.removeIf(r -> r[1] <= 0);
+        return taken;
+    }
+
+    /** Anything else from a sack message on the foraging islands (sticks, saplings, drops): counted for profit, not as logs. */
+    public static void sackOther(String id, long delta, int window) {
+        long now = System.currentTimeMillis();
+        if (delta <= 0 || !activeDuring(window)) return;
+        // Moving items around in a menu during the window makes the message unreliable for non-log items.
+        if (now - lastContainerMs < (window + 5) * 1000L) return;
+        // Gift rewards were counted when the gift came; only the rest is new.
+        long real = delta - consumeReward(id, delta, now - (window + 15) * 1000L);
+        if (real > 0) JournalStore.journal.item(id, real, now);
+    }
+
+    /** Items a shortened sack message left out ("and 3 other items"), as an estimate for the card. */
+    public static void sackHidden(long count) {
+        if (count > 0) JournalStore.journal.add("sack_hidden", count, System.currentTimeMillis());
     }
     private static void addDelta(String id, long delta) {
         if (delta == 0) return;
@@ -115,8 +209,18 @@ public final class SessionRates {
             for (var tree : Planner.data.trees) if (tree.bazaarId.equals(id)) current.merge(id, stack.getCount(), Integer::sum);
         }
         for (var tree : Planner.data.trees) current.putIfAbsent(tree.bazaarId, 0);
-        if (!INVENTORY.isEmpty() && client.gui.screen() == null && foraging()) {
-            current.forEach((id, count) -> addDelta(id, count - INVENTORY.getOrDefault(id, 0)));
+        var screen = client.gui.screen();
+        boolean menu = screen != null && !(screen instanceof net.minecraft.client.gui.screens.ChatScreen);
+        if (screen instanceof net.minecraft.client.gui.screens.inventory.AbstractContainerScreen<?>) lastContainerMs = System.currentTimeMillis();
+        if (!INVENTORY.isEmpty()) {
+            long now = System.currentTimeMillis();
+            boolean counting = !menu && foraging();
+            current.forEach((id, count) -> {
+                int change = count - INVENTORY.getOrDefault(id, 0);
+                // Changes during a menu or away from the trees are moves (sacks, storage, selling), remembered for sack messages.
+                if (counting) addDelta(id, change);
+                else transfer(id, change, now);
+            });
         }
         INVENTORY.clear(); INVENTORY.putAll(current);
         if (pendingSince > 0 && System.currentTimeMillis() - pendingSince >= 12_000) flush();

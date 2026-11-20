@@ -29,14 +29,29 @@ public final class LootTracker {
                 }
                 var windowMatch = java.util.regex.Pattern.compile("\\(Last (\\d+)s\\.?\\)").matcher(text);
                 int window = windowMatch.find() ? Integer.parseInt(windowMatch.group(1)) : 10;
+                // "[Sacks] +1,234 items, -12 items. (Last 30s.)": the total says how much a shortened hover left out.
+                var addedMatch = java.util.regex.Pattern.compile("\\+([\\d,]+) items?").matcher(text);
+                long added = addedMatch.find() ? Long.parseLong(addedMatch.group(1).replace(",", "")) : -1;
+                long listed = 0;
+                boolean shortened = false;
                 for (String hover : hovers) {
-                    if (hover.contains("other items")) JournalStore.sackIncomplete = true;
+                    if (hover.contains("other items")) {
+                        JournalStore.sackIncomplete = true;
+                        shortened = true;
+                    }
                     for (var item : ObservationParser.sacks(hover)) {
                         String id = ObservationParser.itemId(item.name());
-                        if (Planner.data.trees.stream().anyMatch(tree -> tree.bazaarId.equals(id))) SessionRates.sack(id, item.count(), window);
-                        else Extras.gathered(item.name(), item.count());
+                        if (item.count() > 0) listed += item.count();
+                        if (Planner.data.trees.stream().anyMatch(tree -> tree.bazaarId.equals(id))) {
+                            SessionRates.sack(id, item.count(), window);
+                        } else {
+                            Extras.gathered(item.name(), item.count());
+                            SeenNames.item(id, item.name());
+                            SessionRates.sackOther(id, item.count(), window);
+                        }
                     }
                 }
+                if (shortened && added > listed) SessionRates.sackHidden(added - listed);
                 return;
             }
             if (text.startsWith("Daily Wishes") && text.contains("Whispers")) {
@@ -79,7 +94,11 @@ public final class LootTracker {
                 if (id.equals("ESSENCE_FOREST")) journal.add("essence", count, now);
                 else Watchers.reward(id, name, count, bonusDrop);
                 // Logs already enter through inventory/sacks; don't value them twice.
-                if (Planner.data.trees.stream().noneMatch(tree -> tree.bazaarId.equals(id))) journal.item(id, count, now);
+                if (Planner.data.trees.stream().noneMatch(tree -> tree.bazaarId.equals(id))) {
+                    journal.item(id, count, now);
+                    // The same items arrive in the sacks a little later; the sack message must not count them again.
+                    SessionRates.rewarded(id, count);
+                }
             }
         }
     }
