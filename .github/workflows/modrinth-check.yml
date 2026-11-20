@@ -1,0 +1,34 @@
+# Checks the Modrinth setup without uploading anything: Actions > modrinth-check > Run workflow.
+name: modrinth-check
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check token and project
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT: ${{ vars.MODRINTH_PROJECT || 'foraging-planner' }}
+        run: |
+          UA="LootingVI/foraging-planner (GitHub Actions check)"
+          if [ -z "$MODRINTH_TOKEN" ]; then
+            echo "::error::Secret MODRINTH_TOKEN is missing (Settings > Secrets and variables > Actions)."
+            exit 1
+          fi
+          USER=$(curl -sS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" https://api.modrinth.com/v2/user | jq -r '.username // empty')
+          if [ -z "$USER" ]; then
+            echo "::error::Modrinth does not accept the token. Create a new one with 'Create versions' and 'Read projects'."
+            exit 1
+          fi
+          echo "Token OK, Modrinth user: $USER"
+          PROJECT=$(curl -sS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT")
+          ID=$(echo "$PROJECT" | jq -r '.id // empty')
+          if [ -z "$ID" ]; then
+            echo "::error::Project '$MODRINTH_PROJECT' not found. Create it on Modrinth or set the MODRINTH_PROJECT variable to its slug."
+            exit 1
+          fi
+          echo "$PROJECT" | jq '{id, slug, title, status, loaders, game_versions}'
+          echo "Everything is ready for release.bat."
