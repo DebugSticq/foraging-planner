@@ -16,7 +16,7 @@ import com.google.gson.Gson;
  * data (higher dataVersion) and passes the data check; a gear.json of the player's own always wins.
  */
 public final class DataUpdater {
-	private static final String URL = "https://raw.githubusercontent.com/LootingVI/foraging-planner/main/src/client/resources/foragingplanner/gear.json";
+	private static final String URL = "https://raw.githubusercontent.com/debugsticq/foraging-planner/main/src/client/resources/foragingplanner/gear.json";
 	private static final HttpClient HTTP = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
 	/** What happened with the last download, for the detection check. */
 	private static volatile String status = "";

@@ -16,5 +16,5 @@ if errorlevel 1 ( pause & exit /b 1 )
 git tag -a "v%VERSION%" -m "Foraging Planner %VERSION%"
 git push origin "v%VERSION%"
 if errorlevel 1 ( pause & exit /b 1 )
-echo Done. GitHub builds the release now: https://github.com/LootingVI/foraging-planner/actions
+echo Done. GitHub builds the release now: https://github.com/debugsticq/foraging-planner/actions
 pause

@@ -13,7 +13,7 @@ jobs:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
           MODRINTH_PROJECT: ${{ vars.MODRINTH_PROJECT || 'foraging-planner' }}
         run: |
-          UA="LootingVI/foraging-planner (GitHub Actions check)"
+          UA="debugsticq/foraging-planner (GitHub Actions check)"
           if [ -z "$MODRINTH_TOKEN" ]; then
             echo "::error::Secret MODRINTH_TOKEN is missing (Settings > Secrets and variables > Actions)."
             exit 1

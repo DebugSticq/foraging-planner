@@ -93,7 +93,7 @@ jobs:
             echo "No MODRINTH_TOKEN secret, skipping Modrinth."
             exit 0
           fi
-          UA="LootingVI/foraging-planner (GitHub Actions)"
+          UA="debugsticq/foraging-planner (GitHub Actions)"
           # With the token, so a project that is still a draft or under review is found too.
           PROJECT_ID=$(curl -fsS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT" | jq -r .id)
           if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then

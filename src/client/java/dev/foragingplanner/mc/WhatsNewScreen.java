@@ -91,7 +91,7 @@ public final class WhatsNewScreen extends ForestScreen {
 		}
 		out.add(spacer(6));
 		out.add(button(Planner.tr("whatsnew.changelog"), () -> {
-			String url = "https://github.com/LootingVI/foraging-planner/blob/main/CHANGELOG.md";
+			String url = "https://github.com/debugsticq/foraging-planner/blob/main/CHANGELOG.md";
 			if (minecraft.player != null) {
 				minecraft.player.sendSystemMessage(net.minecraft.network.chat.Component.literal("§a[FP] §9§n" + url)
 						.withStyle(st -> st.withClickEvent(new net.minecraft.network.chat.ClickEvent.OpenUrl(java.net.URI.create(url)))));
