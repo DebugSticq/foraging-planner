@@ -1,5 +1,6 @@
 {
   "_comment": "Base stats and IDs come from the NotEnoughUpdates item repository (Nov 2026). Prices are loaded live. Edit freely; a copy in config/foragingplanner/gear.json wins.",
+  "dataVersion": 1,
   "assumptions": {
     "mangroveDigits": 6,
     "shardLevelling": {
@@ -732,7 +733,8 @@
       "effect": "First Sweep on each tree +1% more effective per level",
       "rarity": "RARE",
       "priority": "medium",
-      "stat": "other"
+      "stat": "firstsweep",
+      "perLevel": 1
     },
     {
       "id": "SHARD_SOLAR",

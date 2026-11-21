@@ -345,7 +345,7 @@ public final class MenuReaders {
 	}
 
 	/** Shard id for a menu entry: "Ember Shard", "Ember", "12x Ember" all work, as long as the shard is known. */
-	private static String shardIdFor(String name) {
+	static String shardIdFor(String name) {
 		String clean = name.replaceAll("^\\d+x\\s*", "").replaceAll("(?i)\\s+shards?$", "").trim();
 		for (GearData.Shard s : GearData.get().shards) if (s.name.equalsIgnoreCase(clean)) return s.id;
 		return name.toLowerCase(Locale.ROOT).contains("shard") ? Hunting.shardId(name.replaceAll("^\\d+x\\s*", "")) : null;
@@ -371,7 +371,11 @@ public final class MenuReaders {
 			found.merge(id, owned, Math::max);
 		}
 
-		if (found.isEmpty()) return;
+		if (found.isEmpty()) {
+			Health.fail("huntingbox", "Hunting Box opened, no shards read");
+			return;
+		}
+		Health.ok("huntingbox");
 		p.huntingBox.putAll(found);
 		p.huntingBoxRead = System.currentTimeMillis();
 		Progress.changed();
@@ -380,6 +384,7 @@ public final class MenuReaders {
 	private static void readAttributes(AbstractContainerScreen<?> menu) {
 		Progress p = Progress.get();
 		boolean changed = false;
+		int read = 0;
 		dump(menu, "attributes");
 
 		for (Slot slot : menu.getMenu().slots) {
@@ -399,11 +404,14 @@ public final class MenuReaders {
 			}
 
 			if (level >= 0 && level <= 10 && !name.isBlank()) {
+				read++;
 				Integer old = p.attributeLevels.put(name, level);
 				changed |= old == null || old != level;
 			}
 		}
 
+		if (read == 0) Health.fail("attributes", "attribute menu opened, no levels read");
+		else Health.ok("attributes");
 		if (changed) Progress.changed();
 	}
 

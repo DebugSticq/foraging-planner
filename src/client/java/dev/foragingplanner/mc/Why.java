@@ -303,6 +303,7 @@ public final class Why {
 			out.add("");
 			out.add(tr("shard_price", GearScreenFormat.coins(p.price()), GearScreenFormat.coins(p.costToNext()), GearScreenFormat.coins(p.costToMax())));
 			if (p.perMillion() > 0) out.add(tr("per_million", String.format(Locale.US, "%.2f", p.perMillion())));
+			if (p.orderCostToMax() != null && p.toMax() > 0) out.add("§7" + tr("shard_order", GearScreenFormat.coins(p.orderCostToMax())));
 		}
 		out.add("§8" + tr("shard_click"));
 		open(shard.name + " Shard", out);

@@ -14,6 +14,10 @@ import com.google.gson.Gson;
  * NotEnoughUpdates item repository. A copy in config/foragingplanner/gear.json overrides the bundled file.
  */
 public final class GearData {
+	/** Raised whenever the data changes; a downloaded copy is only used when its number is higher. */
+	public int dataVersion;
+	/** Where this data came from: bundled, remote or override (set when loading). */
+	public transient String source = "bundled";
 	public Assumptions assumptions = new Assumptions();
 	public List<Item> items = new ArrayList<>();
 	public List<Shard> shards = new ArrayList<>();
@@ -138,21 +142,42 @@ public final class GearData {
 		try {
 			if (Files.exists(override)) {
 				GearData data = gson.fromJson(Files.readString(override), GearData.class);
-				if (data != null && data.items != null && !data.items.isEmpty()) return data;
+				if (data != null && data.items != null && !data.items.isEmpty()) {
+					data.source = "override";
+					return data;
+				}
 			}
 		} catch (Exception e) {
 			Planner.LOGGER.warn("Could not read {}, using the bundled gear data", override, e);
 		}
 
+		GearData bundled = bundled();
+		Path remote = ModConfig.directory().resolve("remote").resolve("gear.json");
+		try {
+			if (Planner.config != null && Planner.config.remoteData && Files.exists(remote)) {
+				GearData data = gson.fromJson(Files.readString(remote), GearData.class);
+				if (data != null && data.items != null && !data.items.isEmpty() && data.dataVersion > (bundled == null ? -1 : bundled.dataVersion)
+						&& DataCheck.gear(data).isEmpty()) {
+					data.source = "remote";
+					return data;
+				}
+			}
+		} catch (Exception e) {
+			Planner.LOGGER.warn("Could not read the downloaded gear data", e);
+		}
+		return bundled == null ? new GearData() : bundled;
+	}
+
+	/** The gear data that ships with the mod. */
+	static GearData bundled() {
 		try (InputStream in = GearData.class.getResourceAsStream("/foragingplanner/gear.json")) {
 			if (in != null) {
-				GearData data = gson.fromJson(new String(in.readAllBytes(), StandardCharsets.UTF_8), GearData.class);
+				GearData data = new Gson().fromJson(new String(in.readAllBytes(), StandardCharsets.UTF_8), GearData.class);
 				if (data != null) return data;
 			}
 		} catch (Exception e) {
 			Planner.LOGGER.error("Could not read the bundled gear data", e);
 		}
-
-		return new GearData();
+		return null;
 	}
 }

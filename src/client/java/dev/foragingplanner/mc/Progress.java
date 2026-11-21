@@ -37,6 +37,8 @@ public final class Progress {
 	public List<String> seenMobs = new ArrayList<>();
 	/** First-steps hints that were already shown. */
 	public List<String> hintsSeen = new ArrayList<>();
+	/** Gear item ids the player wants to buy. */
+	public List<String> wishlist = new ArrayList<>();
 	/** Progress events for the timeline (levels, perks, attributes, shards, collections, milestones). */
 	public List<Event> timeline = new ArrayList<>();
 	/** Last known values the timeline compares against, e.g. "perk:Sweep Mastery" -> 4. */
@@ -201,6 +203,7 @@ public final class Progress {
 		if (p.seenItems == null) p.seenItems = new LinkedHashMap<>();
 		if (p.seenMobs == null) p.seenMobs = new ArrayList<>();
 		if (p.hintsSeen == null) p.hintsSeen = new ArrayList<>();
+		if (p.wishlist == null) p.wishlist = new ArrayList<>();
 		if (p.timeline == null) p.timeline = new ArrayList<>();
 		if (p.timelineSeen == null) p.timelineSeen = new LinkedHashMap<>();
 		if (p.milestones == null) p.milestones = new LinkedHashSet<>();

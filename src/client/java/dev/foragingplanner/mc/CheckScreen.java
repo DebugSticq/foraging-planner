@@ -25,7 +25,7 @@ public final class CheckScreen extends ForestScreen {
 	private long armedAt;
 
 	public CheckScreen(Screen parent) {
-		this(parent, 0);
+		this(parent, ForestScreen.lastPage(CheckScreen.class, 0));
 	}
 
 	public CheckScreen(Screen parent, int page) {
@@ -34,6 +34,11 @@ public final class CheckScreen extends ForestScreen {
 
 	private static String tr(String key, Object... args) {
 		return Planner.tr("check." + key, args);
+	}
+
+	@Override
+	protected String menuKey() {
+		return "check";
 	}
 
 	@Override
@@ -107,6 +112,20 @@ public final class CheckScreen extends ForestScreen {
 		out.add(new Status(null, "gold_ingot", "leaderboard", !c.leaderboardShare ? 1 : Leaderboard.verified() ? 1 : 0,
 				c.leaderboardShare ? (Leaderboard.verified() ? tr("verified") : "") : tr("off")));
 		out.add(new Status(null, "feather", "perf", Perf.light() ? 0 : 1, Perf.light() ? tr("light_on") : tr("light_off")));
+		List<String> problems = DataCheck.problems();
+		out.add(new Status(null, "writable_book", "data", problems.isEmpty() ? 1 : 0,
+				problems.isEmpty() ? tr("data_ok", GearData.get().source, GearData.get().dataVersion) : problems.size() + " · " + problems.get(0)));
+		String remote = DataUpdater.status();
+		out.add(new Status(null, "map", "remote", remote.startsWith("http") || remote.equals("invalid") || remote.equals("error") ? 0 : 1,
+				remote.isEmpty() ? tr("remote_pending") : tr("remote_" + remote.replaceAll("\\s.*", ""), remote.replaceAll("^\\S+\\s?", ""))));
+		boolean firstHealth = true;
+		for (var e : Health.entries().entrySet()) {
+			Health.Entry h = e.getValue();
+			int ok = h.broken() ? -1 : h.lastFail > h.lastOk ? 0 : 1;
+			out.add(new Status(firstHealth ? "section_texts" : null, "name_tag", "health_" + e.getKey(), ok,
+					ok == 1 ? tr("health_seen", age(h.lastOk)) : h.detail));
+			firstHealth = false;
+		}
 		List<String> backups = Backups.list();
 		out.add(new Status(null, "chest", "backup", backups.isEmpty() ? (c.autoBackup ? 0 : -1) : 1, backups.isEmpty() ? "" : Backups.pretty(backups.get(0))));
 		return out;

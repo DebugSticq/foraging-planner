@@ -48,6 +48,9 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		MiniMap.register();
 		Extras.register();
 		HotfTooltip.register();
+		GearTooltip.register();
+		MenuOverlays.register();
+		DataUpdater.start();
 		LogStripGuard.register();
 		Safari.register();
 		RareDrops.register();
@@ -108,6 +111,9 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				FirstSteps.tick(client);
 				Backups.tick();
 				Timeline.tick();
+				GearAdvisor.tick();
+				PriceHistory.tick();
+				Health.tick();
 				WhatsNew.tick(client);
                 JournalStore.tick(SkyBlockReader.inForagingArea() && client.player != null && !Afk.idle());
 				if (SkyBlockReader.inForagingArea() || SkyBlockReader.inSkyBlock()) BazaarPrices.refreshIfDue();

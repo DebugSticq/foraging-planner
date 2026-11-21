@@ -198,6 +198,14 @@ public final class ModConfig {
     public boolean autoBackup = true;
     public boolean hoverDetails = true;
     public boolean firstSteps = true;
+    /** Lines in gear and shard tooltips with their value for the goal. */
+    public boolean tooltipHints = true;
+    /** Overlays in the Hunting Box, equipment and Bazaar menus. */
+    public boolean menuOverlays = true;
+    /** Size of the mod's menus in percent (smaller = more fits on screen). */
+    public int menuScale = 100;
+    /** Download corrected gear and shard data from the mod's GitHub. */
+    public boolean remoteData = true;
     /** Mod version whose "What's new" card was shown; empty on a fresh install. */
     public String lastSeenVersion = "";
     public String activePreset = "farm";

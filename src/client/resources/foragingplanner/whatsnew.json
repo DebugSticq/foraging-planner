@@ -17,6 +17,36 @@
       "open": "gear:0",
       "de": "David's Cloak ist immer der beste Umhang – Slayer-Umhänge werden nicht mehr vorgeschlagen",
       "en": "David's Cloak is always the best cloak – slayer cloaks are no longer suggested"
+    },
+    {
+      "icon": "target",
+      "open": "gear:7",
+      "de": "Ziele: günstigster Weg zu mehr Logs pro Schlag und Wunschliste",
+      "en": "Goals: cheapest way to more logs per hit, and a wishlist"
+    },
+    {
+      "icon": "paper",
+      "open": "setting:tooltip_hints",
+      "de": "Tooltips zeigen, was ein Teil oder Shard für dein Ziel bringt",
+      "en": "Tooltips show what gear or a shard does for your goal"
+    },
+    {
+      "icon": "chest",
+      "open": "setting:menu_overlays",
+      "de": "Hilfen in Hunting Box, Equipment-Menü und Bazaar",
+      "en": "Helpers in the Hunting Box, equipment menu and Bazaar"
+    },
+    {
+      "icon": "spyglass",
+      "open": "setting:menu_scale",
+      "de": "Menügröße einstellbar und Reiter-Leiste über allen Menüs",
+      "en": "Adjustable menu size and a tab row above all menus"
+    },
+    {
+      "icon": "map",
+      "open": "check",
+      "de": "Selbsttest der Daten und Warnung, wenn Hypixel-Texte nicht mehr erkannt werden",
+      "en": "Data self-check and a warning when Hypixel texts are no longer recognised"
     }
   ],
   "1.0.6": [

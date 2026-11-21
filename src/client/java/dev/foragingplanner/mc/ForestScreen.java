@@ -98,6 +98,19 @@ public abstract class ForestScreen extends Screen {
 	private final List<Leaf> leaves = new ArrayList<>();
 
 	protected int page;
+	/** Last page and scroll position per screen type, so a menu opens where it was left. */
+	private static final java.util.Map<Class<?>, double[]> REMEMBERED = new java.util.HashMap<>();
+	private boolean restored;
+
+	/** The page this kind of screen was last left on, or {@code fallback}. */
+	public static int lastPage(Class<?> type, int fallback) {
+		double[] r = REMEMBERED.get(type);
+		return r == null ? fallback : (int) r[0];
+	}
+
+	private void remember() {
+		REMEMBERED.put(getClass(), new double[] {page, scrollTarget});
+	}
 	protected int panelX, panelY, panelW, panelH, sideW, contentX, contentW, viewTop, viewBottom;
 	private int doneX, doneY, doneW, direction = 1;
 	private long pageNs = openedNs, lastFrameNs = openedNs, builtNs, closingNs;
@@ -158,10 +171,11 @@ public abstract class ForestScreen extends Screen {
 
 	@Override
 	protected void init() {
+		applyScale();
 		panelW = Math.min(800, width - 20);
-		panelH = Math.min(420, height - 20);
+		panelH = Math.min(420, height - (menuKey() != null ? 36 : 20));
 		panelX = (width - panelW) / 2;
-		panelY = (height - panelH) / 2;
+		panelY = (height - panelH) / 2 + (menuKey() != null ? 8 : 0);
 		sideW = panelW < 480 ? 44 : 140;
 		contentX = panelX + sideW + 16;
 		contentW = panelW - sideW - 32;
@@ -198,6 +212,11 @@ public abstract class ForestScreen extends Screen {
 		lines = query.isEmpty() ? build(page) : search();
 		for (Line line : lines) if (line.field() != null) addWidget(line.field());
 		builtNs = System.nanoTime();
+		if (!restored) {
+			restored = true;
+			double[] r = REMEMBERED.get(getClass());
+			if (r != null && (int) r[0] == page) scroll = scrollTarget = r[1];
+		}
 		scrollTarget = Math.clamp(scrollTarget, 0, maxScroll());
 	}
 
@@ -205,6 +224,7 @@ public abstract class ForestScreen extends Screen {
 		if (target == page || target < 0 || target >= pages.length) return;
 		direction = target > page ? 1 : -1;
 		page = target;
+		REMEMBERED.put(getClass(), new double[] {page, 0});
 		pageNs = System.nanoTime();
 		scroll = scrollTarget = 0;
 		hover.clear();
@@ -216,6 +236,11 @@ public abstract class ForestScreen extends Screen {
 
 	protected void click() {
 		UiSound.click();
+	}
+
+	/** Which tab of the menu bar this screen is ("stats", "check"); null for screens without the bar. */
+	protected String menuKey() {
+		return null;
 	}
 
 	/** When a tick was first shown, so it pops in once. */
@@ -518,8 +543,39 @@ public abstract class ForestScreen extends Screen {
 		extractBlurredBackground(g);
 	}
 
+	// Menu size: the screen is laid out for a virtual size and drawn scaled up or down.
+	private float appliedScale = 1f;
+	private int baseW, baseH, virtW = -1, virtH = -1;
+
+	private void applyScale() {
+		float s = MenuScale.get();
+		if (width != virtW || height != virtH) {
+			baseW = width;
+			baseH = height;
+		}
+		appliedScale = s;
+		virtW = Math.round(baseW / s);
+		virtH = Math.round(baseH / s);
+		width = virtW;
+		height = virtH;
+	}
+
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+		if (MenuScale.get() != appliedScale) rebuildWidgets();
+		float s = appliedScale;
+		if (s == 1f) {
+			extractScaled(g, mouseX, mouseY, delta);
+			return;
+		}
+		var pose = g.pose();
+		pose.pushMatrix();
+		pose.scale(s, s);
+		extractScaled(g, (int) (mouseX / s), (int) (mouseY / s), delta);
+		pose.popMatrix();
+	}
+
+	private void extractScaled(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
 		long now = System.nanoTime();
 		double dt = Math.min(0.1, (now - lastFrameNs) / 1e9);
 		lastFrameNs = now;
@@ -558,6 +614,7 @@ public abstract class ForestScreen extends Screen {
 		drawFooter(g, mouseX, mouseY, dt, open);
 		drawOverlay(g, mouseX, mouseY, open);
 		pose.popMatrix();
+		if (menuKey() != null) MenuBar.draw(g, font, width, panelY - MenuBar.HEIGHT - 3, menuKey(), mouseX, mouseY, open);
 		Why.draw(g, font, width, height);
 	}
 
@@ -730,11 +787,13 @@ public abstract class ForestScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+		event = MenuScale.event(event, appliedScale);
 		if (closingNs != 0) return true;
 		if (Why.isOpen()) {
 			Why.close();
 			return true;
 		}
+		if (menuKey() != null && MenuBar.click(event.x(), event.y(), width, panelY - MenuBar.HEIGHT - 3, menuKey(), parent)) return true;
 		double mx = event.x(), my = event.y();
 		int button = event.button();
 
@@ -789,6 +848,8 @@ public abstract class ForestScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+		mouseX /= appliedScale;
+		mouseY /= appliedScale;
 		scrollTarget = Math.clamp(scrollTarget - vertical * 32, 0, maxScroll());
 		return true;
 	}
@@ -848,6 +909,7 @@ public abstract class ForestScreen extends Screen {
 	}
 
 	private void finishClose() {
+		remember();
 		closingNs = 0;
 		Why.close();
 		closed();
@@ -856,4 +918,25 @@ public abstract class ForestScreen extends Screen {
 
 	/** Called once when the screen really closes, to save. */
 	protected void closed() {}
+
+	@Override
+	public void removed() {
+		remember();
+		super.removed();
+	}
+
+	@Override
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		return super.mouseDragged(MenuScale.event(event, appliedScale), dragX / appliedScale, dragY / appliedScale);
+	}
+
+	@Override
+	public boolean mouseReleased(MouseButtonEvent event) {
+		return super.mouseReleased(MenuScale.event(event, appliedScale));
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		super.mouseMoved(mouseX / appliedScale, mouseY / appliedScale);
+	}
 }

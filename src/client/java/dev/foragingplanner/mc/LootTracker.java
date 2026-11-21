@@ -52,6 +52,8 @@ public final class LootTracker {
                     }
                 }
                 if (shortened && added > listed) SessionRates.sackHidden(added - listed);
+                if (!hovers.isEmpty() && listed == 0 && added > 0 && !shortened) Health.fail("sacks", "sack message without readable items");
+                else if (listed > 0) Health.ok("sacks");
                 return;
             }
             if (text.startsWith("Daily Wishes") && text.contains("Whispers")) {
@@ -67,10 +69,14 @@ public final class LootTracker {
             if (text.matches("\\+\\d[\\d,]* rewards gained!.*") && giftTree != null && !rewarded) {
                 rewarded = true;
                 JournalStore.journal.gift(giftTree, now);
-                for (String hover : hovers(component)) for (String line : hover.split("\\n")) {
+                int parsed = 0;
+                Set<String> giftHovers = hovers(component);
+                for (String hover : giftHovers) for (String line : hover.split("\\n")) {
                     var item = ObservationParser.reward(line);
-                    if (item != null && seenRewardLines.add(line.trim())) reward(item.name(), item.count(), now, false);
+                    if (item != null && seenRewardLines.add(line.trim())) { reward(item.name(), item.count(), now, false); parsed++; }
                 }
+                if (!giftHovers.isEmpty() && parsed == 0) Health.fail("gift", "tree gift rewards not readable");
+                else if (parsed > 0) Health.ok("gift");
                 return;
             }
             if (text.equals("BONUS GIFT")) { bonus = true; return; }

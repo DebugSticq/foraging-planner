@@ -107,6 +107,21 @@ public final class SkyBlockReader {
 		return ContestMath.parseNumber(find(tab, pattern));
 	}
 
+	/** Coins in the purse from the sidebar ("Purse: 1,234,567"); -1 when not shown. */
+	public static double purse() {
+		for (String line : sidebar) {
+			String t = Planner.strip(line).trim();
+			if (!t.startsWith("Purse:") && !t.startsWith("Piggy:")) continue;
+			String number = t.substring(6).trim().replaceAll("\\s.*", "").replace(",", "");
+			try {
+				return Double.parseDouble(number);
+			} catch (NumberFormatException e) {
+				return -1;
+			}
+		}
+		return -1;
+	}
+
 	public static List<String> sidebar() {
 		return sidebar;
 	}

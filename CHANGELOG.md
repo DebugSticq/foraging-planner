@@ -23,6 +23,21 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
   - Click buys the next level in the Bazaar, right click everything to level 10; the ⓘ shows the full calculation
   - New shards: Heron, Sparrow, Seagull, Hummingbird, Tadgang, Pandarai, Treefrog, Piranha, Drybark, Woodpecker, Gecko, Foxtrot
 
+- **Goals tab** in the gear menu:
+  - Roadmap to a number of logs per hit on any tree: how much Sweep is missing, the cheapest steps with coins (gear, reforges, enchants, shard levels) and, separately, with Whispers (perk levels), with running totals
+  - Wishlist: right click a suggestion to add it; total price, your purse and how long it takes at your coins per hour
+- **What-if**: logs per hit on all three trees before → after, and the Sweep to the next log on each
+- **Real stats from your items**: worn armor, axes in the inventory, equipment and the active pet are read from their tooltips (reforges, enchants, stars, pet level included) instead of table values
+- **Tooltip hints**: foraging gear shows "+X% for your goal" (or that you wear it), attribute shards show their level, the shards still needed and the gain
+- **Menu helpers**: level badges in the Hunting Box with a green frame on the three best shards, the best upgrade marked in the equipment menu, and on Bazaar product pages the price against its 7-day average (prices are recorded hourly)
+- **One window**: statistics, gear, check and settings have a tab row on top to switch between them
+- Menus open on the tab and scroll position where you left them
+- **Search in the gear menu** (Ctrl+F) for suggestions, plan, upgrades, shards and tips
+- **Menu size** setting (70–130 %), independent of Minecraft's GUI scale
+- **Self-check of the mod's data** (gear, shards, trees, translations) and **recognition warnings** when Hypixel texts or menus stop being read (sidebar, tab stats, action bar XP, tree gifts, sacks, Hunting Box, attributes), both in the detection check
+- **Data updates from GitHub**: corrected gear and shard values are downloaded without a mod update (only when newer and valid; your own gear.json always wins; can be turned off)
+- Shards: First Sweep (Torrid) is now counted using your measured tree size; the ⓘ shows what all levels cost with a buy order instead of buying instantly
+
 ### Fixed
 - David's Cloak is now always the suggested cloak (free from David Hunterborough); Destruction and Annihilation Cloak are no longer suggested. When you own David's Cloak, its real stats are read from the equipment menu
 

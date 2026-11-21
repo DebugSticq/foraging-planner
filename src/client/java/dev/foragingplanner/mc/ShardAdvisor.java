@@ -19,7 +19,12 @@ public final class ShardAdvisor {
 
 	/** One attribute with everything the shard page shows. */
 	public record Plan(GearData.Shard shard, int level, long inBox, long toNext, long toMax, Double price,
-					   double statPerLevel, double gainNext, double gainMax, boolean onFarmedTree, boolean counted) {
+					   double statPerLevel, double gainNext, double gainMax, boolean onFarmedTree, boolean counted, Double orderPrice) {
+		/** Cost to max with a buy order at the current top order instead of buying instantly. */
+		public Double orderCostToMax() {
+			return orderPrice == null ? null : orderPrice * toMax;
+		}
+
 		public boolean done() {
 			return level >= 10;
 		}
@@ -98,7 +103,10 @@ public final class ShardAdvisor {
 			gainNext = gain(shard, perLevel, 1, farmed);
 			gainMax = gain(shard, perLevel, 10 - level, farmed);
 		}
-		return new Plan(shard, level, inBox, toNext, toMax, price, perLevel, gainNext, gainMax, onTree, counted);
+		// A buy order sits just above the highest current order, which is the instant-sell price.
+		Double sell = Planner.PRICES.get(shard.id);
+		Double order = sell == null || sell <= 0 ? null : sell + 0.1;
+		return new Plan(shard, level, inBox, toNext, toMax, price, perLevel, gainNext, gainMax, onTree, counted, order);
 	}
 
 	/** What one level gives, with collection digits, day/night and pet conditions applied. */
@@ -151,6 +159,15 @@ public final class ShardAdvisor {
 				if (farmed == null || goal == Goal.WHISPERS || goal == Goal.GIFTS || goal == Goal.SWEEP) yield 0;
 				double logs = Math.max(0.1, TreeMath.smoothLogsPerHit(farmed, SkyBlockReader.stats().sweep()));
 				yield Math.min(amount, 1.5) / logs * 100;
+			}
+			case "firstsweep" -> {
+				// The first hit on each tree gets more Sweep; spread over the hits a whole tree takes.
+				if (farmed == null) yield 0;
+				double sweep = SkyBlockReader.stats().sweep();
+				double logs = Math.max(0.1, TreeMath.smoothLogsPerHit(farmed, sweep));
+				double size = TreeProgress.treeSize(farmed.id).logs();
+				double hits = size > 0 ? Math.max(1, size / logs) : 10;
+				yield GearAdvisor.gainPercent(sweep * amount / 100.0 / hits, 0, 0);
 			}
 			case "whispers" -> goal == Goal.WHISPERS ? amount : 0;
 			case "gifts" -> goal == Goal.GIFTS ? amount : 0;

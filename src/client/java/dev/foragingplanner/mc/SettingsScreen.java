@@ -163,6 +163,7 @@ public final class SettingsScreen extends Screen {
 
 	@Override
 	protected void init() {
+		applyScale();
 		clearWidgets();
 		if (searchBox == null) {
 			searchBox = new EditBox(font, 0, 0, 120, 12, Component.literal(Planner.tr("search.hint")));
@@ -189,11 +190,11 @@ public final class SettingsScreen extends Screen {
 
 		boolean wide = width >= 600 && height >= 300;
 		panelW = Math.min(wide ? 720 : 540, width - 20);
-		panelH = Math.min(360, height - 20);
+		panelH = Math.min(360, height - 36);
 		NAV_STEP = Math.clamp((panelH - 58) / PAGES.length, 15, 23);
 		NAV_HEIGHT = NAV_STEP - 2;
 		panelX = (width - panelW) / 2;
-		panelY = (height - panelH) / 2;
+		panelY = (height - panelH) / 2 + 8;
 		sideW = panelW < 430 ? 44 : 128;
 		previewW = wide && panelW >= 620 ? 186 : 0;
 		contentX = panelX + sideW + 14;
@@ -305,6 +306,8 @@ public final class SettingsScreen extends Screen {
 					new ToggleRow("tree_fall_effect", Items.OAK_LEAVES, () -> c.treeFallEffect, value -> c.treeFallEffect = value);
 				});
 				new ToggleRow("hover_details", Items.SPYGLASS, () -> c.hoverDetails, value -> c.hoverDetails = value);
+				new ToggleRow("tooltip_hints", Items.PAPER, () -> c.tooltipHints, value -> c.tooltipHints = value);
+				new ToggleRow("menu_overlays", Items.CHEST, () -> c.menuOverlays, value -> c.menuOverlays = value);
 				Row steps = new ToggleRow("first_steps", Items.BOOK, () -> c.firstSteps, value -> c.firstSteps = value);
 				sub(steps, () -> new ActionRow("hints_reset", "reset", Items.BOOK, FirstSteps::reset));
 				Row afk = new ToggleRow("afk", Items.CLOCK, () -> c.afkPause, value -> c.afkPause = value);
@@ -493,6 +496,7 @@ public final class SettingsScreen extends Screen {
 					new ToggleRow("anim_bars", Items.EXPERIENCE_BOTTLE, () -> c.animBars, value -> c.animBars = value);
 					new ToggleRow("anim_checks", Items.SLIME_BALL, () -> c.animChecks, value -> c.animChecks = value);
 				});
+				new SliderRow("menu_scale", Items.SPYGLASS, 70, 130, 5, "%", () -> c.menuScale, value -> c.menuScale = value);
 				Row sounds = new ToggleRow("ui_sounds", Items.NOTE_BLOCK, () -> c.uiSounds, value -> c.uiSounds = value);
 				sub(sounds, () -> {
 					new SliderRow("ui_sound_volume", Items.JUKEBOX, 0, 100, 10, "%", () -> c.uiSoundVolume, value -> c.uiSoundVolume = value);
@@ -520,6 +524,7 @@ public final class SettingsScreen extends Screen {
 				});
 			}
 			case "online" -> {
+				new ToggleRow("remote_data", Items.MAP, () -> c.remoteData, value -> c.remoteData = value);
 				Row board = new ToggleRow("leaderboard", Items.GOLDEN_HOE, () -> c.leaderboardShare, value -> {
 					c.leaderboardShare = value;
 					if (value && !Leaderboard.verified()) Leaderboard.verify();
@@ -637,8 +642,40 @@ public final class SettingsScreen extends Screen {
 		extractBlurredBackground(g);
 	}
 
+	// Menu size: the screen is laid out for a virtual size and drawn scaled up or down.
+	private float appliedScale = 1f;
+	private int baseW, baseH, virtW = -1, virtH = -1;
+
+	private void applyScale() {
+		float s = MenuScale.get();
+		if (width != virtW || height != virtH) {
+			baseW = width;
+			baseH = height;
+		}
+		appliedScale = s;
+		virtW = Math.round(baseW / s);
+		virtH = Math.round(baseH / s);
+		width = virtW;
+		height = virtH;
+	}
+
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
+		// Applied when the slider is let go, so dragging it does not rebuild the page under the mouse.
+		if (MenuScale.get() != appliedScale && draggingSlider == null) rebuildWidgets();
+		float s = appliedScale;
+		if (s == 1f) {
+			extractScaled(g, mouseX, mouseY, delta);
+			return;
+		}
+		var pose = g.pose();
+		pose.pushMatrix();
+		pose.scale(s, s);
+		extractScaled(g, (int) (mouseX / s), (int) (mouseY / s), delta);
+		pose.popMatrix();
+	}
+
+	private void extractScaled(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
 		long now = System.nanoTime();
 		double dt = Math.min(0.1, (now - lastFrameNs) / 1e9);
 		lastFrameNs = now;
@@ -661,6 +698,7 @@ public final class SettingsScreen extends Screen {
 		drawRows(g, mouseX, mouseY, delta, dt, now, open);
 		if (previewW > 0) drawPreview(g, now, open);
 		drawFooter(g, mouseX, mouseY, dt, open);
+		MenuBar.draw(g, font, width, panelY - MenuBar.HEIGHT - 3, "settings", mouseX, mouseY, open);
 
 		pose.popMatrix();
 		drawToast(g, now);
@@ -1077,6 +1115,8 @@ public final class SettingsScreen extends Screen {
 
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
+		event = MenuScale.event(event, appliedScale);
+		if (MenuBar.click(event.x(), event.y(), width, panelY - MenuBar.HEIGHT - 3, "settings", parent)) return true;
 		if (event.button() != InputConstants.MOUSE_BUTTON_LEFT) return super.mouseClicked(event, doubled);
 		double mx = event.x();
 		double my = event.y();
@@ -1142,6 +1182,9 @@ public final class SettingsScreen extends Screen {
 
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		event = MenuScale.event(event, appliedScale);
+		dragX /= appliedScale;
+		dragY /= appliedScale;
 		if (draggingSlider != null) {
 			draggingSlider.drag(event.x());
 			markDirty();
@@ -1155,6 +1198,7 @@ public final class SettingsScreen extends Screen {
 
 	@Override
 	public boolean mouseReleased(MouseButtonEvent event) {
+		event = MenuScale.event(event, appliedScale);
 		draggingBar = false;
 		draggingSlider = null;
 		return super.mouseReleased(event);
@@ -1162,6 +1206,8 @@ public final class SettingsScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double horizontal, double vertical) {
+		mouseX /= appliedScale;
+		mouseY /= appliedScale;
 		if (inside(mouseX, mouseY, contentX, viewTop, contentW + 12, viewBottom - viewTop)) {
 			scrollTarget = Math.clamp(scrollTarget - vertical * 28, 0, maxScroll());
 			return true;
@@ -1795,5 +1841,10 @@ public final class SettingsScreen extends Screen {
 			box.setValue(String.valueOf((long) next));
 			return true;
 		}
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		super.mouseMoved(mouseX / appliedScale, mouseY / appliedScale);
 	}
 }

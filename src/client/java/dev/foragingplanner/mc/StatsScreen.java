@@ -50,7 +50,7 @@ public final class StatsScreen extends ForestScreen {
 	private static int requestedTab = -1;
 
 	public StatsScreen(Screen parent) {
-		this(parent, 0);
+		this(parent, ForestScreen.lastPage(StatsScreen.class, 0));
 	}
 
 	public StatsScreen(Screen parent, int tab) {
@@ -70,6 +70,11 @@ public final class StatsScreen extends ForestScreen {
 
 	private static String tr(String key, Object... args) {
 		return Planner.tr("stats." + key, args);
+	}
+
+	@Override
+	protected String menuKey() {
+		return "stats";
 	}
 
 	@Override

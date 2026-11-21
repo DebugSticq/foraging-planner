@@ -164,20 +164,22 @@ public final class GearAdvisor {
 					seen.put(item.slot, item.id);
 					changed = true;
 				}
-				// David's Cloak grows with Hunting milestones: its real stats are on the item.
-				if (item != null && "DAVIDS_CLOAK".equals(item.id)) {
-					String stats = loreStats(stack);
-					if (stats != null && !stats.equals(seen.get("davids_cloak"))) {
-						seen.put("davids_cloak", stats);
-						changed = true;
-					}
-				}
+				// The real stats (reforge, enchants, stars, David's milestones) are on the item itself.
+				if (item != null) changed |= rememberStats(item.id, stack);
 			} else if (loreContains(stack, "Click to despawn")) {
 				String pet = petId(stack);
 
 				if (pet != null && !pet.equals(seen.get("pet"))) {
 					seen.put("pet", pet);
 					changed = true;
+				}
+				if (pet != null) {
+					changed |= rememberStats(pet, stack);
+					var level = PET_LEVEL.matcher(Planner.strip(stack.getHoverName().getString()));
+					if (level.find() && !level.group(1).equals(seen.get("petlevel"))) {
+						seen.put("petlevel", level.group(1));
+						changed = true;
+					}
 				}
 			}
 		}
@@ -316,9 +318,59 @@ public final class GearAdvisor {
 		return any ? sweep + "," + fortune + "," + wisdom : null;
 	}
 
-	/** A copy of David's Cloak with the stats last read from the player's own cloak. */
+	private static final java.util.regex.Pattern PET_LEVEL = java.util.regex.Pattern.compile("\\[Lvl (\\d+)\\]");
+	private static long lastInventoryScanMs;
+
+	/** Remembers the stats shown on a gear item; true if they changed. */
+	private static boolean rememberStats(String id, ItemStack stack) {
+		String stats = loreStats(stack);
+		if (stats == null || stats.equals(seen.get("stats:" + id))) return false;
+		seen.put("stats:" + id, stats);
+		return true;
+	}
+
+	/** Every few seconds: reads the real stats of worn armor and axes in the inventory. */
+	public static void tick() {
+		long now = System.currentTimeMillis();
+		if (now - lastInventoryScanMs < 5_000) return;
+		lastInventoryScanMs = now;
+		var player = Minecraft.getInstance().player;
+		if (player == null || !SkyBlockReader.inSkyBlock()) return;
+		load();
+		GearData data = GearData.get();
+		boolean changed = false;
+		for (EquipmentSlot slot : new EquipmentSlot[] {EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET}) {
+			ItemStack stack = player.getItemBySlot(slot);
+			GearData.Item item = data.item(itemId(stack));
+			if (item != null) changed |= rememberStats(item.id, stack);
+		}
+		for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+			ItemStack stack = player.getInventory().getItem(i);
+			GearData.Item item = data.item(itemId(stack));
+			if (item != null && item.slot.equals("axe")) changed |= rememberStats(item.id, stack);
+		}
+		if (changed) save();
+	}
+
+	/** Level of the active pet as last seen in the pets menu; -1 when unknown. */
+	public static int petLevel() {
+		load();
+		try {
+			return Integer.parseInt(seen.getOrDefault("petlevel", "-1"));
+		} catch (NumberFormatException e) {
+			return -1;
+		}
+	}
+
+	/** True if the stats of this item were read from the player's own item. */
+	public static boolean hasRealStats(String id) {
+		load();
+		return seen.containsKey("stats:" + id);
+	}
+
+	/** A copy of the item with the stats last read from the player's own item (or the item itself). */
 	private static GearData.Item withRealStats(GearData.Item item) {
-		String stats = seen.get("davids_cloak");
+		String stats = seen.getOrDefault("stats:" + item.id, "DAVIDS_CLOAK".equals(item.id) ? seen.get("davids_cloak") : null);
 		if (stats == null) return item;
 		String[] parts = stats.split(",");
 		if (parts.length != 3) return item;
@@ -331,6 +383,11 @@ public final class GearAdvisor {
 		copy.note = item.note;
 		copy.free = item.free;
 		copy.best = item.best;
+		copy.foraging = item.foraging;
+		// Collection and Jade Dragon scaling come on top of the shown stats, so they stay.
+		copy.fortunePerDigit = item.fortunePerDigit;
+		copy.sweepPerDigit = item.sweepPerDigit;
+		copy.fortunePerSweep = item.fortunePerSweep;
 		try {
 			copy.sweep = Double.parseDouble(parts[0]);
 			copy.fortune = Double.parseDouble(parts[1]);
@@ -360,25 +417,24 @@ public final class GearAdvisor {
 				if (item != null && item.slot.equals("axe") && (bestAxe == null || baseValue(item) > baseValue(bestAxe))) bestAxe = item;
 			}
 
-			if (bestAxe != null) result.put("axe", bestAxe);
+			if (bestAxe != null) result.put("axe", withRealStats(bestAxe));
 		}
 
 		for (String slot : EQUIPMENT) {
 			GearData.Item item = data.item(seen.get(slot));
-			if (item != null && "DAVIDS_CLOAK".equals(item.id)) item = withRealStats(item);
-			if (item != null) result.put(slot, item);
+			if (item != null) result.put(slot, withRealStats(item));
 		}
 
 		GearData.Item pet = petFromTab(data);
 		if (pet == null) pet = data.item(seen.get("pet"));
-		if (pet != null) result.put("pet", pet);
+		if (pet != null) result.put("pet", withRealStats(pet));
 
 		return result;
 	}
 
 	private static void putWorn(Map<String, GearData.Item> result, GearData data, ItemStack stack, String slot) {
 		GearData.Item item = data.item(itemId(stack));
-		if (item != null && item.slot.equals(slot)) result.put(slot, item);
+		if (item != null && item.slot.equals(slot)) result.put(slot, withRealStats(item));
 	}
 
 	/** Rough ordering of axes without a goal: Sweep counts most, as it decides how many logs fall. */
