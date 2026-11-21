@@ -10,6 +10,16 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 ### Added
 - **Animated what-if preview**: your own player chops a tree at the top of the what-if page, once with your current stats and next to it with the picked changes. More logs per hit means fewer hits per tree and more logs flying out
+- **Shard page rebuilt**:
+  - Real attribute levels with a level bar, shards needed for the next level and for level 10 (with Hypixel's shards per level for each rarity, minus what waits in your Hunting Box)
+  - Cost of the next level and of everything to level 10 at Bazaar prices
+  - Gain for your goal on the tree you farm, sorted by value for money; tree-specific shards for other trees are marked as such
+  - Collection shards use your real collection digits; day/night shards count as half the time
+  - Click buys the next level in the Bazaar, right click everything to level 10; the ⓘ shows the full calculation
+  - New shards: Heron, Sparrow, Seagull, Hummingbird, Tadgang, Pandarai, Treefrog, Piranha, Drybark, Woodpecker, Gecko, Foxtrot
+
+### Fixed
+- David's Cloak is now always the suggested cloak (free from David Hunterborough); Destruction and Annihilation Cloak are no longer suggested. When you own David's Cloak, its real stats are read from the equipment menu
 
 ## [1.0.6] - 2026-11-20
 

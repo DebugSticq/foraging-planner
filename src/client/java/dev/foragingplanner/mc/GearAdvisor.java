@@ -164,6 +164,14 @@ public final class GearAdvisor {
 					seen.put(item.slot, item.id);
 					changed = true;
 				}
+				// David's Cloak grows with Hunting milestones: its real stats are on the item.
+				if (item != null && "DAVIDS_CLOAK".equals(item.id)) {
+					String stats = loreStats(stack);
+					if (stats != null && !stats.equals(seen.get("davids_cloak"))) {
+						seen.put("davids_cloak", stats);
+						changed = true;
+					}
+				}
 			} else if (loreContains(stack, "Click to despawn")) {
 				String pet = petId(stack);
 
@@ -286,6 +294,53 @@ public final class GearAdvisor {
 	}
 
 	/** What the player uses in each slot. Slots that could not be read are missing from the map. */
+	private static final java.util.regex.Pattern LORE_STAT = java.util.regex.Pattern.compile("^(Sweep|Foraging Fortune|Foraging Wisdom): \\+([\\d,.]+)");
+
+	/** "sweep,fortune,wisdom" from an item's lore, or null when it shows none of them. */
+	private static String loreStats(ItemStack stack) {
+		double sweep = 0, fortune = 0, wisdom = 0;
+		boolean any = false;
+		var lore = stack.get(net.minecraft.core.component.DataComponents.LORE);
+		if (lore == null) return null;
+		for (var line : lore.lines()) {
+			var m = LORE_STAT.matcher(Planner.strip(line.getString()).trim());
+			if (!m.find()) continue;
+			double v = Double.parseDouble(m.group(2).replace(",", ""));
+			switch (m.group(1)) {
+				case "Sweep" -> sweep = v;
+				case "Foraging Fortune" -> fortune = v;
+				default -> wisdom = v;
+			}
+			any = true;
+		}
+		return any ? sweep + "," + fortune + "," + wisdom : null;
+	}
+
+	/** A copy of David's Cloak with the stats last read from the player's own cloak. */
+	private static GearData.Item withRealStats(GearData.Item item) {
+		String stats = seen.get("davids_cloak");
+		if (stats == null) return item;
+		String[] parts = stats.split(",");
+		if (parts.length != 3) return item;
+		GearData.Item copy = new GearData.Item();
+		copy.id = item.id;
+		copy.name = item.name;
+		copy.slot = item.slot;
+		copy.rarity = item.rarity;
+		copy.icon = item.icon;
+		copy.note = item.note;
+		copy.free = item.free;
+		copy.best = item.best;
+		try {
+			copy.sweep = Double.parseDouble(parts[0]);
+			copy.fortune = Double.parseDouble(parts[1]);
+			copy.wisdom = Double.parseDouble(parts[2]);
+		} catch (NumberFormatException e) {
+			return item;
+		}
+		return copy;
+	}
+
 	public static Map<String, GearData.Item> current() {
 		load();
 		GearData data = GearData.get();
@@ -310,6 +365,7 @@ public final class GearAdvisor {
 
 		for (String slot : EQUIPMENT) {
 			GearData.Item item = data.item(seen.get(slot));
+			if (item != null && "DAVIDS_CLOAK".equals(item.id)) item = withRealStats(item);
 			if (item != null) result.put(slot, item);
 		}
 
@@ -392,9 +448,16 @@ public final class GearAdvisor {
 		Map<String, List<Pick>> bySlot = new LinkedHashMap<>();
 		Map<String, Pick> lockedBySlot = new LinkedHashMap<>();
 
+		// Slots with an item that is always the best (David's Cloak): only that one is ever suggested.
+		java.util.Set<String> bestSlots = new java.util.HashSet<>();
+		for (GearData.Item item : data.items) if (item.best) bestSlots.add(item.slot);
+
 		for (GearData.Item item : data.items) {
 			GearData.Item replaced = now.get(item.slot);
 			if (replaced != null && replaced.id.equals(item.id)) continue;
+			if (bestSlots.contains(item.slot)) {
+				if (!item.best || (replaced != null && replaced.best)) continue;
+			}
 
 			double[] d = delta(item, replaced, pet, stats.sweep(), digits);
 			double gain = base <= 0 ? 0 : (objective.smoothValue(plus(stats, d[0], d[1], d[2])) / base - 1) * 100;
@@ -407,9 +470,10 @@ public final class GearAdvisor {
 				continue;
 			}
 
-			Double price = priceOf(item.id);
+			Double price = item.free ? Double.valueOf(0) : priceOf(item.id);
 			boolean bazaar = BazaarPrices.BUY.containsKey(item.id);
-			double perMillion = price == null || price <= 0 ? 0 : gain / (price / 1e6);
+			// Free items (quest rewards) beat everything that costs coins.
+			double perMillion = item.free ? gain * 1e6 : price == null || price <= 0 ? 0 : gain / (price / 1e6);
 			bySlot.computeIfAbsent(item.slot, k -> new ArrayList<>())
 					.add(new Pick(item, replaced, d[0], d[1], d[2], gain, price, bazaar, perMillion, null));
 		}

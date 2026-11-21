@@ -270,6 +270,44 @@ public final class Why {
 		open(perk.name, out);
 	}
 
+	public static void shard(ShardAdvisor.Plan p) {
+		List<String> out = new ArrayList<>();
+		GearData.Shard shard = p.shard();
+		out.add(shard.ability + " · " + shard.effect);
+		out.add(tr("shard_level", p.level(), p.inBox()));
+		if (!p.done()) out.add(tr("shard_need", p.toNext(), p.toMax(), Planner.tr("gear.rarity." + shard.rarity.toLowerCase(Locale.ROOT))));
+		if (!p.counted()) {
+			out.add("§8" + tr("shard_not_counted"));
+		} else if (!p.onFarmedTree()) {
+			GameData.Tree farmed = farmedTree();
+			out.add("§7" + tr("shard_other_tree", shard.tree.replace(",", ", "), farmed == null ? "?" : farmed.name));
+		} else {
+			if (p.statPerLevel() > 0 && !"chop".equals(shard.stat)) out.add(tr("shard_per_level", Planner.decimal(p.statPerLevel()), shard.stat));
+			if (shard.perDigit) out.add("§8" + tr("shard_digits", ShardAdvisor.digits(farmedTree())));
+			if ("day".equals(shard.condition) || "night".equals(shard.condition)) out.add("§8" + tr("shard_half"));
+			if ("commons".equals(shard.condition)) out.add("§8" + tr("shard_commons", ShardAdvisor.commonAttributes()));
+			if ("frog".equals(shard.condition) && p.statPerLevel() <= 0) out.add("§8" + tr("shard_frog"));
+			out.add(tr("goal_gain", goalName(), String.format(Locale.US, "%.2f", p.gainNext())) + " " + tr("shard_next_level"));
+			out.add(tr("goal_gain", goalName(), String.format(Locale.US, "%.2f", p.gainMax())) + " " + tr("shard_to_max"));
+			if (p.gainMax() > 0 && "sweep,fortune,wisdom".contains(shard.stat)) {
+				double amount = p.statPerLevel() * (10 - p.level());
+				out.add("");
+				out.addAll(estimateLines(switch (shard.stat) {
+					case "sweep" -> estimate(amount, 0, 0);
+					case "fortune" -> estimate(0, amount, 0);
+					default -> estimate(0, 0, amount);
+				}));
+			}
+		}
+		if (p.price() != null && !p.done()) {
+			out.add("");
+			out.add(tr("shard_price", GearScreenFormat.coins(p.price()), GearScreenFormat.coins(p.costToNext()), GearScreenFormat.coins(p.costToMax())));
+			if (p.perMillion() > 0) out.add(tr("per_million", String.format(Locale.US, "%.2f", p.perMillion())));
+		}
+		out.add("§8" + tr("shard_click"));
+		open(shard.name + " Shard", out);
+	}
+
 	public static void tree(TreeReport.Row row, List<TreeReport.Row> all) {
 		List<String> out = new ArrayList<>();
 		double price = Planner.PRICES.getOrDefault(row.tree().bazaarId, 0.0);

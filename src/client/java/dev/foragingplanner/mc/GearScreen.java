@@ -78,6 +78,7 @@ public final class GearScreen extends Screen {
 	private List<GearAdvisor.Pick> plan = List.of();
 	private List<GearAdvisor.Pick> picks = List.of();
 	private List<UpgradeAdvisor.Option> upgrades = List.of();
+	private List<ShardAdvisor.Plan> shardPlans = List.of();
 	private Map<String, GearData.Item> gear = Map.of();
 
 	public GearScreen(Screen parent) {
@@ -130,6 +131,7 @@ public final class GearScreen extends Screen {
 		result = GearAdvisor.recommend();
 		picks = result.picks();
 		upgrades = UpgradeAdvisor.options();
+		shardPlans = ShardAdvisor.plans();
 		plan = GearAdvisor.plan(result, Progress.get().budget);
 		refreshedNs = System.nanoTime();
 		scrollTarget = Math.clamp(scrollTarget, 0, maxScroll());
@@ -146,7 +148,7 @@ public final class GearScreen extends Screen {
 	// Rows
 
 	private int rowHeight() {
-		return tab <= 3 || tab == 6 ? 46 : 38;
+		return tab <= 4 || tab == 6 ? 46 : 38;
 	}
 
 	private int rowCount() {
@@ -155,7 +157,7 @@ public final class GearScreen extends Screen {
 			case 1 -> 1 + Math.max(1, plan.size());
 			case 2 -> GearAdvisor.SLOTS.size();
 			case 3 -> Math.max(1, upgrades.size());
-			case 4 -> GearData.get().shards.size();
+			case 4 -> shardPlans.size();
 			case 6 -> STAGE_ROWS + WHATIF_EXTRA + GearAdvisor.SLOTS.size();
 			default -> GearData.get().tips.size();
 		};
@@ -387,7 +389,7 @@ public final class GearScreen extends Screen {
 				case 1 -> drawPlan(g, i, x, y, a, hover);
 				case 2 -> drawGear(g, GearAdvisor.SLOTS.get(i), x, y, a);
 				case 3 -> drawUpgrade(g, i, x, y, a);
-				case 4 -> drawShard(g, GearData.get().shards.get(i), x, y, a);
+				case 4 -> drawShard(g, shardPlans.get(i), x, y, a);
 				case 6 -> drawWhatIf(g, i - STAGE_ROWS, x, y, a);
 				default -> drawTip(g, GearData.get().tips.get(i), x, y, a);
 			}
@@ -432,7 +434,7 @@ public final class GearScreen extends Screen {
 		iconTile(g, item.id, item.icon, x, y, h, a);
 
 		// Right column: price, improvement, value-for-money bar.
-		String price = pick.price() != null ? coins(pick.price())
+		String price = item.free ? tr("free") : pick.price() != null ? coins(pick.price())
 				: AuctionPrices.noListing(item.id) ? tr("no_listing") : tr("price_loading");
 		String gain = "+" + String.format(Locale.US, "%.1f", pick.gainPercent()) + "%";
 		int colW = Math.max(74, Math.max(font.width(price), font.width(gain)) + 4);
@@ -516,7 +518,7 @@ public final class GearScreen extends Screen {
 
 		GearAdvisor.Pick pick = plan.get(index - 1);
 		iconTile(g, pick.item().id, pick.item().icon, x, y, h, a);
-		String price = coins(pick.price());
+		String price = pick.item().free ? tr("free") : coins(pick.price());
 		String gain = "+" + String.format(Locale.US, "%.1f", pick.gainPercent()) + "%";
 		int right = x + contentW - 10;
 		g.text(font, price, right - font.width(price), y + 8, alpha(UI_AMBER, a), false);
@@ -593,33 +595,45 @@ public final class GearScreen extends Screen {
 		return line.toString().trim();
 	}
 
-	private void drawShard(GuiGraphicsExtractor g, GearData.Shard shard, int x, int y, double a) {
+	private void drawShard(GuiGraphicsExtractor g, ShardAdvisor.Plan p, int x, int y, double a) {
+		GearData.Shard shard = p.shard();
 		int h = rowHeight();
-		iconTile(g, shard.id, "amethyst_shard", x, y, h, a);
-
-		Double each = GearAdvisor.bazaarPrice(shard.id);
-		long owned = Progress.get().huntingBox.getOrDefault(shard.id, 0L);
-		Integer level = Progress.get().attributeLevels.get(shard.ability);
-		long missing = level != null && level >= 10 ? 0 : Math.max(0, shard.toMax - owned);
-		String cost = missing == 0 ? tr("shard_done") : each == null ? tr("price_unknown") : coins(each * missing);
+		double dim = p.done() || (!p.onFarmedTree() && p.counted()) ? a * 0.6 : a;
+		iconTile(g, shard.id, "amethyst_shard", x, y, h, dim);
 		int right = x + contentW - 10;
-		g.text(font, cost, right - font.width(cost), y + 8, alpha(missing == 0 ? UI_ACCENT : each == null ? UI_DIM : UI_AMBER, a), false);
-		String toMax = (level != null ? tr("shard_level", level) + " · " : "") + (owned > 0 ? tr("shard_owned", owned) + " · " : "") + tr("to_max", missing);
-		g.text(font, toMax, right - font.width(toMax), y + 21, alpha(UI_DIM, a), false);
 
+		// Right: gain for the goal, then the cost of the next level / all levels.
+		String value = p.done() ? "✔ " + tr("shard_done") : p.gainMax() > 0.005 ? String.format(Locale.US, "+%.1f%%", p.gainMax())
+				: !p.onFarmedTree() && p.counted() ? tr("shard_other_tree") : tr("shard_no_number");
+		int valueColor = p.done() ? UI_ACCENT : p.gainMax() > 0.005 ? UI_ACCENT : UI_DIM;
+		g.text(font, Motion.countUp(value, tabNs), right - font.width(value), y + 7, alpha(valueColor, a), false);
+		String cost = p.done() ? "" : p.price() == null ? tr("price_unknown")
+				: tr("shard_cost", coins(p.costToNext()), coins(p.costToMax()));
+		if (!cost.isEmpty()) g.text(font, cost, right - font.width(cost), y + 19, alpha(p.price() == null ? UI_DIM : UI_AMBER, a), false);
+		String need = p.done() ? "" : tr("shard_need", p.toNext(), p.toMax()) + (p.inBox() > 0 ? " · " + tr("shard_owned", p.inBox()) : "");
+		if (!need.isEmpty()) g.text(font, need, right - font.width(need), y + 31, alpha(UI_DIM, a), false);
+		int colW = Math.max(font.width(value), Math.max(font.width(cost), font.width(need))) + 12;
+
+		// Left: name, priority chip, effect, level bar.
+		int textW = contentW - 48 - colW;
+		String title = shard.name + " · " + shard.ability;
+		g.text(font, fit(font, title, textW - 50), x + 38, y + 7, alpha(rarityColor(shard.rarity), dim), false);
 		int priorityColor = switch (shard.priority) {
 			case "high" -> UI_ACCENT;
 			case "medium" -> UI_AMBER;
 			default -> UI_DIM;
 		};
-		String title = shard.name + " · " + shard.ability;
-		int textW = contentW - 50 - Math.max(font.width(cost), font.width(toMax)) - 16;
-		g.text(font, fit(font, title, textW - 60), x + 38, y + 8, alpha(rarityColor(shard.rarity), a), false);
 		String priority = tr("priority." + shard.priority);
-		int px = x + 38 + Math.min(font.width(title), textW - 60) + 6;
-		round(g, px, y + 6, font.width(priority) + 8, 12, 6, alpha(priorityColor & 0x00FFFFFF | 0x2A000000, a));
-		g.text(font, priority, px + 4, y + 8, alpha(priorityColor, a), false);
-		g.text(font, fit(font, shard.effect, textW), x + 38, y + 21, alpha(UI_MUTED, a), false);
+		int px = x + 38 + Math.min(font.width(title), textW - 50) + 6;
+		round(g, px, y + 5, font.width(priority) + 8, 12, 6, alpha(priorityColor & 0x00FFFFFF | 0x2A000000, dim));
+		g.text(font, priority, px + 4, y + 7, alpha(priorityColor, dim), false);
+		String effect = shard.effect + (p.statPerLevel() > 0 && p.counted() && !"chop".equals(shard.stat) ? "  §8(" + tr("shard_now_per_level", Planner.decimal(p.statPerLevel())) + ")" : "");
+		g.text(font, fit(font, effect, textW), x + 38, y + 19, alpha(UI_MUTED, dim), false);
+
+		int barX = x + 38, barW = Math.min(120, textW - 40), barY = y + 33;
+		round(g, barX, barY, barW, 4, 2, alpha(0x22FFFFFF, a));
+		round(g, barX, barY, Math.max(2, (int) Math.round(barW * p.level() / 10.0)), 4, 2, alpha(p.done() ? UI_ACCENT : rarityColor(shard.rarity), a));
+		g.text(font, tr("shard_level", p.level()) + "/10", barX + barW + 6, barY - 2, alpha(UI_DIM, a), false);
 	}
 
 	private void drawUpgrade(GuiGraphicsExtractor g, int index, int x, int y, double a) {
@@ -723,10 +737,13 @@ public final class GearScreen extends Screen {
 		else minecraft.gui.setScreen(new ChatScreen(command, false));
 	}
 
-	private long shardMissing(GearData.Shard shard) {
-		long owned = Progress.get().huntingBox.getOrDefault(shard.id, 0L);
-		Integer level = Progress.get().attributeLevels.get(shard.ability);
-		return level != null && level >= 10 ? 0 : Math.max(0, shard.toMax - owned);
+	/** Opens the Bazaar or auction search for a pick; free items (David's Cloak) tell where to get them. */
+	private void openPick(GearAdvisor.Pick pick) {
+		if (pick.item().free) {
+			Toasts.show(Toasts.Kind.INFO, pick.item().icon, pick.item().name, tr("free_where"));
+			return;
+		}
+		search(pick.bazaar() ? "/bz " + pick.item().name : "/ahs " + pick.item().name);
 	}
 
 	@Override
@@ -759,7 +776,7 @@ public final class GearScreen extends Screen {
 			}
 		}
 
-		boolean planBudget = event.button() == InputConstants.MOUSE_BUTTON_RIGHT && (tab == 1 || tab == 6);
+		boolean planBudget = event.button() == InputConstants.MOUSE_BUTTON_RIGHT && (tab == 1 || tab == 4 || tab == 6);
 		if (event.button() != InputConstants.MOUSE_BUTTON_LEFT && !planBudget) return super.mouseClicked(event, doubled);
 		double mx = event.x();
 		double my = event.y();
@@ -786,10 +803,7 @@ public final class GearScreen extends Screen {
 				UiSound.click();
 
 				switch (tab) {
-					case 0 -> {
-						GearAdvisor.Pick pick = picks.get(i);
-						search(pick.bazaar() ? "/bz " + pick.item().name : "/ahs " + pick.item().name);
-					}
+					case 0 -> openPick(picks.get(i));
 					case 1 -> {
 						if (i == 0) {
 							double[] steps = {1e6, 2.5e6, 5e6, 10e6, 25e6, 50e6, 100e6, 250e6, 500e6};
@@ -801,12 +815,16 @@ public final class GearScreen extends Screen {
 							Progress.changed();
 							refresh();
 						} else if (i - 1 < plan.size()) {
-							GearAdvisor.Pick pick = plan.get(i - 1);
-							search(pick.bazaar() ? "/bz " + pick.item().name : "/ahs " + pick.item().name);
+							openPick(plan.get(i - 1));
 						}
 					}
 					case 3 -> search(upgrades.get(i).search(), upgrades.get(i).search().startsWith("/bz ") ? 1 : 0);
-					case 4 -> search("/bz " + GearData.get().shards.get(i).name + " Shard", Math.max(1, shardMissing(GearData.get().shards.get(i))));
+					case 4 -> {
+						// Left click buys what the next level needs, right click everything up to level 10.
+						ShardAdvisor.Plan sp = shardPlans.get(i);
+						long amount = event.button() == InputConstants.MOUSE_BUTTON_RIGHT ? sp.toMax() : sp.toNext();
+						if (!sp.done() && amount > 0) search("/bz " + sp.shard().name + " Shard", amount);
+					}
 					case 5 -> search("/bz " + GearData.get().tips.get(i).name);
 					case 6 -> whatIfClick(i - STAGE_ROWS, event.button() != InputConstants.MOUSE_BUTTON_RIGHT);
 					default -> { }
@@ -868,6 +886,7 @@ public final class GearScreen extends Screen {
 			case 0 -> i < picks.size();
 			case 1 -> i >= 1 && i - 1 < plan.size();
 			case 3 -> i < upgrades.size() && (upgrades.get(i).sweep() != 0 || upgrades.get(i).fortune() != 0 || upgrades.get(i).wisdom() != 0);
+			case 4 -> i < shardPlans.size();
 			default -> false;
 		};
 	}
@@ -877,6 +896,7 @@ public final class GearScreen extends Screen {
 			case 0 -> Why.pick(picks.get(i));
 			case 1 -> Why.pick(plan.get(i - 1));
 			case 3 -> Why.upgrade(upgrades.get(i));
+			case 4 -> Why.shard(shardPlans.get(i));
 			default -> { }
 		}
 	}

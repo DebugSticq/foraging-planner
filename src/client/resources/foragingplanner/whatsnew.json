@@ -5,6 +5,18 @@
       "open": "gear:6",
       "de": "Animierte Vorschau im Was-wäre-wenn-Rechner: dein Spieler fällt einen Baum, jetzt und mit deiner Auswahl",
       "en": "Animated preview in the what-if calculator: your player chops a tree, now and with your picks"
+    },
+    {
+      "icon": "amethyst_shard",
+      "open": "gear:4",
+      "de": "Shard-Seite neu: echte Level, Shards bis zum nächsten Level und bis max, Nutzen für dein Ziel",
+      "en": "Shard page rebuilt: real levels, shards to the next level and to max, value for your goal"
+    },
+    {
+      "icon": "leather_chestplate",
+      "open": "gear:0",
+      "de": "David's Cloak ist immer der beste Umhang – Slayer-Umhänge werden nicht mehr vorgeschlagen",
+      "en": "David's Cloak is always the best cloak – slayer cloaks are no longer suggested"
     }
   ],
   "1.0.6": [
