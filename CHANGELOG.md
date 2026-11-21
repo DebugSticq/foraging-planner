@@ -15,6 +15,8 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 - **Contest forecast**: the contest widget now estimates the bracket you will most likely end in, with a range for a bad and a good finish and the chance to reach the next bracket (or to keep the expected one). At the start of a contest, before your pace is known, it uses your last contests at the same host.
 
+- **Updates in one click**: when a newer version is on Modrinth, the chat message now has an "Install" button (or use `/fp update`). The new jar is downloaded next to the old one, checked against Modrinth's SHA-512, and swapped in when you close Minecraft. If anything goes wrong, your current version stays. Setting "Install updates automatically" (off by default) does this without a click.
+
 ### Fixed
 - Sweep blocks and tree order no longer mark wood in buildings (e.g. birch pillars in Torrhus Canyon). A tree only counts when it stands at a known tree position, when it is a Helix tree with both colours, or when you really cut it; those trees are remembered.
 - Trees built from normal blocks (not block displays) are now counted too, so "ready", "cut" and regrow times also work for them.

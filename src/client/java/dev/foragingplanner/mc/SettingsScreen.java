@@ -560,7 +560,8 @@ public final class SettingsScreen extends Screen {
 				});
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
 				sub(advanced, () -> {
-					new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
+					Row updates = new ToggleRow("update_check", Items.CLOCK, () -> c.updateCheck, value -> c.updateCheck = value);
+					sub(updates, () -> new ToggleRow("auto_update", Items.HOPPER, () -> c.autoUpdate, value -> c.autoUpdate = value));
 					new ToggleRow("perf_light", Items.FEATHER, () -> c.perfLight, value -> c.perfLight = value);
 					new ToggleRow("perf_auto", Items.CLOCK, () -> c.perfAuto, value -> c.perfAuto = value);
 					new ActionRow("perf_report", "open", Items.COMPARATOR, () -> {

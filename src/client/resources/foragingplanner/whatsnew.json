@@ -23,6 +23,12 @@
       "open": "stats",
       "de": "Contest-Prognose: welche Stufe du wahrscheinlich erreichst, mit Spanne und Chance auf die nächste",
       "en": "Contest forecast: which bracket you will likely reach, with a range and the chance for the next one"
+    },
+    {
+      "icon": "hopper",
+      "open": "setting:auto_update",
+      "de": "Updates mit einem Klick: neue Version im Chat installieren, wird beim Schließen eingespielt",
+      "en": "One-click updates: install a new version from chat, it is swapped in when you close the game"
     }
   ],
   "1.0.7": [

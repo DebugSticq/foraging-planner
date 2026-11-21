@@ -130,6 +130,7 @@ public final class ModConfig {
     public java.util.List<String> vendorNames = new java.util.ArrayList<>(java.util.List.of("Shard Vendor", "Shard Trader", "Shard Merchant", "Vendor"));
     /** Asks Modrinth once per start whether a newer version exists. */
     public boolean updateCheck = true;
+    public boolean autoUpdate = false;
     /** Mutes sounds of mobs with these names (e.g. the Drybark). */
     public boolean muteMobs = true;
     public java.util.List<String> mutedMobs = new java.util.ArrayList<>(java.util.List.of("Drybark"));

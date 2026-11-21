@@ -74,6 +74,7 @@ public final class Commands {
                             context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal("§a[FP] §7" + Planner.tr(muted ? "sounds.muted" : "sounds.unmuted", id)));
                             return SUCCESS;
                         }))));
+        root.then(ClientCommands.literal("update").executes(context -> { UpdateChecker.install(); return SUCCESS; }));
         root.then(ClientCommands.literal("version").executes(context -> {
             context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal("§a[FP] §fForaging Planner §e" + ModVersion.get()));
             return SUCCESS;

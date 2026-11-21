@@ -1692,5 +1692,15 @@
   "foragingplanner.hud.contest_forecast": "§7Erwartet: %s §8(%s–%s)",
   "foragingplanner.hud.contest_forecast_next": "§7%s: %s",
   "foragingplanner.hud.contest_forecast_keep": "§7%s sicher: %s",
-  "foragingplanner.hud.contest_forecast_history": "§8aus deinen letzten Contests"
+  "foragingplanner.hud.contest_forecast_history": "§8aus deinen letzten Contests",
+  "foragingplanner.update.install": "Installieren",
+  "foragingplanner.update.install_hint": "Lädt die neue Version jetzt herunter und installiert sie, wenn du Minecraft schließt.",
+  "foragingplanner.update.downloading": "Lade Version %s herunter …",
+  "foragingplanner.update.ready": "Version %s ist bereit und wird installiert, wenn du Minecraft schließt.",
+  "foragingplanner.update.failed": "Update fehlgeschlagen, deine jetzige Version bleibt. Lade die neue Version selbst von Modrinth.",
+  "foragingplanner.update.cannot": "Automatisch installieren geht hier nicht. Lade die neue Version von Modrinth.",
+  "foragingplanner.update.none": "Du hast schon die neueste Version.",
+  "foragingplanner.update.not_checked": "Noch nicht nach Updates gesucht, betritt zuerst SkyBlock.",
+  "foragingplanner.settings.auto_update": "Updates automatisch installieren",
+  "foragingplanner.settings.auto_update.hint": "Neue Versionen werden heruntergeladen, geprüft und beim Schließen von Minecraft installiert, ohne dass du klicken musst."
 }
