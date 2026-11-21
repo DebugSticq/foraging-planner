@@ -66,6 +66,11 @@ public final class ModConfig {
     public boolean treeArrow = true;
     public boolean treeRoute = false;
     public boolean sweepPreview = true;
+    public boolean sweepOverlay = true;
+    public boolean sweepOverlayNext = true;
+    public int sweepOverlayColor = 0xFF55E07A;
+    public boolean treeOrderOverlay = true;
+    public boolean knownTrees = true;
     public boolean treeProgress = true;
     public boolean comboCounter = true;
     public boolean protectedTrees = true;

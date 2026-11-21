@@ -1672,5 +1672,21 @@
   "foragingplanner.settings.menu_scale": "Menügröße",
   "foragingplanner.settings.menu_scale.hint": "Größe der Mod-Menüs, unabhängig von der GUI-Größe. Kleiner passt mehr auf den Bildschirm.",
   "foragingplanner.settings.remote_data": "Daten-Updates von GitHub",
-  "foragingplanner.settings.remote_data.hint": "Lädt korrigierte Ausrüstungs- und Shard-Werte, ohne dass ein Mod-Update nötig ist."
+  "foragingplanner.settings.remote_data.hint": "Lädt korrigierte Ausrüstungs- und Shard-Werte, ohne dass ein Mod-Update nötig ist.",
+  "foragingplanner.settings.sweep_overlay": "Sweep-Blöcke im Baum",
+  "foragingplanner.settings.sweep_overlay.hint": "Markiert beim Zielen mit der Axt alle Logs, die der nächste Schlag abbaut.",
+  "foragingplanner.settings.sweep_overlay_next": "Nächsten Log zeigen",
+  "foragingplanner.settings.sweep_overlay_next.hint": "Oranger Rahmen um den Log, den die nächste Sweep-Schwelle dazu bringen würde.",
+  "foragingplanner.settings.sweep_overlay_color": "Farbe der Sweep-Blöcke",
+  "foragingplanner.settings.sweep_overlay_color.hint": "Farbe der markierten Logs.",
+  "foragingplanner.settings.tree_order": "Baum-Reihenfolge",
+  "foragingplanner.settings.tree_order.hint": "Zeigt am nächsten Baum, welcher Teil dran ist und auf welchen Log du zuerst schlagen solltest.",
+  "foragingplanner.settings.known_trees": "Bekannte Baum-Positionen",
+  "foragingplanner.settings.known_trees.hint": "Alle Fig- und Mangrove-Bäume auf Galatea sind schon bekannt, auch bevor du sie gesehen hast. Helix-Bäume lernt die Mod beim Spielen.",
+  "foragingplanner.tree_order.start": "Hier starten · %s von %s Logs im ersten Schlag",
+  "foragingplanner.tree_order.step_trunk": "Stamm",
+  "foragingplanner.tree_order.step_branches": "Äste",
+  "foragingplanner.tree_order.step_roots": "Wurzeln",
+  "foragingplanner.tree_order.step_beige": "Beige",
+  "foragingplanner.tree_order.step_red": "Rot"
 }

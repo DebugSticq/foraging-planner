@@ -44,6 +44,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		SweepChatListener.register();
 		Commands.register();
 		Beacon.register();
+		WorldBoxes.register();
 		TreeWarnings.register();
 		MiniMap.register();
 		Extras.register();
@@ -81,6 +82,8 @@ public final class ForagingPlannerClient implements ClientModInitializer {
             int scan = Perf.scanTicks();
             if (ticks % scan == 0) Perf.run("trees", () -> TreeTracker.tick(client));
             Perf.run("routes", () -> Routes.tick(client));
+            Perf.run("sweep_overlay", () -> SweepOverlay.tick(client));
+            if (ticks % 4 == 2) Perf.run("tree_order", () -> TreeOrder.tick(client));
             if (!Perf.light() || ticks % 2 == 0) Perf.run("tree_progress", () -> TreeProgress.tick(client));
             Perf.run("tree_choice", () -> TreeChoice.tick(client));
             if (ticks % scan == 5) Perf.run("extras", () -> Extras.tick(client));

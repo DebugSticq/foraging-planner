@@ -1,4 +1,24 @@
 {
+  "1.0.8": [
+    {
+      "icon": "golden_axe",
+      "open": "setting:sweep_overlay",
+      "de": "Sweep-Blöcke: beim Zielen siehst du im Baum, welche Logs der nächste Schlag abbaut",
+      "en": "Sweep blocks: while aiming you see in the tree which logs the next hit cuts"
+    },
+    {
+      "icon": "stripped_spruce_wood",
+      "open": "setting:tree_order",
+      "de": "Baum-Reihenfolge: zeigt, welcher Teil dran ist und auf welchen Log du zuerst schlägst",
+      "en": "Tree order: shows which part comes next and which log to hit first"
+    },
+    {
+      "icon": "filled_map",
+      "open": "setting:known_trees",
+      "de": "Alle Fig- und Mangrove-Bäume auf Galatea sind von Anfang an bekannt",
+      "en": "Every Fig and Mangrove tree on Galatea is known from the start"
+    }
+  ],
   "1.0.7": [
     {
       "icon": "comparator",

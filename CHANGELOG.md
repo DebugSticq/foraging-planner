@@ -6,6 +6,16 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
+## [1.0.8] - 2026-11-21
+
+### Added
+- **Sweep blocks in the tree**: while aiming at a log with an axe, every log the next hit cuts is marked in the world (green, the hit log framed in white). An orange frame shows the log the next Sweep breakpoint would add. Colour and the orange frame can be changed in the settings.
+- **Tree order**: the nearest tree shows which part comes next (Fig: trunk, then branches; Mangrove: branches, trunk, roots; Helix: beige, then red) and the best log to start on, picked so the first hit cuts as many logs of that part as possible with your Sweep. A label over it names the steps.
+- **Known tree positions**: all 65 Fig and Mangrove trees on Galatea are known in advance, so markers, the route and the arrow work before you have seen a tree. Positions from [Skyblock21](https://github.com/sme6en/Skyblock21) by sme6en (LGPL-3.0). Helix trees are still learned while playing.
+
+### Fixed
+- Trees built from normal blocks (not block displays) are now counted too, so "ready", "cut" and regrow times also work for them.
+
 ## [1.0.7] - 2026-11-21
 
 ### Added

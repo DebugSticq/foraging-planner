@@ -1,0 +1,527 @@
+{
+ "_source": "Fig and Mangrove tree positions on Galatea (Moonglade Marsh) from Skyblock21 by sme6en, https://github.com/sme6en/Skyblock21, licensed LGPL-3.0. Helix trees are learned while playing.",
+ "islands": {
+  "Galatea": [
+   {
+    "x": -641,
+    "y": 115,
+    "z": -43,
+    "top": 135,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -729,
+    "y": 132,
+    "z": -5,
+    "top": 152,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -760,
+    "y": 134,
+    "z": -6,
+    "top": 154,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -749,
+    "y": 119,
+    "z": -19,
+    "top": 139,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -756,
+    "y": 115,
+    "z": -35,
+    "top": 135,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -738,
+    "y": 115,
+    "z": -39,
+    "top": 135,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -726,
+    "y": 120,
+    "z": -15,
+    "top": 140,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -698,
+    "y": 114,
+    "z": -65,
+    "top": 134,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -675,
+    "y": 127,
+    "z": -58,
+    "top": 147,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -673,
+    "y": 131,
+    "z": -77,
+    "top": 151,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -662,
+    "y": 114,
+    "z": -81,
+    "top": 134,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -598,
+    "y": 120,
+    "z": -46,
+    "top": 140,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -586,
+    "y": 125,
+    "z": -42,
+    "top": 145,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -564,
+    "y": 122,
+    "z": -11,
+    "top": 142,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -543,
+    "y": 124,
+    "z": -9,
+    "top": 144,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -550,
+    "y": 118,
+    "z": -1,
+    "top": 138,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -569,
+    "y": 117,
+    "z": 8,
+    "top": 137,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -558,
+    "y": 113,
+    "z": 28,
+    "top": 133,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -569,
+    "y": 112,
+    "z": 49,
+    "top": 132,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -549,
+    "y": 112,
+    "z": 42,
+    "top": 132,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -546,
+    "y": 111,
+    "z": 61,
+    "top": 131,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -577,
+    "y": 113,
+    "z": 74,
+    "top": 133,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -563,
+    "y": 114,
+    "z": 67,
+    "top": 134,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -587,
+    "y": 113,
+    "z": 87,
+    "top": 133,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -626,
+    "y": 121,
+    "z": 42,
+    "top": 141,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -621,
+    "y": 117,
+    "z": 60,
+    "top": 137,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -666,
+    "y": 118,
+    "z": 85,
+    "top": 138,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -684,
+    "y": 132,
+    "z": 70,
+    "top": 152,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -674,
+    "y": 120,
+    "z": 58,
+    "top": 140,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -691,
+    "y": 119,
+    "z": 25,
+    "top": 139,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -722,
+    "y": 121,
+    "z": 21,
+    "top": 141,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -734,
+    "y": 120,
+    "z": 41,
+    "top": 140,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -749,
+    "y": 118,
+    "z": 15,
+    "top": 138,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -691,
+    "y": 119,
+    "z": -7,
+    "top": 139,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -684,
+    "y": 116,
+    "z": -41,
+    "top": 136,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -577,
+    "y": 113,
+    "z": -29,
+    "top": 133,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -574,
+    "y": 126,
+    "z": 23,
+    "top": 146,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -588,
+    "y": 115,
+    "z": 40,
+    "top": 135,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -714,
+    "y": 120,
+    "z": 83,
+    "top": 140,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -547,
+    "y": 130,
+    "z": -33,
+    "top": 150,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -541,
+    "y": 113,
+    "z": 48,
+    "top": 133,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -607,
+    "y": 118,
+    "z": 13,
+    "top": 138,
+    "tree": "fig",
+    "big": true
+   },
+   {
+    "x": -706,
+    "y": 131,
+    "z": 70,
+    "top": 151,
+    "tree": "fig",
+    "big": false
+   },
+   {
+    "x": -672,
+    "y": 89,
+    "z": -32,
+    "top": 109,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -671,
+    "y": 96,
+    "z": -10,
+    "top": 116,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -641,
+    "y": 91,
+    "z": -20,
+    "top": 111,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -610,
+    "y": 91,
+    "z": 30,
+    "top": 111,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -650,
+    "y": 101,
+    "z": 53,
+    "top": 121,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -629,
+    "y": 102,
+    "z": 75,
+    "top": 122,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -656,
+    "y": 102,
+    "z": 90,
+    "top": 122,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -634,
+    "y": 99,
+    "z": 96,
+    "top": 119,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -608,
+    "y": 101,
+    "z": 97,
+    "top": 121,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -613,
+    "y": 101,
+    "z": 66,
+    "top": 121,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -592,
+    "y": 100,
+    "z": 66,
+    "top": 120,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -671,
+    "y": 94,
+    "z": 31,
+    "top": 114,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -692,
+    "y": 100,
+    "z": 52,
+    "top": 120,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -715,
+    "y": 99,
+    "z": 71,
+    "top": 119,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -732,
+    "y": 100,
+    "z": 56,
+    "top": 120,
+    "tree": "mangrove",
+    "big": true
+   },
+   {
+    "x": -720,
+    "y": 101,
+    "z": 36,
+    "top": 121,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -704,
+    "y": 101,
+    "z": -26,
+    "top": 121,
+    "tree": "mangrove",
+    "big": true
+   },
+   {
+    "x": -713,
+    "y": 102,
+    "z": -51,
+    "top": 122,
+    "tree": "mangrove",
+    "big": true
+   },
+   {
+    "x": -731,
+    "y": 100,
+    "z": -30,
+    "top": 120,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -689,
+    "y": 100,
+    "z": -48,
+    "top": 120,
+    "tree": "mangrove",
+    "big": false
+   },
+   {
+    "x": -641,
+    "y": 103,
+    "z": -65,
+    "top": 123,
+    "tree": "mangrove",
+    "big": true
+   },
+   {
+    "x": -616,
+    "y": 106,
+    "z": -57,
+    "top": 126,
+    "tree": "mangrove",
+    "big": true
+   }
+  ]
+ }
+}

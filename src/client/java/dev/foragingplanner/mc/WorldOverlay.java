@@ -108,6 +108,7 @@ public final class WorldOverlay {
 		if (Routes.active() != null && Routes.recording() == null) drawRouteArrow(client, g, player, Routes.active());
 		else if (Planner.config.treeArrow) drawArrow(client, g, player);
 		if (Planner.config.sweepPreview) drawSweep(client, g);
+		TreeOrder.draw(client, g);
 		drawChoice(client, g, player, now);
 		drawGhost(client, g, now);
 		drawPrecision(client, g);

@@ -1672,5 +1672,21 @@
   "foragingplanner.settings.menu_scale": "Menu size",
   "foragingplanner.settings.menu_scale.hint": "Size of the mod's menus, independent of the GUI scale. Smaller fits more on screen.",
   "foragingplanner.settings.remote_data": "Data updates from GitHub",
-  "foragingplanner.settings.remote_data.hint": "Loads corrected gear and shard values without a mod update."
+  "foragingplanner.settings.remote_data.hint": "Loads corrected gear and shard values without a mod update.",
+  "foragingplanner.settings.sweep_overlay": "Sweep blocks in the tree",
+  "foragingplanner.settings.sweep_overlay.hint": "While aiming with an axe, marks every log the next hit cuts.",
+  "foragingplanner.settings.sweep_overlay_next": "Show the next log",
+  "foragingplanner.settings.sweep_overlay_next.hint": "Orange frame around the log the next Sweep breakpoint would add.",
+  "foragingplanner.settings.sweep_overlay_color": "Sweep block colour",
+  "foragingplanner.settings.sweep_overlay_color.hint": "Colour of the marked logs.",
+  "foragingplanner.settings.tree_order": "Tree order",
+  "foragingplanner.settings.tree_order.hint": "Shows on the nearest tree which part comes next and which log to hit first.",
+  "foragingplanner.settings.known_trees": "Known tree positions",
+  "foragingplanner.settings.known_trees.hint": "Every Fig and Mangrove tree on Galatea is known before you have seen it. Helix trees are learned while playing.",
+  "foragingplanner.tree_order.start": "Start here · %s of %s logs in the first hit",
+  "foragingplanner.tree_order.step_trunk": "Trunk",
+  "foragingplanner.tree_order.step_branches": "Branches",
+  "foragingplanner.tree_order.step_roots": "Roots",
+  "foragingplanner.tree_order.step_beige": "Beige",
+  "foragingplanner.tree_order.step_red": "Red"
 }

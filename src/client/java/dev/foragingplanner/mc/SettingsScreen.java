@@ -336,6 +336,13 @@ public final class SettingsScreen extends Screen {
 				Row combo = new ToggleRow("combo", Items.BLAZE_POWDER, () -> c.comboCounter, value -> c.comboCounter = value);
 				sub(combo, () -> new ToggleRow("combo_fire", Items.BLAZE_POWDER, () -> c.comboFire, value -> c.comboFire = value));
 				new ToggleRow("sweep_preview", Items.IRON_AXE, () -> c.sweepPreview, value -> c.sweepPreview = value);
+				Row sweepBoxes = new ToggleRow("sweep_overlay", Items.GOLDEN_AXE, () -> c.sweepOverlay, value -> c.sweepOverlay = value);
+				sub(sweepBoxes, () -> {
+					new ToggleRow("sweep_overlay_next", Items.GLOWSTONE_DUST, () -> c.sweepOverlayNext, value -> c.sweepOverlayNext = value);
+					new ColorRow("sweep_overlay_color", Items.GLASS, ACCENTS, () -> c.sweepOverlayColor, value -> c.sweepOverlayColor = value);
+				});
+				new ToggleRow("tree_order", Items.STRIPPED_SPRUCE_WOOD, () -> c.treeOrderOverlay, value -> c.treeOrderOverlay = value);
+				new ToggleRow("known_trees", Items.FILLED_MAP, () -> c.knownTrees, value -> c.knownTrees = value);
 				new ToggleRow("precision", Items.SPECTRAL_ARROW, () -> c.precisionHelper, value -> c.precisionHelper = value);
 				new ToggleRow("prevent_strip", Items.IRON_AXE, () -> c.preventStripping, value -> c.preventStripping = value);
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);

@@ -146,6 +146,7 @@ public final class TreeTracker {
 		List<Spot> spots = spots();
 		long now = System.currentTimeMillis();
 		Vec3 player = client.player.position();
+		KnownTrees.seed(spots, player);
 		for (Spot spot : spots) spot.blocks = 0;
 
 		for (List<Block> cluster : clusters) {
@@ -188,6 +189,7 @@ public final class TreeTracker {
 		for (Spot spot : spots) {
 			if (spot.cx == 0 && spot.cz == 0) { spot.cx = spot.x; spot.cy = spot.y + 3; spot.cz = spot.z; }
 			if (Math.hypot(spot.x - player.x, spot.z - player.z) > JUDGE_RADIUS) continue;
+			if (spot.blocks == 0) spot.blocks = KnownTrees.standing(client, spot);
 
 			spot.maxBlocks = Math.max(spot.maxBlocks, spot.blocks);
 			State before = spot.state;

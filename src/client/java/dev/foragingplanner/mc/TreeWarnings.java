@@ -231,7 +231,7 @@ public final class TreeWarnings {
 		return best;
 	}
 
-	private static boolean holdingAxe(Minecraft client) {
+	static boolean holdingAxe(Minecraft client) {
 		var stack = client.player.getMainHandItem();
 		if (stack.is(net.minecraft.tags.ItemTags.AXES)) return true;
 		String name = Planner.strip(stack.getHoverName().getString()).toLowerCase(Locale.ROOT);
