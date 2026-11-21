@@ -9,7 +9,12 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 ## [1.0.7] - 2026-11-21
 
 ### Added
-- **Animated what-if preview**: your own player chops a tree at the top of the what-if page, once with your current stats and next to it with the picked changes. More logs per hit means fewer hits per tree and more logs flying out
+- **Better what-if calculator**:
+  - Before → after for Sweep, Fortune and Wisdom, and the logs per hit on your tree with the Sweep needed for the next log
+  - Logs/h, coins/h and XP/h before → after, total cost in coins and Whispers, items without a price, and how long until it pays for itself
+  - Every slot only offers items that are an upgrade, best first, with a counter (e.g. 2/7); items above your Foraging level are marked
+  - One click takes over the budget plan or the suggestions; another resets everything
+  - Perks sorted by the best next upgrades, up to +50 levels at once (capped at the max level); reforges and enchants sorted by gain
 - **Shard page rebuilt**:
   - Real attribute levels with a level bar, shards needed for the next level and for level 10 (with Hypixel's shards per level for each rarity, minus what waits in your Hunting Box)
   - Cost of the next level and of everything to level 10 at Bazaar prices

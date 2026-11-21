@@ -3,8 +3,8 @@
     {
       "icon": "comparator",
       "open": "gear:6",
-      "de": "Animierte Vorschau im Was-wäre-wenn-Rechner: dein Spieler fällt einen Baum, jetzt und mit deiner Auswahl",
-      "en": "Animated preview in the what-if calculator: your player chops a tree, now and with your picks"
+      "de": "Besserer Was-wäre-wenn-Rechner: vorher/nachher, Logs pro Schlag, pro Stunde, Kosten und Amortisation",
+      "en": "Better what-if calculator: before/after, logs per hit, per hour, cost and payback"
     },
     {
       "icon": "amethyst_shard",
