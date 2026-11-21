@@ -1548,5 +1548,11 @@
   "foragingplanner.settings.ui_hover_sounds.hint": "Ein ganz leises Ticken, wenn die Maus auf etwas Klickbares kommt.",
   "foragingplanner.settings.ui_sound_test": "Sound testen",
   "foragingplanner.settings.ui_sound_test.hint": "Spielt den Erfolgs-Ton mit der eingestellten Lautstärke.",
-  "foragingplanner.journal.sacks_hidden": "Sack-Meldungen waren gekürzt: etwa %s Items wurden von Hypixel nicht einzeln aufgelistet und fehlen im Wert."
+  "foragingplanner.journal.sacks_hidden": "Sack-Meldungen waren gekürzt: etwa %s Items wurden von Hypixel nicht einzeln aufgelistet und fehlen im Wert.",
+  "foragingplanner.gear.stage_no_tree": "Noch kein Baum bekannt – geh einmal nach Galatea.",
+  "foragingplanner.gear.stage_now": "Jetzt",
+  "foragingplanner.gear.stage_after": "Mit Auswahl",
+  "foragingplanner.gear.stage_hint": "Wähle unten etwas aus, dann siehst du hier den Unterschied.",
+  "foragingplanner.gear.stage_per_hit": "%s Logs/Schlag · %s Schläge pro Baum",
+  "foragingplanner.gear.stage_felled": "%s gefällt"
 }

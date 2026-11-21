@@ -156,7 +156,7 @@ public final class GearScreen extends Screen {
 			case 2 -> GearAdvisor.SLOTS.size();
 			case 3 -> Math.max(1, upgrades.size());
 			case 4 -> GearData.get().shards.size();
-			case 6 -> WHATIF_EXTRA + GearAdvisor.SLOTS.size();
+			case 6 -> STAGE_ROWS + WHATIF_EXTRA + GearAdvisor.SLOTS.size();
 			default -> GearData.get().tips.size();
 		};
 	}
@@ -359,10 +359,14 @@ public final class GearScreen extends Screen {
 
 		for (int i = 0; i < rowCount(); i++) {
 			int y = rowY(i);
-			if (y + h <= viewTop || y >= viewBottom) continue;
+			// The what-if stage spans its first rows; the rows under it draw nothing of their own.
+			boolean stage = tab == 6 && i == 0;
+			if (tab == 6 && i > 0 && i < STAGE_ROWS) continue;
+			int rowH = stage ? rowY(STAGE_ROWS - 1) + h - y : h;
+			if (y + rowH <= viewTop || y >= viewBottom) continue;
 
 			double appear = Motion.pages() ? easeOut((now - tabNs - Math.min(i, 12) * 35e6) / 240e6) : 1;
-			double edge = Math.clamp(Math.min((y + h - viewTop) / 14.0, (viewBottom - y) / 14.0), 0.0, 1.0);
+			double edge = stage ? 1 : Math.clamp(Math.min((y + h - viewTop) / 14.0, (viewBottom - y) / 14.0), 0.0, 1.0);
 			double a = open * appear * edge;
 			if (a <= 0.01) continue;
 
@@ -372,6 +376,10 @@ public final class GearScreen extends Screen {
 			double hover = animated() ? approach(rowHover.getOrDefault(key, 0.0), hovered ? 1 : 0, dt, 16) : hovered ? 1 : 0;
 			rowHover.put(key, hover);
 
+			if (stage) {
+				WhatIfStage.draw(g, font, x, y, contentW, rowH, a, tabNs, whatIfTotals());
+				continue;
+			}
 			round(g, x, y, contentW, h, 7, alpha(mixArgb(UI_ROW, UI_ROW_HOVER, hover), a));
 
 			switch (tab) {
@@ -380,7 +388,7 @@ public final class GearScreen extends Screen {
 				case 2 -> drawGear(g, GearAdvisor.SLOTS.get(i), x, y, a);
 				case 3 -> drawUpgrade(g, i, x, y, a);
 				case 4 -> drawShard(g, GearData.get().shards.get(i), x, y, a);
-				case 6 -> drawWhatIf(g, i, x, y, a);
+				case 6 -> drawWhatIf(g, i - STAGE_ROWS, x, y, a);
 				default -> drawTip(g, GearData.get().tips.get(i), x, y, a);
 			}
 			if (hasWhy(i)) {
@@ -697,7 +705,7 @@ public final class GearScreen extends Screen {
 			case 1 -> index == 0 || index - 1 < plan.size();
 			case 3 -> index < upgrades.size() && upgrades.get(index).search() != null;
 			case 4, 5 -> true;
-			case 6 -> index > 0;
+			case 6 -> index > STAGE_ROWS;
 			default -> false;
 		};
 	}
@@ -800,7 +808,7 @@ public final class GearScreen extends Screen {
 					case 3 -> search(upgrades.get(i).search(), upgrades.get(i).search().startsWith("/bz ") ? 1 : 0);
 					case 4 -> search("/bz " + GearData.get().shards.get(i).name + " Shard", Math.max(1, shardMissing(GearData.get().shards.get(i))));
 					case 5 -> search("/bz " + GearData.get().tips.get(i).name);
-					case 6 -> whatIfClick(i, event.button() != InputConstants.MOUSE_BUTTON_RIGHT);
+					case 6 -> whatIfClick(i - STAGE_ROWS, event.button() != InputConstants.MOUSE_BUTTON_RIGHT);
 					default -> { }
 				}
 
@@ -876,6 +884,8 @@ public final class GearScreen extends Screen {
 	// What if
 
 	private static final int WHATIF_EXTRA = 5;
+	/** Rows the animated preview at the top of the what-if page takes. */
+	private static final int STAGE_ROWS = 3;
 	private static final int[] PERK_STEPS = {1, 5, 10, 25};
 	private final Map<String, GearData.Item> whatGear = new java.util.LinkedHashMap<>();
 	private final java.util.Set<String> whatTouched = new java.util.HashSet<>();
