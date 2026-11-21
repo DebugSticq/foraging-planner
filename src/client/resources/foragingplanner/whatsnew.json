@@ -1,4 +1,12 @@
 {
+  "1.0.7": [
+    {
+      "icon": "comparator",
+      "open": "gear:6",
+      "de": "Animierte Vorschau im Was-wäre-wenn-Rechner: dein Spieler fällt einen Baum, jetzt und mit deiner Auswahl",
+      "en": "Animated preview in the what-if calculator: your player chops a tree, now and with your picks"
+    }
+  ],
   "1.0.6": [
     {
       "icon": "glow_berries",

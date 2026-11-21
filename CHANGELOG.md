@@ -6,10 +6,14 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
-## [1.0.6] - 2026-11-20
+## [1.0.7] - 2026-11-21
 
 ### Added
 - **Animated what-if preview**: your own player chops a tree at the top of the what-if page, once with your current stats and next to it with the picked changes. More logs per hit means fewer hits per tree and more logs flying out
+
+## [1.0.6] - 2026-11-20
+
+### Added
 - **Smoother menus**: pages and rows slide in, numbers count up when a page opens, bars fill with a shimmer, ticks and switches pop. Each can be turned off (Settings > Style > Animations)
 - **Menu sounds**: quiet click, page turn, switch, success and error sounds in all mod menus, with volume and an optional very quiet hover tick (Settings > Style > Menu sounds)
 - "What's new" card for this version with jumps to the new settings (`/fp news`)
