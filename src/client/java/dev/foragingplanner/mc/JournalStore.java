@@ -28,7 +28,7 @@ public final class JournalStore {
         HuntingTracker.reset();
         journal.rollDay(System.currentTimeMillis());
         lastTick = 0; sackIncomplete = false;
-        Progress.load(); TreeTracker.reload();
+        Progress.load(); TreeTracker.reload(); KnownTrees.reload();
     }
     public static void save() {
         try {

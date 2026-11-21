@@ -28,7 +28,36 @@ public final class SweepOverlay {
 	public static int found() { return lastFound; }
 	public static String tree() { return lastTree; }
 
+	// A log the player hit that then disappears belongs to a real tree: remember that tree.
+	private static BlockPos hitPos;
+	private static Map<BlockPos, BlockState> hitTree;
+	private static String hitKind;
+	private static long hitAt;
+
+	private static void watchHit(Minecraft client, BlockPos target, Map<BlockPos, BlockState> whole, String kind) {
+		if (client.options.keyAttack.isDown() && whole.size() >= 4) {
+			hitPos = target;
+			hitTree = whole;
+			hitKind = kind;
+			hitAt = System.currentTimeMillis();
+		}
+	}
+
+	private static void checkHit(Minecraft client) {
+		if (hitPos == null || client.level == null) return;
+		long age = System.currentTimeMillis() - hitAt;
+		if (age > 2500) {
+			hitPos = null;
+			return;
+		}
+		if (LogScan.treeOf(client.level.getBlockState(hitPos)) == null && age > 50) {
+			KnownTrees.learn(hitTree, hitKind);
+			hitPos = null;
+		}
+	}
+
 	public static void tick(Minecraft client) {
+		checkHit(client);
 		lastLogs = -1;
 		lastFound = -1;
 		if (!Planner.config.sweepOverlay || client.player == null || client.level == null
@@ -44,14 +73,17 @@ public final class SweepOverlay {
 		}
 		// Look again around the aimed log so tall trees are covered.
 		logs = LogScan.around(client, target, 7, 10, 18);
-		GameData.Tree tree = Planner.data.tree(LogScan.treeOf(logs.get(target)));
-		if (tree == null) {
+		String kind = LogScan.treeOf(logs.get(target));
+		GameData.Tree tree = Planner.data.tree(kind);
+		Map<BlockPos, BlockState> whole = LogScan.tree(logs, target, 900);
+		watchHit(client, target, whole, kind);
+		if (tree == null || !KnownTrees.isTree(whole, kind)) {
 			WorldBoxes.setSweep(List.of());
 			return;
 		}
 		double sweep = SkyBlockReader.statsKnown() ? SkyBlockReader.stats().sweep() : 0;
 		int perHit = Math.max(1, TreeMath.logsPerHit(tree, sweep));
-		List<BlockPos> cut = LogScan.sweep(logs, target, perHit + 1);
+		List<BlockPos> cut = LogScan.sweep(whole, target, perHit + 1);
 
 		long now = System.currentTimeMillis();
 		double pulse = Planner.config.animations ? 0.8 + 0.2 * Math.sin(now / 180.0) : 1;

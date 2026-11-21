@@ -61,24 +61,32 @@ public final class TreeOrder {
 			clear();
 			return;
 		}
-		BlockPos focus = LogScan.aimed(client, near, 7);
-		if (focus == null) {
-			Vec3 me = client.player.position();
-			double best = 8 * 8;
-			for (BlockPos pos : near.keySet()) {
-				double d = Vec3.atCenterOf(pos).distanceToSqr(me);
-				if (d < best) { best = d; focus = pos; }
+		// Candidates: the aimed log first, then logs by distance. Wood that is not a tree is skipped.
+		List<BlockPos> order = new ArrayList<>(near.keySet());
+		Vec3 me = client.player.position();
+		order.sort(java.util.Comparator.comparingDouble(p -> Vec3.atCenterOf(p).distanceToSqr(me)));
+		BlockPos aimed = LogScan.aimed(client, near, 7);
+		if (aimed != null) order.add(0, aimed);
+		java.util.Set<BlockPos> tried = new java.util.HashSet<>();
+		Map<BlockPos, BlockState> tree = null;
+		String kind = null;
+		int groups = 0;
+		for (BlockPos candidate : order) {
+			if (tried.contains(candidate)) continue;
+			if (Vec3.atCenterOf(candidate).distanceToSqr(me) > 10 * 10 && candidate != aimed) break;
+			if (++groups > 5) break;
+			Map<BlockPos, BlockState> logs = LogScan.around(client, candidate, 8, 14, 22);
+			Map<BlockPos, BlockState> group = LogScan.tree(logs, candidate, 900);
+			tried.addAll(group.keySet());
+			String k = LogScan.treeOf(logs.get(candidate));
+			if (group.size() >= 3 && KnownTrees.isTree(group, k)) {
+				tree = group;
+				kind = k;
+				break;
 			}
 		}
-		if (focus == null) {
-			clear();
-			return;
-		}
-		Map<BlockPos, BlockState> logs = LogScan.around(client, focus, 8, 14, 22);
-		Map<BlockPos, BlockState> tree = LogScan.tree(logs, focus, 900);
-		String kind = LogScan.treeOf(logs.get(focus));
-		GameData.Tree data = Planner.data.tree(kind);
-		if (data == null || tree.size() < 3) {
+		GameData.Tree data = kind == null ? null : Planner.data.tree(kind);
+		if (tree == null || data == null) {
 			clear();
 			return;
 		}

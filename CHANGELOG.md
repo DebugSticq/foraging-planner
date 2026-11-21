@@ -14,6 +14,7 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Known tree positions**: all 65 Fig and Mangrove trees on Galatea are known in advance, so markers, the route and the arrow work before you have seen a tree. Positions from [Skyblock21](https://github.com/sme6en/Skyblock21) by sme6en (LGPL-3.0). Helix trees are still learned while playing.
 
 ### Fixed
+- Sweep blocks and tree order no longer mark wood in buildings (e.g. birch pillars in Torrhus Canyon). A tree only counts when it stands at a known tree position, when it is a Helix tree with both colours, or when you really cut it; those trees are remembered.
 - Trees built from normal blocks (not block displays) are now counted too, so "ready", "cut" and regrow times also work for them.
 
 ## [1.0.7] - 2026-11-21
