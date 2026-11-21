@@ -23,7 +23,7 @@ public final class TreeOrder {
 	private static final int[] STEP_COLORS = {0xFF5CE07A, 0xFFFFC94D, 0xFFE0705C};
 
 	/** What is shown, read by the HUD label. */
-	public record Plan(String tree, List<String> steps, int step, BlockPos start, int cuts, int left) {}
+	public record Plan(String tree, List<String> steps, int step, BlockPos start, int cuts, int left, int top) {}
 
 	private static volatile Plan plan;
 
@@ -144,7 +144,9 @@ public final class TreeOrder {
 		int startColor = STEP_COLORS[Math.min(step, STEP_COLORS.length - 1)];
 		boxes.add(new WorldBoxes.Box(start, ForestTheme.alpha(startColor, 0.45 * pulse), ForestTheme.alpha(0xFFFFFFFF, 0.6 + 0.4 * pulse), 4f, 0.02f));
 		WorldBoxes.setOrder(boxes);
-		plan = new Plan(kind, steps, step, start, Math.max(0, bestCut), counts[step]);
+		int top = start.getY();
+		for (BlockPos pos : tree.keySet()) if (Math.abs(pos.getX() - start.getX()) <= 3 && Math.abs(pos.getZ() - start.getZ()) <= 3) top = Math.max(top, pos.getY());
+		plan = new Plan(kind, steps, step, start, Math.max(0, bestCut), counts[step], top);
 	}
 
 	private static void clear() {
@@ -163,6 +165,11 @@ public final class TreeOrder {
 			order.append(i < p.step() ? "§8§m" + name + "§r" : i == p.step() ? "§f§l" + name + "§r" : "§7" + name);
 		}
 		String text = Planner.tr("tree_order.start", p.cuts(), p.left()) + "\n" + order;
-		WorldText.label(Vec3.atCenterOf(p.start()).add(0, 1.3, 0), text, STEP_COLORS[Math.min(p.step(), STEP_COLORS.length - 1)]);
+		// Above the highest log of the tree, readable through the logs in front of it.
+		Vec3 at = new Vec3(p.start().getX() + 0.5, Math.max(p.top(), p.start().getY()) + 1.8, p.start().getZ() + 0.5);
+		WorldText.add(at, text, STEP_COLORS[Math.min(p.step(), STEP_COLORS.length - 1)],
+				ForestTheme.alpha(ForestTheme.UI_PANEL, 0.8), 1f, true);
+		// A line from the label down to the start log, so it is clear which log is meant.
+		WorldText.line(at.add(0, -0.35, 0), Vec3.atCenterOf(p.start()).add(0, 0.5, 0), ForestTheme.alpha(0xFFFFFFFF, 0.6), 1.5f);
 	}
 }

@@ -14,6 +14,7 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 ### Fixed
 - **HUD positions are kept**: the HUD layout is now saved once for all SkyBlock profiles (`hud.json`). Before, moving a card before your profile was detected, or leaving the server, could bring back an old layout. Changes made while the contest layout is active are kept in the contest layout, and switching layouts keeps the changes of the one you leave.
+- The tree order label sits above the tree and stays readable through the logs, with a line down to the start log. Before, it was inside the tree and cut off by the logs.
 - The active pet is found in the tab list again when it has a skin (e.g. "[Lvl 200] [240✦] Jade Dragon").
 
 ## [1.0.8] - 2026-11-21
