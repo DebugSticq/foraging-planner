@@ -10,7 +10,7 @@ import dev.foragingplanner.core.ContestMath;
 /** Time to the next Foraging level and the next pet level, from the current rates. */
 public final class Levels {
 	private static final Pattern SKILL = Pattern.compile("Foraging (\\d+)");
-	private static final Pattern PET = Pattern.compile("\\[Lvl (\\d+)] ([A-Za-z ]+?)\\s*$");
+	private static final Pattern PET = Pattern.compile("\\[Lvl (\\d+)](?:\\s*\\[[^\\]]*])*\\s*([A-Za-z][A-Za-z' ]*?)\\s*(?:[^A-Za-z' ].*)?$");
 	private static final Pattern PET_XP = Pattern.compile("^([\\d,.]+[kKmMbB]?)/([\\d,.]+[kKmMbB]?) XP");
 
 	private static String petName = "";

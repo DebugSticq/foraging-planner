@@ -43,7 +43,7 @@ public final class GearAdvisor {
 	private static final List<String> EQUIPMENT = List.of("necklace", "cloak", "belt", "gloves");
 	private static final List<String> TIERS = List.of("COMMON", "UNCOMMON", "RARE", "EPIC", "LEGENDARY", "MYTHIC");
 	private static final Pattern TAB_SKILL = Pattern.compile("Foraging ([0-9]+|[IVXLC]+)(?::|\\s|$)");
-	private static final Pattern TAB_PET = Pattern.compile("\\[Lvl (\\d+)] ([A-Za-z ]+?)\\s*$");
+	private static final Pattern TAB_PET = Pattern.compile("\\[Lvl (\\d+)](?:\\s*\\[[^\\]]*])*\\s*([A-Za-z][A-Za-z' ]*?)\\s*(?:[^A-Za-z' ].*)?$");
 	private static final int SCAN_TICKS = 10;
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -278,7 +278,7 @@ public final class GearAdvisor {
 	/** The active pet as the tab list shows it ("[Lvl 100] Monkey"), mapped to the best catalog entry of that name. */
 	private static GearData.Item petFromTab(GearData data) {
 		for (String line : SkyBlockReader.tab()) {
-			Matcher match = TAB_PET.matcher(line);
+			Matcher match = TAB_PET.matcher(Planner.strip(line));
 			if (!match.find()) continue;
 
 			String name = match.group(2).trim();

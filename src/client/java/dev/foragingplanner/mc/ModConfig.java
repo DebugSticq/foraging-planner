@@ -250,7 +250,65 @@ public final class ModConfig {
 		return profileDirectory().resolve("config.json");
 	}
 
+	/** HUD layout, kept once for all profiles so it does not change when the profile is detected or switched. */
+	private static final class HudFile {
+		Map<String, HudLayout> modules;
+		Map<String, Map<String, HudLayout>> presets;
+		Map<String, String> locationPresets;
+		String activePreset;
+		Boolean hudSnap, hudGrid;
+	}
+
+	private static Path hudFile() {
+		return directory().resolve("hud.json");
+	}
+
 	public static ModConfig load() {
+		ModConfig config = loadProfile();
+		try {
+			if (Files.exists(hudFile())) {
+				HudFile hud = GSON.fromJson(Files.readString(hudFile()), HudFile.class);
+				if (hud != null && hud.modules != null && !hud.modules.isEmpty()) {
+					hud.modules.values().removeIf(java.util.Objects::isNull);
+					hud.modules.values().forEach(m -> m.scale = Double.isFinite(m.scale) ? Math.clamp(m.scale, .5, 2) : 1);
+					config.modules = new LinkedHashMap<>(hud.modules);
+					if (hud.presets != null) config.presets = new LinkedHashMap<>(hud.presets);
+					if (hud.locationPresets != null) config.locationPresets = new LinkedHashMap<>(hud.locationPresets);
+					if (hud.activePreset != null) config.activePreset = hud.activePreset;
+					if (hud.hudSnap != null) config.hudSnap = hud.hudSnap;
+					if (hud.hudGrid != null) config.hudGrid = hud.hudGrid;
+				}
+			}
+		} catch (Exception e) {
+			Planner.LOGGER.warn("Could not read hud.json", e);
+		}
+		return config;
+	}
+
+	private void saveHud() {
+		try {
+			HudFile hud = new HudFile();
+			hud.modules = modules;
+			hud.presets = presets;
+			hud.locationPresets = locationPresets;
+			hud.activePreset = activePreset;
+			hud.hudSnap = hudSnap;
+			hud.hudGrid = hudGrid;
+			Files.createDirectories(directory());
+			Path temporary = directory().resolve("hud.json.tmp");
+			Files.writeString(temporary, GSON.toJson(hud));
+			try {
+				Files.move(temporary, hudFile(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException locked) {
+				Files.writeString(hudFile(), GSON.toJson(hud));
+				Files.deleteIfExists(temporary);
+			}
+		} catch (IOException e) {
+			Planner.LOGGER.warn("Could not save hud.json", e);
+		}
+	}
+
+	private static ModConfig loadProfile() {
 		try {
 			if (Files.exists(file())) {
 				ModConfig config = GSON.fromJson(Files.readString(file()), ModConfig.class);
@@ -280,6 +338,7 @@ public final class ModConfig {
 	}
 
 	public void save() {
+		saveHud();
 		try {
 			Files.createDirectories(profileDirectory());
 			Path temporary = profileDirectory().resolve("config.json.tmp");

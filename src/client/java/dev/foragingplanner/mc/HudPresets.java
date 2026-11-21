@@ -37,6 +37,9 @@ public final class HudPresets {
 
 	/** Switches to a stored layout. A name without a stored layout gets a sensible default. */
 	public static void apply(String name) {
+		// Keep what the player changed in the layout that is being left.
+		String leaving = Planner.config.activePreset;
+		if (leaving != null && NAMES.contains(leaving)) Planner.config.presets.put(leaving, copy(Planner.config.modules));
 		Map<String, ModConfig.HudLayout> stored = Planner.config.presets.get(name);
 		Planner.config.activePreset = name;
 
@@ -98,6 +101,8 @@ public final class HudPresets {
 			Planner.config.presets.put("_before", copy(Planner.config.modules));
 			apply("contest");
 		} else if (!active && beforeContest != null) {
+			// Changes made during the contest belong to the contest layout.
+			Planner.config.presets.put("contest", copy(Planner.config.modules));
 			Map<String, ModConfig.HudLayout> before = Planner.config.presets.remove("_before");
 			if (before != null) {
 				Planner.config.modules.clear();

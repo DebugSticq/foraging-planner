@@ -18,6 +18,8 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Updates in one click**: when a newer version is on Modrinth, the chat message now has an "Install" button (or use `/fp update`). The new jar is downloaded next to the old one, checked against Modrinth's SHA-512, and swapped in when you close Minecraft. If anything goes wrong, your current version stays. Setting "Install updates automatically" (off by default) does this without a click.
 
 ### Fixed
+- **HUD positions are kept**: the HUD layout is now saved once for all SkyBlock profiles (`hud.json`). Before, moving a card before your profile was detected, or leaving the server, could bring back an old layout. Changes made while the contest layout is active are kept in the contest layout, and switching layouts keeps the changes of the one you leave.
+- The active pet is found in the tab list again when it has a skin (e.g. "[Lvl 200] [240✦] Jade Dragon").
 - Sweep blocks and tree order no longer mark wood in buildings (e.g. birch pillars in Torrhus Canyon). A tree only counts when it stands at a known tree position, when it is a Helix tree with both colours, or when you really cut it; those trees are remembered.
 - Trees built from normal blocks (not block displays) are now counted too, so "ready", "cut" and regrow times also work for them.
 
