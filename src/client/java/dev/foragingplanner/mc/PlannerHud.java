@@ -214,8 +214,23 @@ public final class PlannerHud {
 					status.next().name, Planner.whole(status.pointsToNext()), needed, Planner.whole(pace)));
 		}
 
-		if (status.projectedBracket() != null && ContestTracker.pointsPerMinute() > 0) {
-			built.add(Planner.tr("hud.contest_projection", Planner.whole(status.projected()), status.projectedBracket().name));
+		var guess = ContestTracker.forecast();
+		if (guess != null) {
+			String name = guess.bracket() == null ? "-" : bracketCode(guess.bracket().name) + guess.bracket().name;
+			built.add(Planner.tr("hud.contest_forecast", name, Planner.whole(guess.low()), Planner.whole(guess.high())));
+			StringBuilder odds = new StringBuilder();
+			if (guess.bracket() != null && guess.keepChance() < 0.85) {
+				odds.append(Planner.tr("hud.contest_forecast_keep", guess.bracket().name, percent(guess.keepChance())));
+			}
+			if (guess.next() != null && guess.nextChance() >= 0.03) {
+				if (odds.length() > 0) odds.append(" §8· ");
+				odds.append(Planner.tr("hud.contest_forecast_next", guess.next().name, percent(guess.nextChance())));
+			}
+			if (guess.source().equals("history")) {
+				if (odds.length() > 0) odds.append(" §8· ");
+				odds.append(Planner.tr("hud.contest_forecast_history"));
+			}
+			if (odds.length() > 0) built.add(odds.toString());
 		}
 	}
 
@@ -553,6 +568,27 @@ public final class PlannerHud {
 			g.text(font, fit(font, line, w - 2 * PAD), PAD, lineY, alpha(0xFFFFFFFF, a), ts());
 			lineY += font.lineHeight + LINE_GAP;
 		}
+	}
+
+	private static String bracketCode(String bracket) {
+		return switch (bracket) {
+			case "UNCOMMON" -> "§a";
+			case "RARE" -> "§9";
+			case "EPIC" -> "§5";
+			case "LEGENDARY" -> "§6";
+			case "MYTHIC" -> "§d";
+			case "DIVINE" -> "§b";
+			case "SPECIAL" -> "§c";
+			default -> "§f";
+		};
+	}
+
+	/** "73%" coloured green, yellow or red. */
+	private static String percent(double chance) {
+		int p = (int) Math.round(Math.clamp(chance, 0, 1) * 100);
+		if (chance > 0 && p == 0) p = 1;
+		if (chance < 1 && p == 100) p = 99;
+		return (p >= 70 ? "§a" : p >= 30 ? "§e" : "§c") + p + "%§r";
 	}
 
 	private static int bracketColor(String bracket) {

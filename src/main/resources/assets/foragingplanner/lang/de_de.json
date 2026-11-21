@@ -1688,5 +1688,9 @@
   "foragingplanner.tree_order.step_branches": "Äste",
   "foragingplanner.tree_order.step_roots": "Wurzeln",
   "foragingplanner.tree_order.step_beige": "Beige",
-  "foragingplanner.tree_order.step_red": "Rot"
+  "foragingplanner.tree_order.step_red": "Rot",
+  "foragingplanner.hud.contest_forecast": "§7Erwartet: %s §8(%s–%s)",
+  "foragingplanner.hud.contest_forecast_next": "§7%s: %s",
+  "foragingplanner.hud.contest_forecast_keep": "§7%s sicher: %s",
+  "foragingplanner.hud.contest_forecast_history": "§8aus deinen letzten Contests"
 }

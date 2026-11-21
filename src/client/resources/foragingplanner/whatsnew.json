@@ -17,6 +17,12 @@
       "open": "setting:known_trees",
       "de": "Alle Fig- und Mangrove-Bäume auf Galatea sind von Anfang an bekannt",
       "en": "Every Fig and Mangrove tree on Galatea is known from the start"
+    },
+    {
+      "icon": "clock",
+      "open": "stats",
+      "de": "Contest-Prognose: welche Stufe du wahrscheinlich erreichst, mit Spanne und Chance auf die nächste",
+      "en": "Contest forecast: which bracket you will likely reach, with a range and the chance for the next one"
     }
   ],
   "1.0.7": [

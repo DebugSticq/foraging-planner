@@ -357,9 +357,29 @@ public final class ContestTracker {
 		return (last.points() - first.points()) / (span / 60_000.0);
 	}
 
+	/** Final points of earlier contests at the same host (last 15), for the forecast. */
+	private static java.util.List<Integer> pastFinals() {
+		java.util.List<Integer> out = new java.util.ArrayList<>();
+		for (Progress.ContestRecord r : Progress.get().contests) {
+			if (r != null && r.points > 0 && r.host != null && r.host.equalsIgnoreCase(host)) out.add(r.points);
+		}
+		return out.size() > 15 ? new java.util.ArrayList<>(out.subList(out.size() - 15, out.size())) : out;
+	}
+
+	/** Estimated finish of the running contest, or null while there is nothing to go on. */
+	public static dev.foragingplanner.core.ContestForecast.Result forecast() {
+		if (!active) return null;
+		return dev.foragingplanner.core.ContestForecast.estimate(Planner.data.contest.bracketsFor(host), points, secondsLeft,
+				history(), pointsPerMinute(), pastFinals());
+	}
+
 	public static ContestMath.Status status() {
 		List<dev.foragingplanner.core.GameData.Bracket> brackets = Planner.data.contest.bracketsFor(host);
 		ContestMath.Status base = ContestMath.status(brackets, points, secondsLeft, pointsPerMinute());
+		var guess = forecast();
+		if (guess != null) {
+			base = new ContestMath.Status(base.current(), base.next(), base.pointsToNext(), base.neededPerMin(), guess.expected(), guess.bracket());
+		}
 		if (sidebarMissing < 0 && sidebarBracket.isEmpty()) return base;
 
 		// Hypixel's own numbers win over the bracket table in gamedata.json.
