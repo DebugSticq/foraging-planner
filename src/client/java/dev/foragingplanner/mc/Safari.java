@@ -492,15 +492,10 @@ public final class Safari {
 		long now = System.currentTimeMillis();
 		var font = client.font;
 		for (Mark mark : MARKS) {
-			float[] at = WorldOverlay.project(client, mark.pos().add(0, 1.0, 0));
-			if (at == null || !WorldOverlay.visibleMob(client, mark.pos())) continue;
-			int x = Math.round(at[0]), y = Math.round(at[1]);
 			double pulse = mark.alert() && Planner.config.animations ? 0.6 + 0.4 * Math.sin(now / 120.0) : 1;
-			round(g, x - 3, y - 3, 6, 6, 3, alpha(mark.color(), pulse));
+			WorldText.dot(mark.pos().add(0, 1.0, 0), alpha(mark.color(), pulse), 1.1f);
 			String text = mark.name() + (mark.detail().isEmpty() ? "" : " · " + mark.detail()) + " · " + Math.round(mark.pos().distanceTo(player)) + "m";
-			int tw = font.width(text);
-			round(g, x - tw / 2 - 3, y - 16, tw + 6, 11, 4, alpha(UI_PANEL, 0.75));
-			g.text(font, text, x - tw / 2, y - 14, alpha(mark.color(), 1), false);
+			WorldText.label(mark.pos().add(0, 1.5, 0), text, mark.color());
 		}
 		Bells.draw(client, g, player, now);
 	}

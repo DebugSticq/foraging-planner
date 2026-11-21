@@ -156,21 +156,13 @@ public final class TreeOrder {
 	static void draw(Minecraft client, net.minecraft.client.gui.GuiGraphicsExtractor g) {
 		Plan p = plan;
 		if (p == null) return;
-		float[] at = WorldOverlay.project(client, Vec3.atCenterOf(p.start()).add(0, 0.9, 0));
-		if (at == null) return;
-		var font = client.font;
 		StringBuilder order = new StringBuilder();
 		for (int i = 0; i < p.steps().size(); i++) {
 			if (i > 0) order.append(" §7→ ");
 			String name = Planner.tr("tree_order.step_" + p.steps().get(i));
 			order.append(i < p.step() ? "§8§m" + name + "§r" : i == p.step() ? "§f§l" + name + "§r" : "§7" + name);
 		}
-		String first = Planner.tr("tree_order.start", p.cuts(), p.left());
-		String second = order.toString();
-		int w = Math.max(font.width(first), font.width(second)) + 10;
-		int x = Math.round(at[0]) - w / 2, y = Math.round(at[1]) - 26;
-		ForestTheme.round(g, x, y, w, 24, 5, ForestTheme.alpha(ForestTheme.UI_PANEL, 0.8));
-		g.text(font, first, x + 5, y + 4, STEP_COLORS[Math.min(p.step(), STEP_COLORS.length - 1)], false);
-		g.text(font, second, x + 5, y + 14, 0xFFDDDDDD, false);
+		String text = Planner.tr("tree_order.start", p.cuts(), p.left()) + "\n" + order;
+		WorldText.label(Vec3.atCenterOf(p.start()).add(0, 1.3, 0), text, STEP_COLORS[Math.min(p.step(), STEP_COLORS.length - 1)]);
 	}
 }

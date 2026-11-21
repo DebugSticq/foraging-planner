@@ -122,18 +122,9 @@ public final class Fun {
 		TIMBER.removeIf(t -> now - t.startMs() > 1800);
 		for (Timber t : TIMBER) {
 			double age = (now - t.startMs()) / 1800.0;
-			float[] at = WorldOverlay.project(client, t.pos().add(0, age * 1.5, 0));
-			if (at == null) continue;
 			double a = age < 0.15 ? age / 0.15 : 1 - Math.max(0, (age - 0.6) / 0.4);
 			float scale = (float) (1.6 + Math.sin(Math.min(1, age * 4) * Math.PI) * 0.4);
-			String text = Planner.tr("fun.timber");
-			var pose = g.pose();
-			pose.pushMatrix();
-			pose.translate(at[0], at[1]);
-			pose.scale(scale, scale);
-			pose.rotate((float) (Math.sin(age * 12) * 0.06));
-			g.text(client.font, text, -client.font.width(text) / 2, -4, alpha(0xFF9BE36B, Math.clamp(a, 0, 1)), true);
-			pose.popMatrix();
+			WorldText.add(t.pos().add(0, age * 1.5, 0), Planner.tr("fun.timber"), alpha(0xFF9BE36B, Math.clamp(a, 0, 1)), 0, scale, false);
 		}
 	}
 

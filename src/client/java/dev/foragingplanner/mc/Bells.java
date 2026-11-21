@@ -368,26 +368,15 @@ public final class Bells {
 			double distance = at3.distanceTo(player);
 			boolean done = rung(bell);
 			if (done && distance > 40) continue;
-			float[] at = WorldOverlay.project(client, at3.add(0, 1.2, 0));
-			if (at == null) continue;
-			int x = Math.round(at[0]), y = Math.round(at[1]);
 			int index = route.indexOf(bell);
 			boolean next = index == 0;
 			int color = done ? 0xFF7FD48A : next ? 0xFFFFD34D : 0xFFFFE9A8;
 			double pulse = next && Planner.config.animations ? 0.7 + 0.3 * Math.sin(now / 200.0) : 1;
-			round(g, x - 5, y - 5, 10, 10, 5, alpha(color, (done ? 0.5 : 0.95) * pulse));
-			round(g, x - 2, y - 2, 4, 4, 2, alpha(0xFFFFFFFF, 0.9));
+			WorldText.dot(at3.add(0, 1.2, 0), alpha(color, (done ? 0.5 : 0.95) * pulse), 1.6f);
 			String label = done ? "✔ " + Planner.tr("bell.done") : (index >= 0 ? "#" + (index + 1) + " " : "") + Planner.tr("bell.name");
 			String text = label + " · " + Math.round(distance) + "m";
-			int tw = font.width(text);
-			round(g, x - tw / 2 - 4, y - 19, tw + 8, 11, 4, alpha(UI_PANEL, 0.8));
-			g.text(font, text, x - tw / 2, y - 17, alpha(color, done ? 0.7 : 1), false);
-			if (next && distance < 60) {
-				String hint = bell.hint();
-				int hw = font.width(hint);
-				round(g, x - hw / 2 - 4, y + 8, hw + 8, 11, 4, alpha(UI_PANEL, 0.7));
-				g.text(font, hint, x - hw / 2, y + 10, 0xFFDDDDDD, false);
-			}
+			if (next && distance < 60) text += "\n§7" + bell.hint();
+			WorldText.label(at3.add(0, 1.85, 0), text, alpha(color, done ? 0.7 : 1));
 		}
 	}
 
@@ -404,18 +393,12 @@ public final class Bells {
 				along += len;
 				continue;
 			}
-			int steps = (int) Math.max(2, len * (Perf.light() ? 3 : 5));
-			for (int k = 0; k < steps; k++) {
-				double t = k / (double) steps;
-				float[] at = WorldOverlay.project(client, a.lerp(b, t));
-				if (at == null) continue;
-				double phase = ((along + len * t - flow) % 3 + 3) % 3;
-				double fade = Math.clamp(1.2 - at[2] / 56, 0.35, 1);
-				int color = phase < 0.7 ? 0xFFFFF4B8 : 0xFFFFC23D;
-				int size = at[2] < 10 ? 2 : 1;
-				int x = Math.round(at[0]), y = Math.round(at[1]);
-				g.fill(x - size, y - size, x + size, y + size, alpha(color, fade));
-			}
+			// A glowing line on the ground; a bright piece runs along it.
+			double fade = Math.clamp(1.2 - a.distanceTo(player) / 56, 0.35, 1);
+			WorldText.line(a, b, alpha(0xFFFFC23D, fade), 3f);
+			double phase = ((along - flow) % 3 + 3) % 3;
+			double from = (3 - phase) % 3;
+			if (from < len) WorldText.line(a.lerp(b, from / len), a.lerp(b, Math.min(1, (from + 0.7) / len)), alpha(0xFFFFF4B8, fade), 5f);
 			along += len;
 		}
 	}

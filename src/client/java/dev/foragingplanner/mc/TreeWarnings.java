@@ -248,14 +248,8 @@ public final class TreeWarnings {
 			for (Zone z : zones()) {
 				if (!z.area.equals(area) || z.pos().distanceTo(me) > 64) continue;
 				Vec3 top = z.pos().add(0, 2.2, 0);
-				float[] at = WorldOverlay.project(client, top);
-				if (at == null || !WorldOverlay.visible(client, top)) continue;
-				String label = "⛔ " + Planner.tr("protected.label_big");
-				int tw = font.width(label);
-				int x = Math.round(at[0]), y = Math.round(at[1]);
 				double pulse = Planner.config.animations ? 0.8 + 0.2 * Math.sin(now / 160.0) : 1;
-				round(g, x - tw / 2 - 4, y - 6, tw + 8, 12, 4, alpha(0xFF3A0B0B, 0.85));
-				g.text(font, label, x - tw / 2, y - 4, alpha(0xFFFF5555, pulse), false);
+				WorldText.warning(top, "⛔ " + Planner.tr("protected.label_big"), alpha(0xFFFF5555, pulse));
 			}
 		}
 		if (!SkyBlockReader.inForagingArea()) return;

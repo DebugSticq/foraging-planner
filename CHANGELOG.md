@@ -17,6 +17,9 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 - **Updates in one click**: when a newer version is on Modrinth, the chat message now has an "Install" button (or use `/fp update`). The new jar is downloaded next to the old one, checked against Modrinth's SHA-512, and swapped in when you close Minecraft. If anything goes wrong, your current version stays. Setting "Install updates automatically" (off by default) does this without a click.
 
+### Changed
+- **Labels in the world are now real 3D text**: tree markers, the route and its numbers, the best-tree star, the route ghost, mob and vendor labels, bell markers and their path, protected-tree warnings, the tree order label and "Timber!" are drawn in the world like name tags instead of being projected onto the HUD. They no longer wobble when you turn, are hidden behind blocks, and stay readable at a distance. Route lines and the bell path are real lines in the world; etherwarp targets, Precision Cutting logs and Invisibug crits are framed in 3D.
+
 ### Fixed
 - **HUD positions are kept**: the HUD layout is now saved once for all SkyBlock profiles (`hud.json`). Before, moving a card before your profile was detected, or leaving the server, could bring back an old layout. Changes made while the contest layout is active are kept in the contest layout, and switching layouts keeps the changes of the one you leave.
 - The active pet is found in the tab list again when it has a skin (e.g. "[Lvl 200] [240✦] Jade Dragon").

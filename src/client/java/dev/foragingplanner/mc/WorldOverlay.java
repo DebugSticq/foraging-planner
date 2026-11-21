@@ -99,9 +99,7 @@ public final class WorldOverlay {
 			for (TreeTracker.Spot spot : spots) {
 				double distance = spot.center().distanceTo(player);
 				if (distance > 70) continue;
-				float[] at = project(client, spot.center().add(0, 2.5, 0));
-				if (at == null) continue;
-				drawMarker(client, g, spot, at, distance, now);
+				drawMarker(client, g, spot, null, distance, now);
 			}
 		}
 
@@ -119,11 +117,7 @@ public final class WorldOverlay {
 	}
 
 	private static void drawMarker(Minecraft client, GuiGraphicsExtractor g, TreeTracker.Spot spot, float[] at, double distance, long now) {
-		var font = client.font;
-		double a = Math.clamp(1.2 - distance / 70, 0.25, 1);
-		int x = Math.round(at[0]);
-		int y = Math.round(at[1]);
-
+		double a = Math.clamp(1.2 - distance / 70, 0.35, 1);
 		String label;
 		int color;
 
@@ -146,16 +140,12 @@ public final class WorldOverlay {
 		}
 
 		double pulse = spot.state == TreeTracker.State.READY && Planner.config.animations ? 0.75 + 0.25 * Math.sin(now / 300.0 + spot.x) : 1;
-		int dot = 5;
-		round(g, x - dot, y - dot, dot * 2, dot * 2, dot, alpha(color, a * pulse));
-		round(g, x - 2, y - 2, 4, 4, 2, alpha(0xFFFFFFFF, a * 0.9));
-
 		String size = Planner.config.treeSizeLabel ? sizeLabel(spot) : "";
 		if (Planner.config.protectedTrees && TreeTracker.isProtected(spot)) size = "§c" + Planner.tr("protected.label") + "§r";
 		String text = label + (size.isEmpty() ? "" : " · " + size) + " · " + Math.round(distance) + "m";
-		int tw = font.width(text);
-		round(g, x - tw / 2 - 4, y - dot - 14, tw + 8, 11, 4, alpha(UI_PANEL, a * 0.75));
-		g.text(font, text, x - tw / 2, y - dot - 12, alpha(color, a), false);
+		Vec3 top = spot.center().add(0, 2.5, 0);
+		WorldText.label(top.add(0, 0.55, 0), text, alpha(color, a));
+		WorldText.dot(top, alpha(color, a * pulse), 1.6f);
 	}
 
 	/** "Big" or "small" compared with the other trees of the same kind on this island. */
@@ -175,52 +165,30 @@ public final class WorldOverlay {
 	private static void drawChoice(Minecraft client, GuiGraphicsExtractor g, Vec3 player, long now) {
 		TreeTracker.Spot best = TreeChoice.best();
 		if (best == null) return;
-		float[] at = project(client, best.center().add(0, 4.2, 0));
-		if (at == null) return;
-		var font = client.font;
-		int x = Math.round(at[0]);
-		int y = Math.round(at[1] + (Planner.config.animations ? (float) Math.sin(now / 250.0) * 2 : 0));
-		String text = "★ " + Planner.tr("tree.choice", Math.round(TreeChoice.seconds()));
-		int tw = font.width(text);
-		round(g, x - tw / 2 - 4, y - 6, tw + 8, 12, 4, alpha(UI_PANEL, 0.82));
-		g.text(font, text, x - tw / 2, y - 4, 0xFFFFD34D, false);
+		double bob = Planner.config.animations ? Math.sin(now / 250.0) * 0.12 : 0;
+		WorldText.label(best.center().add(0, 4.2 + bob, 0), "★ " + Planner.tr("tree.choice", Math.round(TreeChoice.seconds())), 0xFFFFD34D);
 	}
 
 	/** The best lap of the active route as a moving dot. */
 	private static void drawGhost(Minecraft client, GuiGraphicsExtractor g, long now) {
 		Vec3 ghost = Routes.ghost();
 		if (ghost == null) return;
-		float[] at = project(client, ghost.add(0, 1.0, 0));
-		if (at == null) return;
-		int x = Math.round(at[0]), y = Math.round(at[1]);
 		int color = Routes.ahead() ? 0xFF7FD48A : 0xFFE07A6A;
-		round(g, x - 5, y - 5, 10, 10, 5, alpha(0xFFB8C7FF, 0.55));
-		round(g, x - 2, y - 2, 4, 4, 2, alpha(color, 0.95));
-		String text = Planner.tr("route.ghost");
-		g.text(client.font, text, x - client.font.width(text) / 2, y - 15, alpha(0xFFB8C7FF, 0.9), false);
+		WorldText.dot(ghost.add(0, 1.0, 0), alpha(0xFFB8C7FF, 0.75), 2f);
+		WorldText.dot(ghost.add(0, 1.0, 0), color, 0.9f);
+		WorldText.add(ghost.add(0, 1.6, 0), Planner.tr("route.ghost"), alpha(0xFFB8C7FF, 0.9), 0, 1f, false);
 	}
 
 	/** Falling mobs, critters and Invisibug crits. */
 	private static void drawExtras(Minecraft client, GuiGraphicsExtractor g, Vec3 player, long now) {
-		var font = client.font;
 		for (Extras.Mark mark : Extras.marks()) {
-			float[] at = project(client, mark.pos().add(0, 1.2, 0));
-			if (at == null || !visibleMob(client, mark.pos())) continue;
-			int x = Math.round(at[0]), y = Math.round(at[1]);
 			double pulse = mark.alert() && Planner.config.animations ? 0.6 + 0.4 * Math.sin(now / 120.0) : 1;
-			round(g, x - 4, y - 4, 8, 8, 4, alpha(mark.color(), pulse));
 			String text = (mark.alert() ? "⚠ " : "") + mark.name() + " · " + Math.round(mark.pos().distanceTo(player)) + "m";
-			int tw = font.width(text);
-			round(g, x - tw / 2 - 3, y - 17, tw + 6, 11, 4, alpha(UI_PANEL, 0.75));
-			g.text(font, text, x - tw / 2, y - 15, alpha(mark.color(), 1), false);
+			WorldText.label(mark.pos().add(0, 1.75, 0), text, mark.color());
+			WorldText.dot(mark.pos().add(0, 1.2, 0), alpha(mark.color(), pulse), 1.2f);
 		}
 		if (Planner.config.invisibugHelper) {
-			for (Vec3 crit : Precision.crits()) {
-				float[] at = project(client, crit);
-				if (at == null || !visible(client, crit)) continue;
-				int x = Math.round(at[0]), y = Math.round(at[1]);
-				round(g, x - 3, y - 3, 6, 6, 3, 0xFFFF66FF);
-			}
+			for (Vec3 crit : Precision.crits()) WorldText.cube(crit, 0.12, 0xC0FF66FF, 0xFFFF66FF, 2f);
 		}
 	}
 
@@ -229,46 +197,28 @@ public final class WorldOverlay {
 		if (!Planner.config.vendorTracker) return;
 		long now = System.currentTimeMillis();
 		for (Vendors.Vendor v : Vendors.known()) {
-			float[] at = project(client, v.pos().add(0, 2.4, 0));
-			if (at == null) continue;
-			int x = Math.round(at[0]), y = Math.round(at[1]);
 			long min = (now - v.seenMs()) / 60_000;
 			String text = "◆ " + v.name() + " · " + Math.round(v.pos().distanceTo(player)) + "m" + (min > 0 ? " · " + Planner.tr("vendor.ago", min) : "");
-			int tw = client.font.width(text);
-			round(g, x - tw / 2 - 3, y - 6, tw + 6, 11, 4, alpha(UI_PANEL, 0.78));
-			g.text(client.font, text, x - tw / 2, y - 4, 0xFFFFD34D, false);
+			WorldText.label(v.pos().add(0, 2.4, 0), text, 0xFFFFD34D);
 		}
 	}
 
 	/** Frame around each log Precision Cutting marked. */
 	private static void drawPrecision(Minecraft client, GuiGraphicsExtractor g) {
 		for (Vec3 marked : Precision.marked()) {
-			float[] at = project(client, marked);
-			if (at == null) continue;
-			int x = Math.round(at[0]), y = Math.round(at[1]);
-			int s = (int) Math.clamp(60 / Math.max(1, at[2]), 6, 26);
-			int c = 0xFFFFE14D;
-			g.fill(x - s, y - s, x + s, y - s + 1, c);
-			g.fill(x - s, y + s - 1, x + s, y + s, c);
-			g.fill(x - s, y - s, x - s + 1, y + s, c);
-			g.fill(x + s - 1, y - s, x + s, y + s, c);
+			net.minecraft.core.BlockPos pos = net.minecraft.core.BlockPos.containing(marked);
+			WorldBoxes.cube(pos.getX() - 0.01, pos.getY() - 0.01, pos.getZ() - 0.01, pos.getX() + 1.01, pos.getY() + 1.01, pos.getZ() + 1.01,
+					0x30FFE14D, 0xFFFFE14D, 3f);
 		}
 	}
 
 	private static void drawRoute(Minecraft client, GuiGraphicsExtractor g, Vec3 player) {
 		List<TreeTracker.Spot> path = TreeTracker.route(player, 6);
 		Vec3 previous = player.add(0, 0.2, 0);
-		var font = client.font;
-
 		for (int i = 0; i < path.size(); i++) {
 			Vec3 next = path.get(i).center().add(0, 0.2 - (path.get(i).cy - path.get(i).y), 0);
 			dottedLine(client, g, previous, next, alpha(UI_ACCENT, 0.8 - i * 0.1));
-			float[] at = project(client, path.get(i).center().add(0, 2.5, 0));
-			if (at != null) {
-				String number = String.valueOf(i + 1);
-				round(g, Math.round(at[0]) + 7, Math.round(at[1]) - 4, font.width(number) + 6, 10, 5, alpha(UI_ACCENT, 0.9));
-				g.text(font, number, Math.round(at[0]) + 10, Math.round(at[1]) - 3, 0xFF0B1A10, false);
-			}
+			WorldText.add(path.get(i).center().add(0, 3.2, 0), String.valueOf(i + 1), 0xFF0B1A10, alpha(UI_ACCENT, 0.9), 1.1f, false);
 			previous = next;
 		}
 	}
@@ -301,20 +251,14 @@ public final class WorldOverlay {
 			Routes.Point point = route.points.get(i);
 			double distance = point.pos().distanceTo(player);
 			if (distance > 90) continue;
-			float[] at = project(client, point.pos().add(0, 1.2, 0));
-			if (at == null) continue;
 			boolean isTarget = i == target;
 			if (point.etherwarp()) blockOutline(client, g, point, alpha(WARP, isTarget ? 1 : 0.55));
 			String name = point.etherwarp() ? "⇢ Etherwarp" + (point.name.isEmpty() || point.name.toLowerCase(java.util.Locale.ROOT).contains("ether") ? "" : " · " + point.name)
 					: point.name.isEmpty() ? "" : point.name;
 			String label = (i + 1) + (name.isEmpty() ? "" : " · " + name) + (isTarget ? " · " + Math.round(distance) + "m" : "");
 			int color = point.etherwarp() ? WARP : isTarget ? UI_AMBER : lineColor;
-			int x = Math.round(at[0]), y = Math.round(at[1]);
-			int r = isTarget ? 5 : 3;
-			round(g, x - r, y - r, r * 2, r * 2, r, alpha(color, isTarget ? 1 : 0.7));
-			int tw = font.width(label);
-			round(g, x - tw / 2 - 3, y - r - 13, tw + 6, 11, 4, alpha(UI_PANEL, 0.7));
-			g.text(font, label, x - tw / 2, y - r - 11, alpha(color, 1), false);
+			WorldText.dot(point.pos().add(0, 1.2, 0), alpha(color, isTarget ? 1 : 0.7), isTarget ? 1.8f : 1.1f);
+			WorldText.label(point.pos().add(0, 1.75, 0), label, color);
 		}
 
 		if (!recording) drawWarpAim(client, g, route.points.get(target));
@@ -330,24 +274,10 @@ public final class WorldOverlay {
 
 	/** The 12 edges of the target block, projected onto the screen. */
 	private static void blockOutline(Minecraft client, GuiGraphicsExtractor g, Routes.Point point, int color) {
-		float[][] c = new float[8][];
-		for (int i = 0; i < 8; i++) {
-			c[i] = project(client, new Vec3(point.x + (i & 1), point.y + (i >> 1 & 1), point.z + (i >> 2 & 1)));
-			if (c[i] == null) return;
-		}
-		int[][] edges = {{0, 1}, {2, 3}, {4, 5}, {6, 7}, {0, 2}, {1, 3}, {4, 6}, {5, 7}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
-		for (int[] e : edges) screenLine(g, c[e[0]], c[e[1]], color);
+		double x = Math.floor(point.x), y = Math.floor(point.y), z = Math.floor(point.z);
+		WorldBoxes.cube(x - 0.005, y - 0.005, z - 0.005, x + 1.005, y + 1.005, z + 1.005, alpha(color, 0.12), color, 3f);
 	}
 
-	private static void screenLine(GuiGraphicsExtractor g, float[] a, float[] b, int color) {
-		float dx = b[0] - a[0], dy = b[1] - a[1];
-		int steps = (int) Math.min(400, Math.max(Math.abs(dx), Math.abs(dy)));
-		for (int i = 0; i <= steps; i++) {
-			int x = Math.round(a[0] + dx * i / Math.max(1, steps));
-			int y = Math.round(a[1] + dy * i / Math.max(1, steps));
-			g.fill(x, y, x + 1, y + 1, color);
-		}
-	}
 
 	/** Next to the crosshair: whether the player aims at the etherwarp block right now. */
 	private static void drawWarpAim(Minecraft client, GuiGraphicsExtractor g, Routes.Point next) {
@@ -378,15 +308,13 @@ public final class WorldOverlay {
 
 	/** A line on the ground drawn as dots, sampled in the world so that it follows perspective. */
 	static void dottedLine(Minecraft client, GuiGraphicsExtractor g, Vec3 from, Vec3 to, int color) {
+		// Dashes in the world: 0.6 blocks line, 0.4 gap.
 		double length = from.distanceTo(to);
-		int steps = (int) Math.min(80, Math.max(2, length * 1.5));
-
-		for (int i = 0; i <= steps; i++) {
-			Vec3 p = from.lerp(to, i / (double) steps);
-			float[] at = project(client, p);
-			if (at == null) continue;
-			int size = at[2] < 8 ? 2 : 1;
-			g.fill(Math.round(at[0]) - size, Math.round(at[1]) - size, Math.round(at[0]) + size, Math.round(at[1]) + size, color);
+		if (length < 0.01) return;
+		int dashes = (int) Math.min(120, Math.ceil(length));
+		for (int i = 0; i < dashes; i++) {
+			double t0 = i / (double) dashes, t1 = Math.min(1, t0 + 0.6 / Math.max(1, length) * (length / dashes));
+			WorldText.line(from.lerp(to, t0), from.lerp(to, t1), color, 2.5f);
 		}
 	}
 
