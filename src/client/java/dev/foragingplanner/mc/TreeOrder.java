@@ -40,7 +40,7 @@ public final class TreeOrder {
 	}
 
 	/** Index of the step a log belongs to. */
-	static int stepOf(String tree, BlockState state) {
+	public static int stepOf(String tree, BlockState state) {
 		String group = LogScan.group(state);
 		boolean vertical = LogScan.vertical(state);
 		return switch (tree) {

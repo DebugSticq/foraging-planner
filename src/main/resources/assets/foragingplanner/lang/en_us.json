@@ -1702,5 +1702,7 @@
   "foragingplanner.update.none": "You already have the newest version.",
   "foragingplanner.update.not_checked": "Not checked for updates yet; join SkyBlock first.",
   "foragingplanner.settings.auto_update": "Install updates automatically",
-  "foragingplanner.settings.auto_update.hint": "New versions are downloaded, checked and installed when you close Minecraft, without a click."
+  "foragingplanner.settings.auto_update.hint": "New versions are downloaded, checked and installed when you close Minecraft, without a click.",
+  "foragingplanner.sweep.wrong_step": "Wrong order, first: %s",
+  "foragingplanner.sweep.wrong_step_logs": "only %s instead of %s logs"
 }

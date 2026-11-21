@@ -56,8 +56,22 @@ public final class SweepOverlay {
 		}
 	}
 
+	/** The part of the tree that should be cut first when the aimed log is in the wrong part, else null. */
+	private static String wrongStep;
+	private static int fullLogs;
+	private static BlockPos targetPos;
+
+	/** Warning over the aimed log when it is in the wrong part of the tree. Called from the world overlay. */
+	static void draw() {
+		if (lastLogs < 0 || wrongStep == null || targetPos == null) return;
+		String text = "⚠ " + Planner.tr("sweep.wrong_step", Planner.tr("tree_order.step_" + wrongStep)) + "\n§7"
+				+ Planner.tr("sweep.wrong_step_logs", lastLogs, fullLogs);
+		WorldText.warning(net.minecraft.world.phys.Vec3.atCenterOf(targetPos).add(0, 1.4, 0), text, 0xFFFF6655);
+	}
+
 	public static void tick(Minecraft client) {
 		checkHit(client);
+		wrongStep = null;
 		lastLogs = -1;
 		lastFound = -1;
 		if (!Planner.config.sweepOverlay || client.player == null || client.level == null
@@ -82,12 +96,20 @@ public final class SweepOverlay {
 			return;
 		}
 		double sweep = SkyBlockReader.statsKnown() ? SkyBlockReader.stats().sweep() : 0;
-		int perHit = Math.max(1, TreeMath.logsPerHit(tree, sweep));
+		int full = Math.max(1, TreeMath.logsPerHit(tree, sweep));
+		// Style: hitting a later part of the tree while an earlier one is left halves the logs.
+		int current = 9, aimed = TreeOrder.stepOf(kind, whole.get(target));
+		for (BlockState state : whole.values()) current = Math.min(current, TreeOrder.stepOf(kind, state));
+		boolean wrong = aimed != current;
+		int perHit = wrong ? Math.max(1, full / 2) : full;
+		wrongStep = wrong ? TreeOrder.steps(kind).get(Math.min(current, TreeOrder.steps(kind).size() - 1)) : null;
+		fullLogs = full;
+		targetPos = target;
 		List<BlockPos> cut = LogScan.sweep(whole, target, perHit + 1);
 
 		long now = System.currentTimeMillis();
 		double pulse = Planner.config.animations ? 0.8 + 0.2 * Math.sin(now / 180.0) : 1;
-		int color = 0xFF000000 | (Planner.config.sweepOverlayColor & 0xFFFFFF);
+		int color = wrong ? 0xFFFF5544 : 0xFF000000 | (Planner.config.sweepOverlayColor & 0xFFFFFF);
 		int cutFill = ForestTheme.alpha(color, 0.28 * pulse);
 		int cutLine = ForestTheme.alpha(color, 0.9);
 		List<WorldBoxes.Box> boxes = new ArrayList<>();
@@ -96,7 +118,7 @@ public final class SweepOverlay {
 			if (i < perHit) {
 				boolean first = i == 0;
 				boxes.add(new WorldBoxes.Box(pos, cutFill, first ? 0xF0FFFFFF : cutLine, first ? 3.5f : 2f, 0.004f));
-			} else if (Planner.config.sweepOverlayNext && TreeMath.sweepToNextBreakpoint(tree, sweep) > 0) {
+			} else if (!wrong && Planner.config.sweepOverlayNext && TreeMath.sweepToNextBreakpoint(tree, sweep) > 0) {
 				boxes.add(new WorldBoxes.Box(pos, 0, 0xD0FFB020, 2f, 0.01f));
 			}
 		}

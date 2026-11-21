@@ -107,6 +107,7 @@ public final class WorldOverlay {
 		else if (Planner.config.treeArrow) drawArrow(client, g, player);
 		if (Planner.config.sweepPreview) drawSweep(client, g);
 		TreeOrder.draw(client, g);
+		SweepOverlay.draw();
 		drawChoice(client, g, player, now);
 		drawGhost(client, g, now);
 		drawPrecision(client, g);

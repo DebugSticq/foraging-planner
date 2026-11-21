@@ -10,6 +10,7 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 
 ### Changed
 - **Labels in the world are now real 3D text**: tree markers, the route and its numbers, the best-tree star, the route ghost, mob and vendor labels, bell markers and their path, protected-tree warnings, the tree order label and "Timber!" are drawn in the world like name tags instead of being projected onto the HUD. They no longer wobble when you turn, are hidden behind blocks, and stay readable at a distance. Route lines and the bell path are real lines in the world; etherwarp targets, Precision Cutting logs and Invisibug crits are framed in 3D.
+- **Sweep blocks know the tree style**: aiming at a part of the tree that is not next (e.g. a Fig branch while trunk is left) halves the logs, as on Hypixel. The overlay then shows only the halved logs in red, with a warning over the log naming the part to cut first and "only X instead of Y logs".
 - The update check now writes what it found to the log ("[FP] Update check: ...").
 
 ### Fixed
