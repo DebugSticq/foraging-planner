@@ -1,4 +1,18 @@
 {
+  "1.0.9": [
+    {
+      "icon": "name_tag",
+      "open": "setting:tree_markers",
+      "de": "Beschriftungen in der Welt sind jetzt echter 3D-Text: kein Wackeln mehr, verdeckt hinter Blöcken",
+      "en": "World labels are now real 3D text: no more wobbling, hidden behind blocks"
+    },
+    {
+      "icon": "painting",
+      "open": "setting:hud",
+      "de": "HUD-Positionen bleiben jetzt gespeichert, auch bei Profil- und Layout-Wechsel",
+      "en": "HUD positions are now kept, also when the profile or layout changes"
+    }
+  ],
   "1.0.8": [
     {
       "icon": "golden_axe",

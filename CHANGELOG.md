@@ -6,23 +6,26 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
+## [1.0.9] - 2026-11-21
+
+### Changed
+- **Labels in the world are now real 3D text**: tree markers, the route and its numbers, the best-tree star, the route ghost, mob and vendor labels, bell markers and their path, protected-tree warnings, the tree order label and "Timber!" are drawn in the world like name tags instead of being projected onto the HUD. They no longer wobble when you turn, are hidden behind blocks, and stay readable at a distance. Route lines and the bell path are real lines in the world; etherwarp targets, Precision Cutting logs and Invisibug crits are framed in 3D.
+- The update check now writes what it found to the log ("[FP] Update check: ...").
+
+### Fixed
+- **HUD positions are kept**: the HUD layout is now saved once for all SkyBlock profiles (`hud.json`). Before, moving a card before your profile was detected, or leaving the server, could bring back an old layout. Changes made while the contest layout is active are kept in the contest layout, and switching layouts keeps the changes of the one you leave.
+- The active pet is found in the tab list again when it has a skin (e.g. "[Lvl 200] [240✦] Jade Dragon").
+
 ## [1.0.8] - 2026-11-21
 
 ### Added
 - **Sweep blocks in the tree**: while aiming at a log with an axe, every log the next hit cuts is marked in the world (green, the hit log framed in white). An orange frame shows the log the next Sweep breakpoint would add. Colour and the orange frame can be changed in the settings.
 - **Tree order**: the nearest tree shows which part comes next (Fig: trunk, then branches; Mangrove: branches, trunk, roots; Helix: beige, then red) and the best log to start on, picked so the first hit cuts as many logs of that part as possible with your Sweep. A label over it names the steps.
 - **Known tree positions**: all 65 Fig and Mangrove trees on Galatea are known in advance, so markers, the route and the arrow work before you have seen a tree. Positions from [Skyblock21](https://github.com/sme6en/Skyblock21) by sme6en (LGPL-3.0). Helix trees are still learned while playing.
-
 - **Contest forecast**: the contest widget now estimates the bracket you will most likely end in, with a range for a bad and a good finish and the chance to reach the next bracket (or to keep the expected one). At the start of a contest, before your pace is known, it uses your last contests at the same host.
-
 - **Updates in one click**: when a newer version is on Modrinth, the chat message now has an "Install" button (or use `/fp update`). The new jar is downloaded next to the old one, checked against Modrinth's SHA-512, and swapped in when you close Minecraft. If anything goes wrong, your current version stays. Setting "Install updates automatically" (off by default) does this without a click.
 
-### Changed
-- **Labels in the world are now real 3D text**: tree markers, the route and its numbers, the best-tree star, the route ghost, mob and vendor labels, bell markers and their path, protected-tree warnings, the tree order label and "Timber!" are drawn in the world like name tags instead of being projected onto the HUD. They no longer wobble when you turn, are hidden behind blocks, and stay readable at a distance. Route lines and the bell path are real lines in the world; etherwarp targets, Precision Cutting logs and Invisibug crits are framed in 3D.
-
 ### Fixed
-- **HUD positions are kept**: the HUD layout is now saved once for all SkyBlock profiles (`hud.json`). Before, moving a card before your profile was detected, or leaving the server, could bring back an old layout. Changes made while the contest layout is active are kept in the contest layout, and switching layouts keeps the changes of the one you leave.
-- The active pet is found in the tab list again when it has a skin (e.g. "[Lvl 200] [240✦] Jade Dragon").
 - Sweep blocks and tree order no longer mark wood in buildings (e.g. birch pillars in Torrhus Canyon). A tree only counts when it stands at a known tree position, when it is a Helix tree with both colours, or when you really cut it; those trees are remembered.
 - Trees built from normal blocks (not block displays) are now counted too, so "ready", "cut" and regrow times also work for them.
 

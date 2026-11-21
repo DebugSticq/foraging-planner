@@ -114,9 +114,13 @@ public final class UpdateChecker {
 				+ (mc.isEmpty() ? "" : "&game_versions=" + URLEncoder.encode("[\"" + mc + "\"]", StandardCharsets.UTF_8));
 		HttpRequest req = request("https://api.modrinth.com/v2/project/" + PROJECT + "/version" + query).GET().build();
 		HttpClient.newHttpClient().sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
-			if (response.statusCode() != 200) return;
+			if (response.statusCode() != 200) {
+				Planner.LOGGER.info("[FP] Update check: Modrinth answered HTTP {}", response.statusCode());
+				return;
+			}
 			JsonArray versions = JsonParser.parseString(response.body()).getAsJsonArray();
 			String current = ModVersion.plain();
+			Planner.LOGGER.info("[FP] Update check: installed {}, {} versions on Modrinth for this game version", current, versions.size());
 			for (var element : versions) {
 				JsonObject v = element.getAsJsonObject();
 				if (!"release".equals(v.has("version_type") ? v.get("version_type").getAsString() : "release")) continue;
@@ -129,6 +133,7 @@ public final class UpdateChecker {
 					readFile(v);
 					newer = plain;
 				}
+				Planner.LOGGER.info("[FP] Update check: newest on Modrinth {}{}", plain, newer != null ? " (newer, file " + fileName + ")" : " (nothing newer)");
 				break; // Modrinth lists the newest first.
 			}
 		}).exceptionally(error -> {
