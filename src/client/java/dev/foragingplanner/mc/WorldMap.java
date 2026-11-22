@@ -181,7 +181,10 @@ public final class WorldMap {
 		Tile tile = tile(tx, tz, argb != 0);
 		if (tile == null) return;
 		int px = Math.floorMod(x, TILE), pz = Math.floorMod(z, TILE);
-		if (tile.image.getPixel(px, pz) == argb) return;
+		int before = tile.image.getPixel(px, pz);
+		if (before == argb) return;
+		// An empty column never erases what is already known (e.g. a chunk without height data yet).
+		if (argb == 0 && (before >>> 24) != 0) return;
 		tile.image.setPixel(px, pz, argb);
 		tile.dirtyGpu = true;
 		tile.dirtyDisk = true;
@@ -229,6 +232,50 @@ public final class WorldMap {
 			}
 		} catch (Exception e) {
 			Planner.LOGGER.warn("Could not load the map of {}", next, e);
+		}
+		loadBundled(next);
+	}
+
+	/**
+	 * The map that comes with the mod (resources/foragingplanner/maps/&lt;island&gt;/), so the whole island
+	 * is there from the first start. The player's own map is drawn over it; only pixels the player
+	 * has not explored yet are taken from it.
+	 */
+	private static void loadBundled(String key) {
+		try (var index = WorldMap.class.getResourceAsStream("/foragingplanner/maps/index.json")) {
+			if (index == null) return;
+			var json = com.google.gson.JsonParser.parseReader(new java.io.InputStreamReader(index, java.nio.charset.StandardCharsets.UTF_8)).getAsJsonObject();
+			if (!json.has(key)) return;
+			for (var element : json.getAsJsonArray(key)) {
+				String name = element.getAsString();
+				String[] parts = name.split("_");
+				if (parts.length != 2) continue;
+				int tx = Integer.parseInt(parts[0]), tz = Integer.parseInt(parts[1]);
+				try (var in = WorldMap.class.getResourceAsStream("/foragingplanner/maps/" + key + "/" + name + ".png")) {
+					if (in == null) continue;
+					NativeImage base = NativeImage.read(in);
+					if (base.getWidth() != TILE || base.getHeight() != TILE) {
+						base.close();
+						continue;
+					}
+					Tile own = TILES.get(key(tx, tz));
+					if (own == null) {
+						Tile tile = new Tile(key, tx, tz, base);
+						tile.texture.upload();
+						TILES.put(key(tx, tz), tile);
+						continue;
+					}
+					for (int x = 0; x < TILE; x++) {
+						for (int z = 0; z < TILE; z++) {
+							if ((own.image.getPixel(x, z) >>> 24) == 0) own.image.setPixel(x, z, base.getPixel(x, z));
+						}
+					}
+					base.close();
+					own.texture.upload();
+				}
+			}
+		} catch (Exception e) {
+			Planner.LOGGER.warn("Could not load the bundled map of {}", key, e);
 		}
 	}
 
