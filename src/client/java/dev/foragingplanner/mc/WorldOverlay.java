@@ -108,6 +108,8 @@ public final class WorldOverlay {
 		if (Planner.config.sweepPreview) drawSweep(client, g);
 		TreeOrder.draw(client, g);
 		SweepOverlay.draw();
+		TorrhusScanner.draw();
+		DesertTemple.draw();
 		drawChoice(client, g, player, now);
 		drawGhost(client, g, now);
 		drawPrecision(client, g);
@@ -144,6 +146,8 @@ public final class WorldOverlay {
 		String size = Planner.config.treeSizeLabel ? sizeLabel(spot) : "";
 		if (Planner.config.protectedTrees && TreeTracker.isProtected(spot)) size = "§c" + Planner.tr("protected.label") + "§r";
 		String text = label + (size.isEmpty() ? "" : " · " + size) + " · " + Math.round(distance) + "m";
+		String colours = HelixProgress.text(spot);
+		if (!colours.isEmpty()) text += "\n" + colours;
 		Vec3 top = spot.center().add(0, 2.5, 0);
 		WorldText.label(top.add(0, 0.55, 0), text, alpha(color, a));
 		WorldText.dot(top, alpha(color, a * pulse), 1.6f);

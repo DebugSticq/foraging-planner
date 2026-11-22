@@ -73,6 +73,14 @@ public final class Progress {
 	/** Biome name to "have/need" from the milestone menu. */
 	public Map<String, String> safariMilestones = new LinkedHashMap<>();
 	public int safariTickets = -1;
+	/** Items in sacks by name, read from the sack menus. */
+	public Map<String, Long> sackCounts = new LinkedHashMap<>();
+	/** Day (epoch day) on which the free Basic Safari Ticket of the Free Trial perk was received. */
+	public long freeTicketDay = -1;
+	/** Items dropped on Torrhus Canyon ("RARE DROP!" and similar), by name. */
+	public Map<String, Long> torrhusDrops = new LinkedHashMap<>();
+	/** Time spent on Torrhus Canyon since the drop counts were reset, in seconds. */
+	public long torrhusSeconds;
 	public int sparklingSeen;
 	public List<SafariRun> safariRuns = new ArrayList<>();
 

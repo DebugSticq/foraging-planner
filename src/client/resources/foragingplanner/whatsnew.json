@@ -1,4 +1,30 @@
 {
+  "1.0.10": [
+    {
+      "icon": "filled_map",
+      "open": "setting:world_map",
+      "de": "Echte Karte von Galatea und Torrhus wie eine Minecraft-Map, mit Vollbild (N)",
+      "en": "Real map of Galatea and Torrhus like a Minecraft map, with full screen (N)"
+    },
+    {
+      "icon": "stripped_birch_wood",
+      "open": "setting:helix_learn",
+      "de": "Helix-Bäume werden beim Vorbeilaufen gelernt, mit beige/rot-Fortschritt",
+      "en": "Helix trees are learned while walking past, with beige/red progress"
+    },
+    {
+      "icon": "leather",
+      "open": "setting:torrhus_highlights",
+      "de": "Torrhus-Menü: Belt-Planer, Drops, Safari-Tickets, Veilshrooms und Honeyhives",
+      "en": "Torrhus menu: Belt planner, drops, Safari tickets, Veilshrooms and Honeyhives"
+    },
+    {
+      "icon": "honeycomb",
+      "open": "setting:honey_helix",
+      "de": "Honig-Helfer und Wüstentempel-Lösung",
+      "en": "Honey helper and Desert Temple solution"
+    }
+  ],
   "1.0.9": [
     {
       "icon": "name_tag",

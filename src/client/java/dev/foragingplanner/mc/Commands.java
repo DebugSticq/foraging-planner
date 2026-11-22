@@ -95,6 +95,13 @@ public final class Commands {
                     return SUCCESS; }))
                 .then(ClientCommands.literal("undo").executes(context -> { say(context.getSource(), SettingsShare.undo() ? "share.undone" : "share.no_backup"); return SUCCESS; })));
         root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
+        root.then(ClientCommands.literal("map").executes(context -> { Keys.openLater(MapScreen::new); return SUCCESS; }));
+        root.then(ClientCommands.literal("torrhus").executes(context -> { Keys.openLater(() -> new TorrhusScreen(null)); return SUCCESS; }));
+        root.then(ClientCommands.literal("trees").then(ClientCommands.literal("export").executes(context -> {
+            net.minecraft.client.Minecraft.getInstance().keyboardHandler.setClipboard(KnownTrees.exportJson());
+            context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal("§a[FP] §f" + Planner.tr("torrhus.export_done")));
+            return SUCCESS;
+        })));
         root.then(ClientCommands.literal("report").executes(context -> {
             String file = BugReport.copy();
             say(context.getSource(), "report.copied", file);

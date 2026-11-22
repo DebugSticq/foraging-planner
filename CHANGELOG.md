@@ -6,16 +6,33 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **MINOR**: new features
 - **PATCH**: bug fixes
 
+## [1.0.10] - 2026-11-22
+
+### Added
+- **Real map**: Galatea and Torrhus Canyon are drawn like a Minecraft map, from the colours of the blocks in the loaded chunks, with height shading and water depth. The map remembers where you have been (saved per island as PNG in `config/foragingplanner/maps`). The minimap shows the terrain under its markers.
+- **Full screen map** (N, `/fp map` or the new "Map" tab): drag to move, mouse wheel to zoom, F to follow yourself. Shows trees (known positions and their state), area names, NPCs, places, Honeyhives, fishing spots, protected trees, fairy souls, Ruby Veilshrooms, the route, marked mobs and the player. Each kind can be switched on and off; hovering a marker shows its name and distance. Named places from [SkyHanni-REPO](https://github.com/hannibal002/SkyHanni-REPO) (MIT).
+- **Torrhus menu** (`/fp torrhus` or the new "Torrhus" tab): Helix trees known and learned, Torrhus Belt planner, drops of the island and Safari tickets.
+- **Helix trees are learned while walking**: every Helix tree with both colours near you is remembered, so markers, route, arrow and map know Torrhus Canyon too. `/fp trees export` (or the button in the Torrhus menu) copies all known trees as `tree_positions.json`; put it into the repository with a higher `dataVersion` and every player gets them at the next start.
+- **Helix colours**: tree markers and the map show how many beige and red logs are left on each Helix tree.
+- **Honey helper**: Helix trees smeared with honey (yours, and ones showing "Honeyed") get a label with the time since and the critters honey brings (Hivethief, Parched, Pollendart); those critters are marked when they appear.
+- **Ruby Veilshrooms and full Honeyhives** are framed in the world and shown on the map.
+- **Torrhus Belt planner**: all raw materials with what you have (sacks and inventory) and what the rest costs at the Bazaar. Sack contents are read when you open a sack.
+- **Drops on Torrhus Canyon**: every "DROP!" on the island is counted, with drops per hour and value.
+- **Safari tickets**: reminder when the free Basic Safari Ticket of the Free Trial perk is still open today; the contest forecast shows which ticket Miria will likely give.
+- **Desert Temple**: the coloured buttons are numbered in the order to press them and arrows show where each statue goes (positions from Skyblocker, LGPL-3.0). Only shows hints.
+- **Sweep blocks know the tree style**: aiming at a part of the tree that is not next (e.g. a Fig branch while trunk is left) halves the logs, as on Hypixel. The overlay then shows only the halved logs in red, with a warning over the log naming the part to cut first and "only X instead of Y logs".
+
+### Fixed
+- The tree order label sits above the tree and stays readable through the logs, with a line down to the start log. Before, it was inside the tree and cut off by the logs.
+
 ## [1.0.9] - 2026-11-21
 
 ### Changed
 - **Labels in the world are now real 3D text**: tree markers, the route and its numbers, the best-tree star, the route ghost, mob and vendor labels, bell markers and their path, protected-tree warnings, the tree order label and "Timber!" are drawn in the world like name tags instead of being projected onto the HUD. They no longer wobble when you turn, are hidden behind blocks, and stay readable at a distance. Route lines and the bell path are real lines in the world; etherwarp targets, Precision Cutting logs and Invisibug crits are framed in 3D.
-- **Sweep blocks know the tree style**: aiming at a part of the tree that is not next (e.g. a Fig branch while trunk is left) halves the logs, as on Hypixel. The overlay then shows only the halved logs in red, with a warning over the log naming the part to cut first and "only X instead of Y logs".
 - The update check now writes what it found to the log ("[FP] Update check: ...").
 
 ### Fixed
 - **HUD positions are kept**: the HUD layout is now saved once for all SkyBlock profiles (`hud.json`). Before, moving a card before your profile was detected, or leaving the server, could bring back an old layout. Changes made while the contest layout is active are kept in the contest layout, and switching layouts keeps the changes of the one you leave.
-- The tree order label sits above the tree and stays readable through the logs, with a line down to the start log. Before, it was inside the tree and cut off by the logs.
 - The active pet is found in the tab list again when it has a skin (e.g. "[Lvl 200] [240✦] Jade Dragon").
 
 ## [1.0.8] - 2026-11-21

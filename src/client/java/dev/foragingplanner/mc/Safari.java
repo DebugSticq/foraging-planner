@@ -138,6 +138,8 @@ public final class Safari {
 				Toasts.show(Toasts.Kind.RARE, "paper", Planner.tr("safari.ticket_title"), Planner.tr("safari.ticket_text"));
 			}
 			if (n.find() && p.safariTickets >= 0 && !lower.contains("used")) p.safariTickets += (int) ContestMath.parseNumber(n.group(1));
+			// The Free Trial perk puts a Basic Safari Ticket into the first Tree Gift of the day.
+			if (lower.contains("basic safari ticket") && !lower.contains("used")) p.freeTicketDay = java.time.LocalDate.now().toEpochDay();
 			debug("chat: " + text);
 		}
 
@@ -465,6 +467,10 @@ public final class Safari {
 		}
 		if (nearSafari() && Planner.config.safariMilestones) p.safariMilestones.forEach((biome, value) -> out.add("§7" + biome + " §e" + value));
 		if (nearSafari() && Planner.config.ticketReminder && p.safariTickets >= 0) out.add("§7" + Planner.tr("safari.hud_tickets") + " §f" + p.safariTickets);
+		if ((nearSafari() || TorrhusScanner.here()) && Planner.config.ticketReminder && Planner.config.perkLevels.getOrDefault("Free Trial", 0) > 0
+				&& p.freeTicketDay != java.time.LocalDate.now().toEpochDay()) {
+			out.add("§e" + Planner.tr("safari.free_ticket_open"));
+		}
 		if (inRun && Planner.config.partyProgress) PARTY.forEach((name, count) -> out.add("§b" + name + " §7" + count));
 		return out;
 	}

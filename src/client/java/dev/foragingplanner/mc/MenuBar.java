@@ -15,7 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
  * like one window: switching keeps the same "back" target.
  */
 public final class MenuBar {
-	public static final String[] MENUS = {"stats", "gear", "check", "settings"};
+	public static final String[] MENUS = {"stats", "gear", "torrhus", "map", "check", "settings"};
 	public static final int HEIGHT = 13;
 
 	private MenuBar() {}
@@ -56,10 +56,15 @@ public final class MenuBar {
 			if (mouseX < xs[i] || mouseX >= xs[i + 1] - 3) continue;
 			if (MENUS[i].equals(current)) return true;
 			UiSound.page();
+			if (MENUS[i].equals("map")) {
+				MapScreen.open();
+				return true;
+			}
 			Screen next = switch (MENUS[i]) {
 				case "stats" -> new StatsScreen(backTo);
 				case "gear" -> new GearScreen(backTo);
 				case "check" -> new CheckScreen(backTo);
+				case "torrhus" -> new TorrhusScreen(backTo);
 				default -> new SettingsScreen(backTo);
 			};
 			Minecraft.getInstance().gui.setScreen(next);

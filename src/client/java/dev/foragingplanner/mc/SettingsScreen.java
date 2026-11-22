@@ -279,6 +279,7 @@ public final class SettingsScreen extends Screen {
 					new SliderRow("map_size", Items.MAP, 60, 200, 10, "px", () -> c.mapSize, value -> c.mapSize = value);
 					new SliderRow("map_range", Items.COMPASS, 30, 150, 10, "m", () -> c.mapRange, value -> c.mapRange = value);
 					new CycleRow("map_corner", Items.ITEM_FRAME, () -> c.mapCorner, value -> c.mapCorner = value, List.of("top_right", "top_left", "bottom_right", "bottom_left"));
+					new ToggleRow("world_map", Items.FILLED_MAP, () -> c.worldMap, value -> c.worldMap = value);
 				});
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
 				sub(advanced, () -> {
@@ -343,6 +344,10 @@ public final class SettingsScreen extends Screen {
 				});
 				new ToggleRow("tree_order", Items.STRIPPED_SPRUCE_WOOD, () -> c.treeOrderOverlay, value -> c.treeOrderOverlay = value);
 				new ToggleRow("known_trees", Items.FILLED_MAP, () -> c.knownTrees, value -> c.knownTrees = value);
+				new ToggleRow("helix_learn", Items.STRIPPED_BIRCH_WOOD, () -> c.helixLearn, value -> c.helixLearn = value);
+				new ToggleRow("helix_colours", Items.STRIPPED_MANGROVE_WOOD, () -> c.helixColours, value -> c.helixColours = value);
+				new ToggleRow("torrhus_highlights", Items.CRIMSON_FUNGUS, () -> c.torrhusHighlights, value -> c.torrhusHighlights = value);
+				new ToggleRow("desert_temple", Items.SANDSTONE, () -> c.desertTemple, value -> c.desertTemple = value);
 				new ToggleRow("precision", Items.SPECTRAL_ARROW, () -> c.precisionHelper, value -> c.precisionHelper = value);
 				new ToggleRow("prevent_strip", Items.IRON_AXE, () -> c.preventStripping, value -> c.preventStripping = value);
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);

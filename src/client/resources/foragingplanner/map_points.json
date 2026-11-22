@@ -1,0 +1,1354 @@
+{
+ "_source": "Named places from SkyHanni-REPO island graphs (https://github.com/hannibal002/SkyHanni-REPO), MIT License, Copyright (c) 2022 hannibal2.",
+ "islands": {
+  "Galatea": [
+   {
+    "name": "Hina",
+    "type": "npc",
+    "x": -554,
+    "y": 111,
+    "z": -17
+   },
+   {
+    "name": "Talia",
+    "type": "npc",
+    "x": -616,
+    "y": 109,
+    "z": 2
+   },
+   {
+    "name": "SwampCut Inc.",
+    "type": "place",
+    "x": -583,
+    "y": 115,
+    "z": 1
+   },
+   {
+    "name": "Tangleburg Library",
+    "type": "place",
+    "x": -593,
+    "y": 115,
+    "z": 13
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -598,
+    "y": 107,
+    "z": 16
+   },
+   {
+    "name": "TORRHUS_CANYON",
+    "type": "jump_pad",
+    "x": -728,
+    "y": 100,
+    "z": 87
+   },
+   {
+    "name": "Murkwater Loch",
+    "type": "npc",
+    "x": -706,
+    "y": 95,
+    "z": 33
+   },
+   {
+    "name": "Coral",
+    "type": "npc",
+    "x": -627,
+    "y": 100,
+    "z": -88
+   },
+   {
+    "name": "Oden",
+    "type": "npc",
+    "x": -585,
+    "y": 114,
+    "z": -41
+   },
+   {
+    "name": "Teddy",
+    "type": "npc",
+    "x": -657,
+    "y": 116,
+    "z": -40
+   },
+   {
+    "name": "Kiara",
+    "type": "npc",
+    "x": -654,
+    "y": 114,
+    "z": -70
+   },
+   {
+    "name": "Boris",
+    "type": "npc",
+    "x": -685,
+    "y": 130,
+    "z": 64
+   },
+   {
+    "name": "Sawyer",
+    "type": "npc",
+    "x": -692,
+    "y": 122,
+    "z": 81
+   },
+   {
+    "name": "Auryon",
+    "type": "npc",
+    "x": -558,
+    "y": 112,
+    "z": 48
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -702,
+    "y": 169,
+    "z": -2
+   },
+   {
+    "name": "Swoop",
+    "type": "npc",
+    "x": -580,
+    "y": 115,
+    "z": -24
+   },
+   {
+    "name": "Amaury",
+    "type": "npc",
+    "x": -579,
+    "y": 115,
+    "z": 1
+   },
+   {
+    "name": "Albert",
+    "type": "npc",
+    "x": -593,
+    "y": 114,
+    "z": 8
+   },
+   {
+    "name": "Loras",
+    "type": "npc",
+    "x": -594,
+    "y": 119,
+    "z": 14
+   },
+   {
+    "name": "/warp galatea",
+    "type": "poi",
+    "x": -548,
+    "y": 110,
+    "z": -23
+   },
+   {
+    "name": "Fusion House",
+    "type": "place",
+    "x": -591,
+    "y": 115,
+    "z": -15
+   },
+   {
+    "name": "David Hunterborough",
+    "type": "npc",
+    "x": -594,
+    "y": 115,
+    "z": -14
+   },
+   {
+    "name": "Salvage Old Attributes",
+    "type": "npc",
+    "x": -595,
+    "y": 115,
+    "z": -18
+   },
+   {
+    "name": "Kysha",
+    "type": "npc",
+    "x": -602,
+    "y": 116,
+    "z": -12
+   },
+   {
+    "name": "Fusion Machine",
+    "type": "poi",
+    "x": -604,
+    "y": 116,
+    "z": -15
+   },
+   {
+    "name": "Tangleburg Bank",
+    "type": "place",
+    "x": -606,
+    "y": 116,
+    "z": -36
+   },
+   {
+    "name": "Banker Bonsai",
+    "type": "npc",
+    "x": -599,
+    "y": 117,
+    "z": -38
+   },
+   {
+    "name": "Alan",
+    "type": "npc",
+    "x": -626,
+    "y": 117,
+    "z": -37
+   },
+   {
+    "name": "Nemo",
+    "type": "npc",
+    "x": -620,
+    "y": 88,
+    "z": -7
+   },
+   {
+    "name": "Jaeger",
+    "type": "npc",
+    "x": -652,
+    "y": 90,
+    "z": -25
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -663,
+    "y": 115,
+    "z": -79
+   },
+   {
+    "name": "Vaeri",
+    "type": "npc",
+    "x": -689,
+    "y": 117,
+    "z": -36
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -707,
+    "y": 131,
+    "z": 1
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -732,
+    "y": 121,
+    "z": 37
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -604,
+    "y": 114,
+    "z": 8
+   },
+   {
+    "name": "Soul Campfire Adept",
+    "type": "npc",
+    "x": -626,
+    "y": 118,
+    "z": 50
+   },
+   {
+    "name": "Soul Campfire Initiate",
+    "type": "npc",
+    "x": -625,
+    "y": 118,
+    "z": 47
+   },
+   {
+    "name": "Brian",
+    "type": "npc",
+    "x": -629,
+    "y": 118,
+    "z": 47
+   },
+   {
+    "name": "Soul Campfire",
+    "type": "poi",
+    "x": -627,
+    "y": 117,
+    "z": 49
+   },
+   {
+    "name": "Rosemary",
+    "type": "npc",
+    "x": -704,
+    "y": 163,
+    "z": 3
+   },
+   {
+    "name": "Moonglade Beacon",
+    "type": "poi",
+    "x": -688,
+    "y": 130,
+    "z": 65
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -716,
+    "y": 96,
+    "z": 43
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -616,
+    "y": 90,
+    "z": 29
+   },
+   {
+    "name": "Agatha",
+    "type": "npc",
+    "x": -649,
+    "y": 90,
+    "z": -4
+   },
+   {
+    "name": "/warp murkwater",
+    "type": "warp",
+    "x": -645,
+    "y": 91,
+    "z": 2
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -609,
+    "y": 97,
+    "z": 92
+   },
+   {
+    "name": "Bubbleboost Column",
+    "type": "place",
+    "x": -577,
+    "y": 105,
+    "z": -14
+   },
+   {
+    "name": "Martin",
+    "type": "npc",
+    "x": -581,
+    "y": 94,
+    "z": 31
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -586,
+    "y": 90,
+    "z": -26
+   },
+   {
+    "name": "Tilus",
+    "type": "npc",
+    "x": -643,
+    "y": 56,
+    "z": 47
+   },
+   {
+    "name": "Lava Fishing Underwater Lake",
+    "type": "poi",
+    "x": -667,
+    "y": 79,
+    "z": -41
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -564,
+    "y": 95,
+    "z": 16
+   },
+   {
+    "name": "Pounce",
+    "type": "npc",
+    "x": -599,
+    "y": 128,
+    "z": -21
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -601,
+    "y": 128,
+    "z": -20
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -556,
+    "y": 94,
+    "z": 60
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -663,
+    "y": 64,
+    "z": 62
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -737,
+    "y": 101,
+    "z": -17
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -619,
+    "y": 66,
+    "z": 33
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -621,
+    "y": 108,
+    "z": -86
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -696,
+    "y": 76,
+    "z": -44
+   },
+   {
+    "name": "Dragon's Lair",
+    "type": "place",
+    "x": -634,
+    "y": 12,
+    "z": -8
+   },
+   {
+    "name": "Jade Dragon's Eggs",
+    "type": "poi",
+    "x": -641,
+    "y": 8,
+    "z": -24
+   },
+   {
+    "name": "Fusion House",
+    "type": "place",
+    "x": -605,
+    "y": 119,
+    "z": -4
+   },
+   {
+    "name": "Forest Essence Shop",
+    "type": "npc",
+    "x": -703,
+    "y": 163,
+    "z": 2
+   },
+   {
+    "name": "Vault",
+    "type": "poi",
+    "x": -606,
+    "y": 116,
+    "z": -37
+   },
+   {
+    "name": "Booster Info",
+    "type": "poi",
+    "x": -694,
+    "y": 122,
+    "z": 80
+   },
+   {
+    "name": "Spawn",
+    "type": "poi",
+    "x": -550,
+    "y": 111,
+    "z": -22
+   },
+   {
+    "name": "Soul Campfire Cult",
+    "type": "poi",
+    "x": -629,
+    "y": 118,
+    "z": 49
+   },
+   {
+    "name": "Trial of Blue Flames",
+    "type": "poi",
+    "x": -627,
+    "y": 118,
+    "z": 47
+   },
+   {
+    "name": "Forge",
+    "type": "poi",
+    "x": -695,
+    "y": 122,
+    "z": 80
+   },
+   {
+    "name": "Lava Fishing",
+    "type": "poi",
+    "x": -694,
+    "y": 122,
+    "z": 81
+   },
+   {
+    "name": "Forest Temple",
+    "type": "place",
+    "x": -636,
+    "y": 61,
+    "z": 70
+   },
+   {
+    "name": "Starborn Temple",
+    "type": "poi",
+    "x": -636,
+    "y": 61,
+    "z": 76
+   },
+   {
+    "name": "Temple Altar",
+    "type": "poi",
+    "x": -637,
+    "y": 61,
+    "z": 79
+   },
+   {
+    "name": "Tangleburg's Path",
+    "type": "area",
+    "x": -555,
+    "y": 111,
+    "z": -9,
+    "size": 7
+   },
+   {
+    "name": "Tangleburg",
+    "type": "area",
+    "x": -582,
+    "y": 116,
+    "z": -4,
+    "size": 20
+   },
+   {
+    "name": "Moonglade Marsh",
+    "type": "area",
+    "x": -636,
+    "y": 104,
+    "z": 12,
+    "size": 16
+   },
+   {
+    "name": "Murkwater Loch",
+    "type": "area",
+    "x": -651,
+    "y": 91,
+    "z": 12,
+    "size": 27
+   },
+   {
+    "name": "Moonglade's Edge",
+    "type": "area",
+    "x": -708,
+    "y": 96,
+    "z": 48,
+    "size": 7
+   },
+   {
+    "name": "Tranquil Pass",
+    "type": "area",
+    "x": -712,
+    "y": 95,
+    "z": 7,
+    "size": 2
+   },
+   {
+    "name": "Westbound Wetlands",
+    "type": "area",
+    "x": -702,
+    "y": 95,
+    "z": -34,
+    "size": 6
+   },
+   {
+    "name": "North Wetlands",
+    "type": "area",
+    "x": -640,
+    "y": 96,
+    "z": -49,
+    "size": 6
+   },
+   {
+    "name": "North Reaches",
+    "type": "area",
+    "x": -661,
+    "y": 113,
+    "z": -47,
+    "size": 14
+   },
+   {
+    "name": "West Reaches",
+    "type": "area",
+    "x": -711,
+    "y": 121,
+    "z": 6,
+    "size": 11
+   },
+   {
+    "name": "Southern Reaches",
+    "type": "area",
+    "x": -669,
+    "y": 118,
+    "z": 63,
+    "size": 12
+   },
+   {
+    "name": "Evergreen Plateau",
+    "type": "area",
+    "x": -581,
+    "y": 115,
+    "z": 45,
+    "size": 9
+   },
+   {
+    "name": "Wyrmgrove Tomb",
+    "type": "area",
+    "x": -595,
+    "y": 94,
+    "z": -6,
+    "size": 5
+   },
+   {
+    "name": "Verdant Summit",
+    "type": "area",
+    "x": -729,
+    "y": 122,
+    "z": -10,
+    "size": 6
+   },
+   {
+    "name": "South Wetlands",
+    "type": "area",
+    "x": -621,
+    "y": 97,
+    "z": 56,
+    "size": 11
+   },
+   {
+    "name": "Tomb Floodway",
+    "type": "area",
+    "x": -580,
+    "y": 94,
+    "z": 42,
+    "size": 2
+   },
+   {
+    "name": "Driptoad Delve",
+    "type": "area",
+    "x": -682,
+    "y": 88,
+    "z": 61,
+    "size": 2
+   },
+   {
+    "name": "Driptoad Pass",
+    "type": "area",
+    "x": -683,
+    "y": 68,
+    "z": 50,
+    "size": 2
+   },
+   {
+    "name": "Murkwater Depths",
+    "type": "area",
+    "x": -653,
+    "y": 62,
+    "z": 8,
+    "size": 15
+   },
+   {
+    "name": "Ancient Ruins",
+    "type": "area",
+    "x": -636,
+    "y": 59,
+    "z": 56,
+    "size": 2
+   },
+   {
+    "name": "Squid Cave",
+    "type": "area",
+    "x": -613,
+    "y": 48,
+    "z": 1,
+    "size": 1
+   },
+   {
+    "name": "Murkwater Shallows",
+    "type": "area",
+    "x": -650,
+    "y": 85,
+    "z": 5,
+    "size": 19
+   },
+   {
+    "name": "Dive-Ember Pass",
+    "type": "area",
+    "x": -653,
+    "y": 70,
+    "z": -35,
+    "size": 3
+   },
+   {
+    "name": "Stride-Ember Fissure",
+    "type": "area",
+    "x": -669,
+    "y": 81,
+    "z": -55,
+    "size": 2
+   },
+   {
+    "name": "Side-Ember Way",
+    "type": "area",
+    "x": -672,
+    "y": 89,
+    "z": -80,
+    "size": 2
+   },
+   {
+    "name": "Reefguard Pass",
+    "type": "area",
+    "x": -690,
+    "y": 61,
+    "z": 12,
+    "size": 2
+   },
+   {
+    "name": "Drowned Reliquary",
+    "type": "area",
+    "x": -699,
+    "y": 58,
+    "z": 11,
+    "size": 1
+   },
+   {
+    "name": "Kelpwoven Tunnels",
+    "type": "area",
+    "x": -606,
+    "y": 66,
+    "z": -17,
+    "size": 2
+   }
+  ],
+  "Torrhus Canyon": [
+   {
+    "name": "Spawn",
+    "type": "poi",
+    "x": -721,
+    "y": 95,
+    "z": 140
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -696,
+    "y": 93,
+    "z": 153
+   },
+   {
+    "name": "Helia",
+    "type": "npc",
+    "x": -691,
+    "y": 94,
+    "z": 155
+   },
+   {
+    "name": "Safari Shill",
+    "type": "npc",
+    "x": -697,
+    "y": 95,
+    "z": 177
+   },
+   {
+    "name": "Critter Safari Entrance",
+    "type": "place",
+    "x": -712,
+    "y": 103,
+    "z": 186
+   },
+   {
+    "name": "Critter Safari Entrance",
+    "type": "place",
+    "x": -707,
+    "y": 108,
+    "z": 179
+   },
+   {
+    "name": "Miria's Hut",
+    "type": "place",
+    "x": -665,
+    "y": 94,
+    "z": 211
+   },
+   {
+    "name": "Miria",
+    "type": "npc",
+    "x": -655,
+    "y": 99,
+    "z": 220
+   },
+   {
+    "name": "Miria's Hut",
+    "type": "place",
+    "x": -646,
+    "y": 97,
+    "z": 224
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -575,
+    "y": 101,
+    "z": 208
+   },
+   {
+    "name": "Sanger",
+    "type": "npc",
+    "x": -527,
+    "y": 98,
+    "z": 218
+   },
+   {
+    "name": "Honey",
+    "type": "npc",
+    "x": -628,
+    "y": 100,
+    "z": 226
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -619,
+    "y": 99,
+    "z": 235
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -608,
+    "y": 98,
+    "z": 274
+   },
+   {
+    "name": "Treehugger Timothy",
+    "type": "npc",
+    "x": -542,
+    "y": 111,
+    "z": 276
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -540,
+    "y": 112,
+    "z": 286
+   },
+   {
+    "name": "Torrhus Beacon",
+    "type": "poi",
+    "x": -595,
+    "y": 125,
+    "z": 205
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -582,
+    "y": 151,
+    "z": 255
+   },
+   {
+    "name": "Hunter Jean",
+    "type": "npc",
+    "x": -666,
+    "y": 146,
+    "z": 170
+   },
+   {
+    "name": "Forager Daniel",
+    "type": "npc",
+    "x": -640,
+    "y": 96,
+    "z": 246
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -704,
+    "y": 92,
+    "z": 222
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -724,
+    "y": 92,
+    "z": 208
+   },
+   {
+    "name": "Sanger",
+    "type": "npc",
+    "x": -747,
+    "y": 94,
+    "z": 261
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -684,
+    "y": 92,
+    "z": 192
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -670,
+    "y": 93,
+    "z": 195
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -666,
+    "y": 96,
+    "z": 169
+   },
+   {
+    "name": "Beekeeper Bartholomew",
+    "type": "npc",
+    "x": -667,
+    "y": 96,
+    "z": 166
+   },
+   {
+    "name": "Safari Manager",
+    "type": "npc",
+    "x": -733,
+    "y": 100,
+    "z": 185
+   },
+   {
+    "name": "Safari Receptionist",
+    "type": "npc",
+    "x": -720,
+    "y": 100,
+    "z": 179
+   },
+   {
+    "name": "Andrea",
+    "type": "npc",
+    "x": -712,
+    "y": 109,
+    "z": 178
+   },
+   {
+    "name": "Safari Essence Shop",
+    "type": "poi",
+    "x": -706,
+    "y": 109,
+    "z": 166
+   },
+   {
+    "name": "Archie",
+    "type": "npc",
+    "x": -707,
+    "y": 109,
+    "z": 165
+   },
+   {
+    "name": "Honeyhive",
+    "type": "honeyhive",
+    "x": -731,
+    "y": 128,
+    "z": 185
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -627,
+    "y": 123,
+    "z": 286
+   },
+   {
+    "name": "Pangolin Hideaway",
+    "type": "place",
+    "x": -541,
+    "y": 95,
+    "z": 228
+   },
+   {
+    "name": "Forager Rowan",
+    "type": "npc",
+    "x": -726,
+    "y": 138,
+    "z": 228
+   },
+   {
+    "name": "Freddy",
+    "type": "npc",
+    "x": -695,
+    "y": 95,
+    "z": 200
+   },
+   {
+    "name": "Dory",
+    "type": "npc",
+    "x": -646,
+    "y": 162,
+    "z": 194
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -679,
+    "y": 103,
+    "z": 261
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -665,
+    "y": 120,
+    "z": 174
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -547,
+    "y": 110,
+    "z": 298
+   },
+   {
+    "name": "Tree Protection Order",
+    "type": "protected",
+    "x": -512,
+    "y": 109,
+    "z": 259
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -644,
+    "y": 161,
+    "z": 175
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -618,
+    "y": 126,
+    "z": 180
+   },
+   {
+    "name": "Maxim",
+    "type": "npc",
+    "x": -575,
+    "y": 154,
+    "z": 248
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -614,
+    "y": 97,
+    "z": 215
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -711,
+    "y": 59,
+    "z": 292
+   },
+   {
+    "name": "Hooded Occultist",
+    "type": "poi",
+    "x": -690,
+    "y": 18,
+    "z": 238
+   },
+   {
+    "name": "Ruby Veilshroom Cave",
+    "type": "poi",
+    "x": -631,
+    "y": 102,
+    "z": 184
+   },
+   {
+    "name": "Hunter McNeil",
+    "type": "npc",
+    "x": -653,
+    "y": 104,
+    "z": 167
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -651,
+    "y": 104,
+    "z": 169
+   },
+   {
+    "name": "Ant",
+    "type": "npc",
+    "x": -616,
+    "y": 76,
+    "z": 208
+   },
+   {
+    "name": "Desert Temple",
+    "type": "place",
+    "x": -612,
+    "y": 44,
+    "z": 238
+   },
+   {
+    "name": "Temple Altar",
+    "type": "poi",
+    "x": -590,
+    "y": 44,
+    "z": 248
+   },
+   {
+    "name": "Oen",
+    "type": "npc",
+    "x": -567,
+    "y": 81,
+    "z": 270
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -567,
+    "y": 81,
+    "z": 273
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -566,
+    "y": 137,
+    "z": 244
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -602,
+    "y": 168,
+    "z": 234
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -639,
+    "y": 91,
+    "z": 158
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -677,
+    "y": 63,
+    "z": 256
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -706,
+    "y": 99,
+    "z": 141
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -728,
+    "y": 125,
+    "z": 151
+   },
+   {
+    "name": "Fairy Soul",
+    "type": "fairy_soul",
+    "x": -554,
+    "y": 95,
+    "z": 254
+   },
+   {
+    "name": "Pangolin Hideaway",
+    "type": "place",
+    "x": -727,
+    "y": 92,
+    "z": 218
+   },
+   {
+    "name": "Sanger",
+    "type": "npc",
+    "x": -633,
+    "y": 95,
+    "z": 160
+   },
+   {
+    "name": "Mega Tree",
+    "type": "poi",
+    "x": -540,
+    "y": 111,
+    "z": 278
+   },
+   {
+    "name": "Deep Dark",
+    "type": "poi",
+    "x": -672,
+    "y": 44,
+    "z": 248
+   },
+   {
+    "name": "Critter Safari Entrance",
+    "type": "place",
+    "x": -712,
+    "y": 112,
+    "z": 174
+   },
+   {
+    "name": "Totempfahl",
+    "type": "poi",
+    "x": -532,
+    "y": 112,
+    "z": 302
+   },
+   {
+    "name": "SAFARI",
+    "type": "jump_pad",
+    "x": -733,
+    "y": 100,
+    "z": 184
+   },
+   {
+    "name": "Pangolin Hideaway",
+    "type": "place",
+    "x": -556,
+    "y": 98,
+    "z": 236
+   },
+   {
+    "name": "Fishing Hotspot",
+    "type": "fishing",
+    "x": -706,
+    "y": 94,
+    "z": 195
+   },
+   {
+    "name": "Fishing Hotspo",
+    "type": "fishing",
+    "x": -707,
+    "y": 92,
+    "z": 187
+   },
+   {
+    "name": "GALATEA",
+    "type": "jump_pad",
+    "x": -721,
+    "y": 96,
+    "z": 137
+   },
+   {
+    "name": "Spring Depths",
+    "type": "place",
+    "x": -643,
+    "y": 122,
+    "z": 190
+   },
+   {
+    "name": "Starborn Temple",
+    "type": "poi",
+    "x": -614,
+    "y": 44,
+    "z": 226
+   },
+   {
+    "name": "Hotspot",
+    "type": "fishing",
+    "x": -636,
+    "y": 160,
+    "z": 190
+   },
+   {
+    "name": "Critter Safari Entrance",
+    "type": "area",
+    "x": -717,
+    "y": 106,
+    "z": 179,
+    "size": 5
+   },
+   {
+    "name": "Spring Path",
+    "type": "area",
+    "x": -602,
+    "y": 121,
+    "z": 219,
+    "size": 40
+   },
+   {
+    "name": "Torrhus Heights",
+    "type": "area",
+    "x": -661,
+    "y": 128,
+    "z": 225,
+    "size": 50
+   },
+   {
+    "name": "Torrhus Springs",
+    "type": "area",
+    "x": -641,
+    "y": 160,
+    "z": 176,
+    "size": 9
+   },
+   {
+    "name": "Spring Depths",
+    "type": "area",
+    "x": -640,
+    "y": 100,
+    "z": 192,
+    "size": 7
+   },
+   {
+    "name": "Spring Shallows",
+    "type": "area",
+    "x": -643,
+    "y": 143,
+    "z": 185,
+    "size": 7
+   },
+   {
+    "name": "Hotspot Haven",
+    "type": "area",
+    "x": -656,
+    "y": 102,
+    "z": 174,
+    "size": 1
+   },
+   {
+    "name": "Ant's Cave",
+    "type": "area",
+    "x": -629,
+    "y": 77,
+    "z": 191,
+    "size": 1
+   }
+  ]
+ }
+}

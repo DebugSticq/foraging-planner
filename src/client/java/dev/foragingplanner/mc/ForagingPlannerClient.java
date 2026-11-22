@@ -45,6 +45,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 		Commands.register();
 		Beacon.register();
 		WorldBoxes.register();
+		TorrhusScanner.register();
 		TreeWarnings.register();
 		MiniMap.register();
 		Extras.register();
@@ -83,6 +84,9 @@ public final class ForagingPlannerClient implements ClientModInitializer {
             if (ticks % scan == 0) Perf.run("trees", () -> TreeTracker.tick(client));
             Perf.run("routes", () -> Routes.tick(client));
             Perf.run("sweep_overlay", () -> SweepOverlay.tick(client));
+            Perf.run("world_map", () -> WorldMap.tick(client));
+            Perf.run("torrhus", () -> TorrhusScanner.tick(client));
+            Perf.run("desert_temple", () -> DesertTemple.tick(client));
             if (ticks % 4 == 2) Perf.run("tree_order", () -> TreeOrder.tick(client));
             if (!Perf.light() || ticks % 2 == 0) Perf.run("tree_progress", () -> TreeProgress.tick(client));
             Perf.run("tree_choice", () -> TreeChoice.tick(client));
@@ -132,7 +136,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 			}
 		});
 
-		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> { SessionRates.flush(); JournalStore.save(); Planner.config.save(); Progress.save(true); TreeTracker.save(); });
+		ClientLifecycleEvents.CLIENT_STOPPING.register(client -> { SessionRates.flush(); JournalStore.save(); Planner.config.save(); Progress.save(true); TreeTracker.save(); WorldMap.save(); });
 
 		Planner.LOGGER.info("Foraging Planner {} loaded with {} perks and {} trees", ModVersion.get(),
 				Planner.data.hotf.perks.size(), Planner.data.trees.size());

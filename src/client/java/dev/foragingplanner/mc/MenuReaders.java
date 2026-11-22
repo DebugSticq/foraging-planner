@@ -64,7 +64,8 @@ public final class MenuReaders {
 			boolean chapter = title.contains("chapter") || title.contains("tasks");
 			boolean fusion = title.contains("fusion");
 			boolean shop = title.contains("agatha") || title.contains("miria") || title.contains("coupon");
-			if (!collection && !box && !attributes && !equipment && !shop && !hotf && !chapter && !fusion) return;
+			boolean sack = title.contains("sack");
+			if (!collection && !box && !attributes && !equipment && !shop && !hotf && !chapter && !fusion && !sack) return;
 
 			int[] ticks = {0};
 			offers = List.of();
@@ -78,6 +79,7 @@ public final class MenuReaders {
 				if (hotf) readHotf(menu);
 				if (chapter) readChapter(menu, Planner.strip(screen.getTitle().getString()));
 				if (fusion) fusionShards = readFusion(menu);
+				if (sack) readSack(menu);
 			});
 
 			if (shop) ScreenEvents.afterExtract(screen).register((current, g, mouseX, mouseY, delta) -> drawShop(g, current.width));
@@ -89,6 +91,29 @@ public final class MenuReaders {
 				ScreenEvents.afterExtract(screen).register((current, g, mouseX, mouseY, delta) -> drawFusion(g));
 			}
 		});
+	}
+
+	private static final Pattern STORED = Pattern.compile("(?i)^Stored:\\s*([\\d,]+)");
+
+	/** Sack contents ("Stored: 1,234/2,240"), for the Torrhus Belt planner and other counts. */
+	private static void readSack(AbstractContainerScreen<?> menu) {
+		Progress p = Progress.get();
+		boolean changed = false;
+		int containerSlots = menu.getMenu().slots.size() - 36;
+		for (int i = 0; i < Math.max(0, containerSlots); i++) {
+			ItemStack stack = menu.getMenu().slots.get(i).getItem();
+			if (stack.isEmpty()) continue;
+			String name = name(stack);
+			for (String line : lore(stack)) {
+				Matcher m = STORED.matcher(line);
+				if (!m.find()) continue;
+				long stored = (long) ContestMath.parseNumber(m.group(1));
+				Long before = p.sackCounts.put(name, stored);
+				if (before == null || before != stored) changed = true;
+				break;
+			}
+		}
+		if (changed) Progress.save(false);
 	}
 
 	static List<String> lore(ItemStack stack) {

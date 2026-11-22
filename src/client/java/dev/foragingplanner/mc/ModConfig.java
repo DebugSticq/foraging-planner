@@ -141,6 +141,12 @@ public final class ModConfig {
     /** False until the first-start choice was made. */
     public boolean setupDone = false;
     public boolean minimap = true;
+    public boolean worldMap = true;
+    public java.util.List<String> mapHidden = new java.util.ArrayList<>(java.util.List.of("fairy_soul"));
+    public boolean helixLearn = true;
+    public boolean helixColours = true;
+    public boolean torrhusHighlights = true;
+    public boolean desertTemple = true;
     public int mapSize = 100;
     public int mapRange = 70;
     public String mapCorner = "top_right";

@@ -25,8 +25,12 @@ public final class KnownTrees {
 	}
 
 	private static final class File {
+		String _source;
+		int dataVersion;
 		Map<String, List<Entry>> islands = new HashMap<>();
 	}
+
+	private static int dataVersion;
 
 	/** Island names Hypixel shows for the same place. */
 	private static final Map<String, String> ALIASES = Map.of("Moonglade Marsh", "Galatea");
@@ -153,13 +157,66 @@ public final class KnownTrees {
 	private static void load() {
 		if (islands != null) return;
 		islands = new HashMap<>();
+		File bundled = null;
 		try (InputStream in = KnownTrees.class.getResourceAsStream("/foragingplanner/tree_positions.json")) {
-			if (in == null) return;
-			File file = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), File.class);
-			if (file != null && file.islands != null) islands.putAll(file.islands);
+			if (in != null) bundled = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), File.class);
 		} catch (Exception e) {
 			Planner.LOGGER.warn("Could not read tree_positions.json", e);
 		}
+		File chosen = bundled;
+		// A newer list downloaded from the mod's GitHub repository (see DataUpdater).
+		try {
+			java.nio.file.Path remote = ModConfig.directory().resolve("remote").resolve("tree_positions.json");
+			if (java.nio.file.Files.exists(remote)) {
+				File r = new Gson().fromJson(java.nio.file.Files.readString(remote), File.class);
+				if (r != null && r.islands != null && !r.islands.isEmpty() && (bundled == null || r.dataVersion > bundled.dataVersion)) chosen = r;
+			}
+		} catch (Exception e) {
+			Planner.LOGGER.warn("Could not read the downloaded tree positions", e);
+		}
+		if (chosen != null && chosen.islands != null) {
+			islands.putAll(chosen.islands);
+			dataVersion = chosen.dataVersion;
+		}
+	}
+
+	/** Version of the tree list in use, for the data updater. */
+	static int dataVersion() {
+		load();
+		return dataVersion;
+	}
+
+	/** Reads the tree lists again (after a download). */
+	static void reloadBundled() {
+		islands = null;
+	}
+
+	/**
+	 * All known trees, bundled and learned, as a tree_positions.json with the next data version: put
+	 * it into the repository, and every player gets the new trees at the next start.
+	 */
+	public static String exportJson() {
+		load();
+		Map<String, List<Entry>> all = new java.util.TreeMap<>();
+		islands.forEach((k, v) -> all.put(k, new ArrayList<>(v)));
+		learned().forEach((k, v) -> {
+			List<Entry> list = all.computeIfAbsent(k, x -> new ArrayList<>());
+			for (Entry e : v) {
+				if (!near(list, new net.minecraft.core.BlockPos(e.x, e.y, e.z), e.tree)) list.add(e);
+			}
+		});
+		File file = new File();
+		file._source = "Fig and Mangrove positions on Galatea from Skyblock21 by sme6en (LGPL-3.0); further trees learned with Foraging Planner.";
+		file.dataVersion = dataVersion + 1;
+		file.islands = all;
+		return new com.google.gson.GsonBuilder().setPrettyPrinting().create().toJson(file);
+	}
+
+	/** Trees learned while playing, per island. */
+	static Map<String, Integer> learnedCounts() {
+		Map<String, Integer> out = new java.util.TreeMap<>();
+		learned().forEach((k, v) -> out.put(k, v.size()));
+		return out;
 	}
 
 	/** Adds a spot for every known tree near the player that the tracker does not have yet. */

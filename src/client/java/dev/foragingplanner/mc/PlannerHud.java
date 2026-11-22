@@ -218,6 +218,10 @@ public final class PlannerHud {
 		if (guess != null) {
 			String name = guess.bracket() == null ? "-" : bracketCode(guess.bracket().name) + guess.bracket().name;
 			built.add(Planner.tr("hud.contest_forecast", name, Planner.whole(guess.low()), Planner.whole(guess.high())));
+			String ticket = guess.bracket() == null ? null : ticketFor(guess.bracket().name);
+			if (ticket != null && ContestTracker.host().toLowerCase(java.util.Locale.ROOT).contains("miria")) {
+				built.add(Planner.tr("hud.contest_ticket", ticket));
+			}
 			StringBuilder odds = new StringBuilder();
 			if (guess.bracket() != null && guess.keepChance() < 0.85) {
 				odds.append(Planner.tr("hud.contest_forecast_keep", guess.bracket().name, percent(guess.keepChance())));
@@ -568,6 +572,17 @@ public final class PlannerHud {
 			g.text(font, fit(font, line, w - 2 * PAD), PAD, lineY, alpha(0xFFFFFFFF, a), ts());
 			lineY += font.lineHeight + LINE_GAP;
 		}
+	}
+
+	/** Safari Ticket that Miria gives for a bracket (UNCOMMON Basic ... LEGENDARY and up First-Class). */
+	static String ticketFor(String bracket) {
+		return switch (bracket) {
+			case "UNCOMMON" -> "§aBasic";
+			case "RARE" -> "§9Economy";
+			case "EPIC" -> "§5Premium";
+			case "COMMON" -> null;
+			default -> "§6First-Class";
+		};
 	}
 
 	private static String bracketCode(String bracket) {

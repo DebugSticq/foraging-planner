@@ -27,11 +27,35 @@ public final class DataUpdater {
 		return status;
 	}
 
+	private static final String TREES_URL = "https://raw.githubusercontent.com/debugsticq/foraging-planner/main/src/client/resources/foragingplanner/tree_positions.json";
+
+	/** Downloads tree_positions.json and keeps it when its dataVersion is higher than the list in use. */
+	private static void startTrees() {
+		HttpRequest request = HttpRequest.newBuilder(URI.create(TREES_URL)).timeout(Duration.ofSeconds(20))
+				.header("User-Agent", "ForagingPlanner/" + ModVersion.get()).GET().build();
+		HTTP.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
+			if (response.statusCode() != 200) return;
+			try {
+				com.google.gson.JsonObject json = com.google.gson.JsonParser.parseString(response.body()).getAsJsonObject();
+				int version = json.has("dataVersion") ? json.get("dataVersion").getAsInt() : 0;
+				if (!json.has("islands") || version <= KnownTrees.dataVersion()) return;
+				Path file = ModConfig.directory().resolve("remote").resolve("tree_positions.json");
+				Files.createDirectories(file.getParent());
+				Files.writeString(file, response.body());
+				Planner.LOGGER.info("[FP] Using downloaded tree positions version {}", version);
+				net.minecraft.client.Minecraft.getInstance().execute(KnownTrees::reloadBundled);
+			} catch (Exception e) {
+				Planner.LOGGER.warn("[FP] Could not use the downloaded tree positions", e);
+			}
+		}).exceptionally(error -> null);
+	}
+
 	public static void start() {
 		if (!Planner.config.remoteData) {
 			status = "off";
 			return;
 		}
+		startTrees();
 		HttpRequest request = HttpRequest.newBuilder(URI.create(URL)).timeout(Duration.ofSeconds(20))
 				.header("User-Agent", "ForagingPlanner/" + ModVersion.get()).GET().build();
 		HTTP.sendAsync(request, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {

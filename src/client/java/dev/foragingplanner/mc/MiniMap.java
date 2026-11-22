@@ -14,7 +14,10 @@ import net.minecraft.world.phys.Vec3;
 
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 
-/** A small north-up map of the trees around the player, the active route and marked mobs. N enlarges it. */
+/**
+ * A small north-up map in a corner of the screen, with the real terrain (see {@link WorldMap}), trees,
+ * places, the route and marked mobs. N opens the full screen map.
+ */
 public final class MiniMap {
 	private static KeyMapping key;
 	private static boolean big;
@@ -27,7 +30,15 @@ public final class MiniMap {
 	}
 
 	public static void keys() {
-		if (key != null) while (key.consumeClick()) big = !big;
+		if (key == null) return;
+		while (key.consumeClick()) {
+			var client = Minecraft.getInstance();
+			if (client.player != null && client.gui.screen() == null) MapScreen.open();
+		}
+	}
+
+	static boolean isMapKey(net.minecraft.client.input.KeyEvent event) {
+		return key != null && key.matches(event);
 	}
 
 	public static void extract(GuiGraphicsExtractor g) {
@@ -50,53 +61,20 @@ public final class MiniMap {
 		int cx = x + size / 2, cy = y + size / 2;
 		g.enableScissor(x + 1, y + 1, x + size - 1, y + size - 1);
 
-		// Grid every 20 blocks, so distances can be judged.
-		for (double gx = Math.floor((me.x - range) / 20) * 20; gx <= me.x + range; gx += 20) {
-			int px = cx + (int) Math.round((gx - me.x) * scale);
-			g.fill(px, y, px + 1, y + size, 0x14FFFFFF);
-		}
-		for (double gz = Math.floor((me.z - range) / 20) * 20; gz <= me.z + range; gz += 20) {
-			int pz = cy + (int) Math.round((gz - me.z) * scale);
-			g.fill(x, pz, x + size, pz + 1, 0x14FFFFFF);
-		}
-
-		// Route
-		Routes.Route route = Routes.recording() != null ? Routes.recording() : Routes.active();
-		if (route != null && route.points.size() > 1) {
-			for (int i = 0; i < route.points.size() - (route.loop ? 0 : 1); i++) {
-				Vec3 a = route.points.get(i).pos(), b = route.points.get((i + 1) % route.points.size()).pos();
-				line(g, cx + (a.x - me.x) * scale, cy + (a.z - me.z) * scale, cx + (b.x - me.x) * scale, cy + (b.z - me.z) * scale, 0xAA86BD6E);
+		// Real terrain, with a light grid every 20 blocks where nothing is mapped yet.
+		if (Planner.config.worldMap && WorldMap.hasTiles()) {
+			WorldMap.draw(g, me.x, me.z, cx, cy, scale, x, y, x + size, y + size);
+		} else {
+			for (double gx = Math.floor((me.x - range) / 20) * 20; gx <= me.x + range; gx += 20) {
+				int px = cx + (int) Math.round((gx - me.x) * scale);
+				g.fill(px, y, px + 1, y + size, 0x14FFFFFF);
 			}
-			Routes.Point next = route.points.get(Math.floorMod(Routes.target(), route.points.size()));
-			dot(g, cx + (next.pos().x - me.x) * scale, cy + (next.pos().z - me.z) * scale, 3, 0xFFFFFFFF);
+			for (double gz = Math.floor((me.z - range) / 20) * 20; gz <= me.z + range; gz += 20) {
+				int pz = cy + (int) Math.round((gz - me.z) * scale);
+				g.fill(x, pz, x + size, pz + 1, 0x14FFFFFF);
+			}
 		}
-
-		// Trees
-		TreeTracker.Spot best = TreeChoice.best();
-		for (TreeTracker.Spot spot : TreeTracker.spots()) {
-			double px = cx + (spot.cx - me.x) * scale, pz = cy + (spot.cz - me.z) * scale;
-			int color = switch (spot.state) {
-				case READY -> 0xFF8CD58B;
-				case CUTTING -> UI_AMBER;
-				default -> 0xFF6E7672;
-			};
-			dot(g, px, pz, spot == best ? 4 : 2, spot == best ? 0xFFFFD34D : color);
-		}
-
-		// Marked mobs and critters
-		for (Extras.Mark mark : Extras.marks()) dot(g, cx + (mark.pos().x - me.x) * scale, cy + (mark.pos().z - me.z) * scale, 2, mark.color());
-		if (Safari.inside()) {
-			for (Safari.Mark mark : Safari.marks()) dot(g, cx + (mark.pos().x - me.x) * scale, cy + (mark.pos().z - me.z) * scale, mark.alert() ? 3 : 1, mark.color());
-			Bells.drawMap(g, cx, cy, scale, me);
-		}
-
-		// The player: an arrow pointing where they look.
-		var pose = g.pose();
-		pose.pushMatrix();
-		pose.translate(cx, cy);
-		pose.rotate((float) Math.toRadians(client.player.getYRot() + 180));
-		for (int i = 0; i < 6; i++) g.fill(-i / 2 - 1, -4 + i, i / 2 + 1, -3 + i, 0xFFFFFFFF);
-		pose.popMatrix();
+		MapMarkers.draw(g, me.x, me.z, cx, cy, scale, false);
 		g.disableScissor();
 
 		g.text(client.font, "N", cx - 2, y + 3, 0xAAFFFFFF, true);
