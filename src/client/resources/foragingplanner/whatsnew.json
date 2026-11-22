@@ -23,6 +23,24 @@
       "open": "setting:honey_helix",
       "de": "Honig-Helfer und Wüstentempel-Lösung",
       "en": "Honey helper and Desert Temple solution"
+    },
+    {
+      "icon": "prismarine_shard",
+      "open": "gear",
+      "de": "Shard-Fusion-Planer: günstigster Weg zu jedem Shard (/fp fusion, Shift-Klick auf einen Shard)",
+      "en": "Shard fusion planner: cheapest way to any shard (/fp fusion, shift-click a shard)"
+    },
+    {
+      "icon": "glass",
+      "open": "setting:no_fog",
+      "de": "Kein Nebel, klares Wasser und Hotspot-Text ausblenden",
+      "en": "No fog, clear water and hidden hotspot text"
+    },
+    {
+      "icon": "clock",
+      "open": "setting:beacon_timer",
+      "de": "Beacon-Timer im HUD: wann der Moonglade Beacon wieder bereit ist",
+      "en": "Beacon timer in the HUD: when the Moonglade Beacon is ready again"
     }
   ],
   "1.0.9": [

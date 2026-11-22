@@ -10,7 +10,9 @@
     "DisplayAccessor",
     "GameModeMixin",
     "ItemModelMixin",
-    "ContainerScreenMixin"
+    "ContainerScreenMixin",
+    "FogMixin",
+    "WaterFogMixin"
   ],
   "injectors": {
     "defaultRequire": 1

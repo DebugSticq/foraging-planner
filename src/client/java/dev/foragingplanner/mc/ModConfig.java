@@ -147,6 +147,8 @@ public final class ModConfig {
     public boolean helixColours = true;
     public boolean torrhusHighlights = true;
     public boolean desertTemple = true;
+    public boolean fusionDownload = true;
+    public boolean fusionOrders = false;
     public int mapSize = 100;
     public int mapRange = 70;
     public String mapCorner = "top_right";
@@ -185,6 +187,15 @@ public final class ModConfig {
     public boolean precisionHelper = true;
     public boolean beaconAlert = true;
     public boolean beaconSolver = true;
+    /** Shows the time until the beacon is ready in the HUD. */
+    public boolean beaconTimer = true;
+    /** Removes the fog on the foraging islands. */
+    public boolean noFog = false;
+    /** Lets you see much further under water on the foraging islands. */
+    public boolean clearWater = false;
+    /** Hides the floating text of fishing hotspots. */
+    public boolean hideHotspots = false;
+
     public boolean mutePhantoms = false;
     public boolean muteTreeBreak = false;
     public boolean preventStripping = true;

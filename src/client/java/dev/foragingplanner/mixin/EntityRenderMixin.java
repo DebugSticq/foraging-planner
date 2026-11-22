@@ -14,6 +14,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class EntityRenderMixin {
     @Inject(method = "shouldRender(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/client/renderer/culling/Frustum;DDDF)Z", at = @At("HEAD"), cancellable = true)
     private void foragingplanner$shouldRender(Entity entity, Frustum frustum, double x, double y, double z, float delta, CallbackInfoReturnable<Boolean> cir) {
-        if (CleanTrees.hide(entity)) cir.setReturnValue(false);
+        if (CleanTrees.hide(entity) || dev.foragingplanner.mc.Quiet.hide(entity)) cir.setReturnValue(false);
     }
 }

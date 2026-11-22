@@ -353,6 +353,9 @@ public final class SettingsScreen extends Screen {
 				Row advanced = new GroupRow("advanced", Items.COMPARATOR);
 				sub(advanced, () -> {
 					new ToggleRow("clean_trees", Items.FEATHER, () -> c.cleanTrees, value -> c.cleanTrees = value);
+					new ToggleRow("no_fog", Items.GLASS, () -> c.noFog, value -> c.noFog = value);
+					new ToggleRow("clear_water", Items.WATER_BUCKET, () -> c.clearWater, value -> c.clearWater = value);
+					new ToggleRow("hide_hotspots", Items.FISHING_ROD, () -> c.hideHotspots, value -> c.hideHotspots = value);
 					new ToggleRow("helix", Items.STRIPPED_BIRCH_WOOD, () -> c.helixGuide, value -> c.helixGuide = value);
 				});
 			}
@@ -364,7 +367,10 @@ public final class SettingsScreen extends Screen {
 				sub(strider, () -> new SliderRow("strider_min", Items.STRING, 1, 10, 1, "", () -> c.striderMin, value -> c.striderMin = value));
 				new ToggleRow("fall_alert", Items.BELL, () -> c.fallAlert, value -> c.fallAlert = value);
 				Row beacon = new ToggleRow("beacon_alert", Items.BEACON, () -> c.beaconAlert, value -> c.beaconAlert = value);
-				sub(beacon, () -> new ToggleRow("beacon_solver", Items.NOTE_BLOCK, () -> c.beaconSolver, value -> c.beaconSolver = value));
+				sub(beacon, () -> {
+					new ToggleRow("beacon_solver", Items.NOTE_BLOCK, () -> c.beaconSolver, value -> c.beaconSolver = value);
+					new ToggleRow("beacon_timer", Items.CLOCK, () -> c.beaconTimer, value -> c.beaconTimer = value);
+				});
 				new ToggleRow("milestones", Items.OAK_SAPLING, () -> c.milestones, value -> c.milestones = value);
 				Row protection = new GroupRow("group_protection", Items.SHIELD);
 				sub(protection, () -> {

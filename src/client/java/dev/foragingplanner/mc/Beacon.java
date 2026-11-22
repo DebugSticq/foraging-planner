@@ -29,6 +29,8 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
  */
 public final class Beacon {
 	private static final Pattern READY = Pattern.compile("Cooldown: AVAILABLE");
+	private static final Pattern COOLDOWN = Pattern.compile("Cooldown: ((?:\\d+[dhms] ?)+)");
+	private static final Pattern PART = Pattern.compile("(\\d+)([dhms])");
 	private static final Pattern COLOR = Pattern.compile("Current color: ([\\w ]+)");
 	private static final Pattern SPEED = Pattern.compile("Current speed: (\\d+)");
 	private static final Pattern PITCH = Pattern.compile("Current pitch: (\\w+)");
@@ -55,18 +57,76 @@ public final class Beacon {
 		return open;
 	}
 
-	/** Called once a second. */
+	/** Called once a second: reads the cooldown from the tab list and tells when it is over. */
 	public static void tick() {
-		if (!Planner.config.beaconAlert || !SkyBlockReader.inForagingArea()) return;
+		if (!Planner.config.beaconAlert) return;
 		long now = System.currentTimeMillis();
-		if (now - lastAlert < 9 * 60_000L) return;
-		for (String line : SkyBlockReader.tab()) {
-			if (READY.matcher(Planner.strip(line)).find()) {
+		if (SkyBlockReader.inForagingArea()) readTab(now);
+		Progress p = Progress.get();
+		if (p.beaconReadyAt > 0 && now >= p.beaconReadyAt && !p.beaconAlerted) {
+			p.beaconAlerted = true;
+			Progress.save(false);
+			if (now - lastAlert > 60_000L) {
 				lastAlert = now;
 				Toasts.show(Toasts.Kind.INFO, "beacon", Planner.tr("beacon.ready"), Planner.tr("beacon.ready_text"));
+			}
+		}
+	}
+
+	private static void readTab(long now) {
+		Progress p = Progress.get();
+		for (String raw : SkyBlockReader.tab()) {
+			String line = Planner.strip(raw);
+			if (READY.matcher(line).find()) {
+				if (p.beaconReadyAt == 0 || p.beaconReadyAt > now) {
+					// Ready without a timer we saw run out: tell once now.
+					p.beaconReadyAt = now;
+					Progress.save(false);
+				}
+				return;
+			}
+			Matcher m = COOLDOWN.matcher(line);
+			if (m.find()) {
+				long left = duration(m.group(1));
+				if (left <= 0) return;
+				long at = now + left;
+				// The tab shows whole minutes or seconds: only move the time when it is clearly off.
+				if (Math.abs(at - p.beaconReadyAt) > 61_000L) {
+					p.beaconReadyAt = at;
+					p.beaconAlerted = false;
+					Progress.save(false);
+				}
 				return;
 			}
 		}
+	}
+
+	/** "1h 5m", "12m 3s" or "40s" in milliseconds. */
+	static long duration(String text) {
+		long ms = 0;
+		Matcher m = PART.matcher(text);
+		while (m.find()) {
+			long n = Long.parseLong(m.group(1));
+			ms += switch (m.group(2)) {
+				case "d" -> n * 86_400_000L;
+				case "h" -> n * 3_600_000L;
+				case "m" -> n * 60_000L;
+				default -> n * 1_000L;
+			};
+		}
+		return ms;
+	}
+
+	/** HUD line with the time left, or nothing when the time is unknown. */
+	public static List<String> lines() {
+		if (!Planner.config.beaconAlert || !Planner.config.beaconTimer) return List.of();
+		long at = Progress.get().beaconReadyAt;
+		if (at <= 0) return List.of();
+		long left = at - System.currentTimeMillis();
+		if (left <= 0) return List.of(Planner.tr("beacon.hud_ready"));
+		long s = left / 1000;
+		String time = s >= 3600 ? (s / 3600) + "h " + (s % 3600 / 60) + "m" : s >= 60 ? (s / 60) + "m " + (s % 60) + "s" : s + "s";
+		return List.of(Planner.tr("beacon.hud_left", time));
 	}
 
 	public static void register() {

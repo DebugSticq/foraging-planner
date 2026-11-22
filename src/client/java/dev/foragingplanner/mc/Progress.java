@@ -77,6 +77,9 @@ public final class Progress {
 	public Map<String, Long> sackCounts = new LinkedHashMap<>();
 	/** Day (epoch day) on which the free Basic Safari Ticket of the Free Trial perk was received. */
 	public long freeTicketDay = -1;
+	/** When the Moonglade Beacon can be tuned again (ms), 0 when unknown. */
+	public long beaconReadyAt;
+	public boolean beaconAlerted;
 	/** Items dropped on Torrhus Canyon ("RARE DROP!" and similar), by name. */
 	public Map<String, Long> torrhusDrops = new LinkedHashMap<>();
 	/** Time spent on Torrhus Canyon since the drop counts were reset, in seconds. */

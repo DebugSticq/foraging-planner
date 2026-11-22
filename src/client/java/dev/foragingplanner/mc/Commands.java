@@ -96,6 +96,13 @@ public final class Commands {
                 .then(ClientCommands.literal("undo").executes(context -> { say(context.getSource(), SettingsShare.undo() ? "share.undone" : "share.no_backup"); return SUCCESS; })));
         root.then(ClientCommands.literal("safari").executes(context -> { Safari.history(context.getSource()::sendFeedback); return SUCCESS; }));
         root.then(ClientCommands.literal("map").executes(context -> { Keys.openLater(MapScreen::new); return SUCCESS; }));
+        root.then(ClientCommands.literal("fusion")
+                .executes(context -> { Keys.openLater(() -> FusionScreen.forShard(null, "", 1)); return SUCCESS; })
+                .then(ClientCommands.argument("shard", StringArgumentType.greedyString()).executes(context -> {
+                    String shard = StringArgumentType.getString(context, "shard");
+                    Keys.openLater(() -> FusionScreen.forShard(null, shard, 1));
+                    return SUCCESS;
+                })));
         root.then(ClientCommands.literal("torrhus").executes(context -> { Keys.openLater(() -> new TorrhusScreen(null)); return SUCCESS; }));
         root.then(ClientCommands.literal("trees").then(ClientCommands.literal("export").executes(context -> {
             net.minecraft.client.Minecraft.getInstance().keyboardHandler.setClipboard(KnownTrees.exportJson());
@@ -128,13 +135,6 @@ public final class Commands {
         root.then(ClientCommands.literal("setup").executes(context -> { SettingsScreen.requestSetup(); return SUCCESS; }));
         root.then(ClientCommands.literal("top").executes(context -> { StatsScreen.requestOpen(11); return SUCCESS; }));
         root.then(ClientCommands.literal("chapters").executes(context -> { StatsScreen.requestOpen(10); return SUCCESS; }));
-        root.then(ClientCommands.literal("fusion").executes(context -> {
-            context.getSource().sendFeedback(net.minecraft.network.chat.Component.literal("§a[FP] §7" + Planner.tr("fusion.link") + " ")
-                    .append(net.minecraft.network.chat.Component.literal("§b§nskyshards.com").withStyle(style -> style
-                            .withClickEvent(new net.minecraft.network.chat.ClickEvent.OpenUrl(java.net.URI.create("https://skyshards.com/")))
-                            .withHoverEvent(new net.minecraft.network.chat.HoverEvent.ShowText(net.minecraft.network.chat.Component.literal("https://skyshards.com/"))))));
-            return SUCCESS;
-        }));
         root.then(ClientCommands.literal("ghost").then(ClientCommands.literal("reset").executes(context -> {
             Routes.Route route = Routes.active();
             if (route != null) Routes.resetGhost(route);

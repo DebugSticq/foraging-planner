@@ -137,6 +137,7 @@ public final class PlannerHud {
 		modules.put("levels", levels);
 		List<String> gather = new ArrayList<>(SkyBlockReader.inForagingArea() ? Extras.gatherLines() : List.of());
 		gather.addAll(Vendors.lines());
+		if (SkyBlockReader.inSkyBlock()) gather.addAll(Beacon.lines());
 		modules.put("gather", gather);
 		modules.put("safari", SkyBlockReader.inSkyBlock() ? Safari.lines() : List.of());
 

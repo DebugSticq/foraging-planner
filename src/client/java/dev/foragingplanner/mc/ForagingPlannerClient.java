@@ -105,6 +105,7 @@ public final class ForagingPlannerClient implements ClientModInitializer {
 				ContestAlerts.tick();
 				Watchers.tick();
 				Beacon.tick();
+				Quiet.tick(client);
 				Levels.tick();
 				Afk.tick(client);
 				Leaderboard.tick();

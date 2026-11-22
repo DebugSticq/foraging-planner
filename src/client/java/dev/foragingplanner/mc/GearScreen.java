@@ -917,7 +917,10 @@ public final class GearScreen extends Screen {
 						// Left click buys what the next level needs, right click everything up to level 10.
 						ShardAdvisor.Plan sp = shardPlans.get(i);
 						long amount = event.button() == InputConstants.MOUSE_BUTTON_RIGHT ? sp.toMax() : sp.toNext();
-						if (!sp.done() && amount > 0) search("/bz " + sp.shard().name + " Shard", amount);
+						if (event.hasShiftDown()) {
+							// Shift-click: cheapest way by fusing, for the same amount.
+							minecraft.gui.setScreen(FusionScreen.forShard(this, sp.shard().name, Math.max(1, amount)));
+						} else if (!sp.done() && amount > 0) search("/bz " + sp.shard().name + " Shard", amount);
 					}
 					case 5 -> search("/bz " + tips.get(i).name);
 					case 6 -> whatIfClick(i, event.button() != InputConstants.MOUSE_BUTTON_RIGHT, mx);

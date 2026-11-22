@@ -9,6 +9,10 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 ## [1.0.10] - 2026-11-22
 
 ### Added
+- **Shard fusion planner** (`/fp fusion [shard]`, or shift-click a shard in the gear menu): shows the cheapest way to get a shard, buying it or fusing it from cheaper shards, as a fusion tree and a shopping list with Bazaar prices (instant buy or buy order). Click a row to search it in the Bazaar. Recipes from [SkyShards](https://skyshards.com/) (MIT), updated every 3 days.
+- **No fog** and **clear water** on the foraging islands (settings, "Advanced" group next to the clean tree view).
+- **Hide hotspot text**: hides the floating text of fishing hotspots on the foraging islands.
+- **Beacon timer**: the HUD shows how long until the Moonglade Beacon can be tuned again (read from the tab list), and you get a message when it is ready, also on other islands.
 - **Real map**: Galatea and Torrhus Canyon are drawn like a Minecraft map, from the colours of the blocks in the loaded chunks, with height shading and water depth. The map remembers where you have been (saved per island as PNG in `config/foragingplanner/maps`). The minimap shows the terrain under its markers.
 - **Whole island from the start**: the mod comes with a full map of Galatea and Torrhus Canyon, so the whole island is on the map right away; your own exploration is drawn over it and keeps it up to date. (Hypixel only sends the chunks near you.)
 - After switching islands, the map waits a few seconds before drawing, so the old island is not drawn onto the new one.
