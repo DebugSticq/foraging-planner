@@ -25,6 +25,7 @@ All versions of the Foraging Planner mod. Versioning follows [Semantic Versionin
 - **Sweep blocks know the tree style**: aiming at a part of the tree that is not next (e.g. a Fig branch while trunk is left) halves the logs, as on Hypixel. The overlay then shows only the halved logs in red, with a warning over the log naming the part to cut first and "only X instead of Y logs".
 
 ### Fixed
+- **Updates also come from GitHub**: when Modrinth does not know the project (for example while it is still under review), the update check uses the GitHub releases of the mod. Install in one click works there too; the jar is checked against the SHA-256 that GitHub publishes.
 - The tree order label sits above the tree and stays readable through the logs, with a line down to the start log. Before, it was inside the tree and cut off by the logs.
 
 ## [1.0.9] - 2026-11-21

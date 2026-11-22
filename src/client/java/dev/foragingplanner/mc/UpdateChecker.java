@@ -31,7 +31,7 @@ import net.fabricmc.loader.api.metadata.ModOrigin;
  *
  * <p>Installing is only done when the player asks for it (a click in chat, {@code /fp update}, or the
  * "install updates automatically" setting). The new jar is downloaded next to the old one as
- * {@code <name>.jar.fpupdate}, which Fabric does not load, and checked against Modrinth's SHA-512.
+ * {@code <name>.jar.fpupdate}, which Fabric does not load, and checked against the SHA-512 from Modrinth (or the SHA-256 from GitHub).
  * When the game closes, a small helper waits for Minecraft to exit, deletes the old jar and renames
  * the new one to {@code .jar}. If anything fails, the old version simply stays.
  */
@@ -46,7 +46,11 @@ public final class UpdateChecker {
 	private static volatile String changelog;
 	private static volatile String fileUrl;
 	private static volatile String fileName;
-	private static volatile String fileSha512;
+	private static volatile String fileHash;
+	/** "SHA-512" (Modrinth) or "SHA-256" (GitHub). */
+	private static volatile String fileHashAlgorithm = "SHA-512";
+	/** Page shown by the "open" link. */
+	private static volatile String pageUrl = PAGE + "/versions";
 	private static boolean told;
 
 	/** Downloaded and checked, waiting for the game to close. */
@@ -90,7 +94,7 @@ public final class UpdateChecker {
 					.append(Component.literal(" §8· "));
 		}
 		line = line.copy().append(Component.literal("§b§n" + Planner.tr("update.open")).withStyle(style -> style
-				.withClickEvent(new ClickEvent.OpenUrl(URI.create(PAGE + "/versions")))
+				.withClickEvent(new ClickEvent.OpenUrl(URI.create(pageUrl)))
 				.withHoverEvent(new HoverEvent.ShowText(Component.literal(changelog == null || changelog.isBlank() ? PAGE : changelog)))));
 		client.player.sendSystemMessage(line);
 	}
@@ -115,7 +119,8 @@ public final class UpdateChecker {
 		HttpRequest req = request("https://api.modrinth.com/v2/project/" + PROJECT + "/version" + query).GET().build();
 		HttpClient.newHttpClient().sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
 			if (response.statusCode() != 200) {
-				Planner.LOGGER.info("[FP] Update check: Modrinth answered HTTP {}", response.statusCode());
+				Planner.LOGGER.info("[FP] Update check: Modrinth answered HTTP {}, asking GitHub", response.statusCode());
+				checkGitHub(mc);
 				return;
 			}
 			JsonArray versions = JsonParser.parseString(response.body()).getAsJsonArray();
@@ -137,7 +142,60 @@ public final class UpdateChecker {
 				break; // Modrinth lists the newest first.
 			}
 		}).exceptionally(error -> {
-			Planner.LOGGER.debug("Update check failed", error);
+			Planner.LOGGER.info("[FP] Update check: Modrinth not reachable ({}), asking GitHub", error.toString());
+			checkGitHub(mc);
+			return null;
+		});
+	}
+
+	private static final String GITHUB = "debugsticq/foraging-planner";
+
+	/**
+	 * Second source: the GitHub releases of the mod (release.bat creates one with the jar for every
+	 * version). Used when Modrinth does not know the project, e.g. while it is still under review.
+	 * The jar is checked against the SHA-256 that GitHub publishes for each file.
+	 */
+	private static void checkGitHub(String mc) {
+		HttpRequest req = request("https://api.github.com/repos/" + GITHUB + "/releases?per_page=10")
+				.header("Accept", "application/vnd.github+json").GET().build();
+		HttpClient.newHttpClient().sendAsync(req, HttpResponse.BodyHandlers.ofString()).thenAccept(response -> {
+			if (response.statusCode() != 200) {
+				Planner.LOGGER.info("[FP] Update check: GitHub answered HTTP {}", response.statusCode());
+				return;
+			}
+			String current = ModVersion.plain();
+			for (var element : JsonParser.parseString(response.body()).getAsJsonArray()) {
+				JsonObject r = element.getAsJsonObject();
+				if (r.has("draft") && r.get("draft").getAsBoolean() || r.has("prerelease") && r.get("prerelease").getAsBoolean()) continue;
+				JsonObject asset = null;
+				for (var a : r.getAsJsonArray("assets")) {
+					String name = a.getAsJsonObject().get("name").getAsString();
+					if (!name.endsWith(".jar") || name.endsWith("-sources.jar")) continue;
+					if (!mc.isEmpty() && name.contains("+") && !name.contains("+" + mc + ".jar")) continue;
+					asset = a.getAsJsonObject();
+					break;
+				}
+				if (asset == null) continue;
+				String plain = r.get("tag_name").getAsString().replaceFirst("^[vV]", "").replaceAll("[+].*$", "");
+				if (compare(plain, current) > 0) {
+					String body = r.has("body") && !r.get("body").isJsonNull() ? r.get("body").getAsString() : "";
+					changelog = body.length() > 400 ? body.substring(0, 400) + "…" : body;
+					String name = asset.get("name").getAsString();
+					if (!name.contains("/") && !name.contains("\\") && !name.contains("..")) {
+						fileName = name;
+						fileUrl = asset.get("browser_download_url").getAsString();
+						String digest = asset.has("digest") && !asset.get("digest").isJsonNull() ? asset.get("digest").getAsString() : "";
+						fileHash = digest.startsWith("sha256:") ? digest.substring(7).toLowerCase(Locale.ROOT) : null;
+						fileHashAlgorithm = "SHA-256";
+					}
+					pageUrl = r.has("html_url") ? r.get("html_url").getAsString() : "https://github.com/" + GITHUB + "/releases";
+					newer = plain;
+				}
+				Planner.LOGGER.info("[FP] Update check: newest on GitHub {}{}", plain, newer != null ? " (newer, file " + fileName + ")" : " (nothing newer)");
+				break;
+			}
+		}).exceptionally(error -> {
+			Planner.LOGGER.info("[FP] Update check: GitHub not reachable ({})", error.toString());
 			return null;
 		});
 	}
@@ -160,7 +218,9 @@ public final class UpdateChecker {
 		if (name.contains("/") || name.contains("\\") || name.contains("..")) return;
 		fileName = name;
 		fileUrl = chosen.get("url").getAsString();
-		fileSha512 = hashes.get("sha512").getAsString().toLowerCase(Locale.ROOT);
+		fileHash = hashes.get("sha512").getAsString().toLowerCase(Locale.ROOT);
+		fileHashAlgorithm = "SHA-512";
+		pageUrl = PAGE + "/versions";
 	}
 
 	/** The jar this mod was loaded from, or null in a development run. */
@@ -192,7 +252,7 @@ public final class UpdateChecker {
 			return;
 		}
 		Path jar = ownJar();
-		if (jar == null || fileUrl == null || fileName == null || fileSha512 == null) {
+		if (jar == null || fileUrl == null || fileName == null || fileHash == null) {
 			say("update.cannot");
 			return;
 		}
@@ -206,8 +266,8 @@ public final class UpdateChecker {
 				.sendAsync(req, HttpResponse.BodyHandlers.ofFile(part)).thenAccept(response -> {
 					try {
 						if (response.statusCode() != 200) throw new IllegalStateException("HTTP " + response.statusCode());
-						String hash = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-512").digest(Files.readAllBytes(part)));
-						if (!hash.equals(fileSha512)) throw new IllegalStateException("SHA-512 mismatch");
+						String hash = HexFormat.of().formatHex(MessageDigest.getInstance(fileHashAlgorithm).digest(Files.readAllBytes(part)));
+						if (!hash.equals(fileHash)) throw new IllegalStateException(fileHashAlgorithm + " mismatch");
 						Files.move(part, target, StandardCopyOption.REPLACE_EXISTING);
 						ready = target;
 						addHook();
