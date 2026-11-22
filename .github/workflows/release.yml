@@ -112,9 +112,15 @@ jobs:
               featured: true, status: "listed", project_id: $project,
               dependencies: [{project_id: "P7dR8mSH", dependency_type: "required"}],
               file_parts: ["file"], primary_file: "file"}')
-          curl -fsS -X POST "https://api.modrinth.com/v2/version" \
+          # --form-string sends the JSON as it is; with -F, curl would cut it at the first ";".
+          CODE=$(curl -sS -o response.json -w "%{http_code}" -X POST "https://api.modrinth.com/v2/version" \
             -H "Authorization: $MODRINTH_TOKEN" \
             -H "User-Agent: $UA" \
-            -F "data=$DATA" \
-            -F "file=@${{ steps.jar.outputs.path }};type=application/java-archive" \
-            | jq '{id, version_number}'
+            --form-string "data=$DATA" \
+            -F "file=@${{ steps.jar.outputs.path }};type=application/java-archive")
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Modrinth answered HTTP $CODE"
+            cat response.json
+            exit 1
+          fi
+          jq '{id, version_number}' response.json

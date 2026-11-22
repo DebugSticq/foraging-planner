@@ -1,0 +1,78 @@
+# Uploads an existing GitHub release to Modrinth, e.g. a version whose Modrinth upload failed.
+# Actions > modrinth-upload > Run workflow, then enter the tag (like v1.0.9).
+name: modrinth-upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag of the GitHub release to upload, like v1.0.9'
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout the tag
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag }}
+
+      - name: Download the jar of the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir dist
+          gh release download "${{ inputs.tag }}" --dir dist --pattern '*.jar'
+          JAR=$(ls dist/*.jar | grep -v -- '-sources\.jar$' | head -n 1)
+          [ -n "$JAR" ] || { echo "::error::The release ${{ inputs.tag }} has no jar"; exit 1; }
+          echo "JAR=$JAR" >> "$GITHUB_ENV"
+
+      - name: Upload to Modrinth
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          MODRINTH_PROJECT: ${{ vars.MODRINTH_PROJECT || 'foraging-planner' }}
+        run: |
+          [ -n "$MODRINTH_TOKEN" ] || { echo "::error::Secret MODRINTH_TOKEN is missing"; exit 1; }
+          MOD=$(grep '^mod_version=' gradle.properties | cut -d= -f2 | tr -d '\r')
+          MC=$(grep '^minecraft_version=' gradle.properties | cut -d= -f2 | tr -d '\r')
+          TYPE=release
+          case "$MOD" in *alpha*) TYPE=alpha ;; *beta*|*rc*|*pre*) TYPE=beta ;; esac
+          awk -v v="$MOD" '
+            index($0, "## [" v "]") == 1 { take = 1; next }
+            take && /^## \[/ { exit }
+            take { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' > notes.md
+          [ -s notes.md ] || echo "See CHANGELOG.md." > notes.md
+          UA="debugsticq/foraging-planner (GitHub Actions)"
+          PROJECT_ID=$(curl -sS -H "User-Agent: $UA" -H "Authorization: $MODRINTH_TOKEN" "https://api.modrinth.com/v2/project/$MODRINTH_PROJECT" | jq -r .id)
+          if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+            echo "::error::Modrinth project '$MODRINTH_PROJECT' not found."
+            exit 1
+          fi
+          DATA=$(jq -n \
+            --arg name "Foraging Planner $MOD" \
+            --arg number "$MOD+$MC" \
+            --arg mc "$MC" \
+            --arg type "$TYPE" \
+            --arg project "$PROJECT_ID" \
+            --rawfile changelog notes.md \
+            '{name: $name, version_number: $number, changelog: $changelog,
+              game_versions: [$mc], loaders: ["fabric"], version_type: $type,
+              featured: true, status: "listed", project_id: $project,
+              dependencies: [{project_id: "P7dR8mSH", dependency_type: "required"}],
+              file_parts: ["file"], primary_file: "file"}')
+          CODE=$(curl -sS -o response.json -w "%{http_code}" -X POST "https://api.modrinth.com/v2/version" \
+            -H "Authorization: $MODRINTH_TOKEN" \
+            -H "User-Agent: $UA" \
+            --form-string "data=$DATA" \
+            -F "file=@$JAR;type=application/java-archive")
+          if [ "$CODE" != "200" ]; then
+            echo "::error::Modrinth answered HTTP $CODE"
+            cat response.json
+            exit 1
+          fi
+          jq '{id, version_number}' response.json
