@@ -76,9 +76,28 @@ public final class WorldMap {
 	}
 
 	/** Called every client tick. */
+	private static Object lastLevel;
+	private static long levelSince;
+	private static String areaSeen = "";
+	private static long areaSince;
+
 	public static void tick(Minecraft client) {
 		if (!Planner.config.worldMap || client.level == null || client.player == null) return;
-		String now = islandKey();
+		long ms = System.currentTimeMillis();
+		// After a server switch the sidebar still shows the old island for a moment: wait until the new
+		// world and its island name have been the same for a few seconds before drawing anything.
+		if (client.level != lastLevel) {
+			lastLevel = client.level;
+			levelSince = ms;
+			switchIsland("");
+		}
+		String seen = islandKey();
+		if (!seen.equals(areaSeen)) {
+			areaSeen = seen;
+			areaSince = ms;
+		}
+		if (ms - levelSince < 4000 || ms - areaSince < 3000) return;
+		String now = seen;
 		if (!now.equals(island)) switchIsland(now);
 		if (island.isEmpty()) return;
 
